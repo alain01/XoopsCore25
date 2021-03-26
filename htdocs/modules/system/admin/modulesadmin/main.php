@@ -87,7 +87,7 @@ switch ($op) {
             $listed_mods[$i]['credits']       = $module->getInfo('credits');
             $listed_mods[$i]['license']       = $module->getInfo('license');
             $listed_mods[$i]['description']   = $module->getInfo('description');
-            if (round($module->getInfo('version'), 2) != $listed_mods[$i]['version']) {
+            if (round((float)$module->getInfo('version'), 2) != $listed_mods[$i]['version']) {
                 $listed_mods[$i]['warning_update'] = true;
             } else {
                 $listed_mods[$i]['warning_update'] = false;
@@ -233,7 +233,7 @@ switch ($op) {
             $newname[$mid]                = trim(XoopsFilterInput::clean($newname[$mid], 'STRING'));
             $modifs_mods[$i]['mid']       = $mid;
             $modifs_mods[$i]['oldname']   = $myts->htmlSpecialChars($myts->stripSlashesGPC($oldname[$mid]));
-            $modifs_mods[$i]['newname']   = $myts->htmlSpecialChars(trim($myts->stripslashesGPC($newname[$mid])));
+            $modifs_mods[$i]['newname']   = $myts->htmlSpecialChars(trim($myts->stripSlashesGPC($newname[$mid])));
             $modifs_mods[$i]['newstatus'] = isset($newstatus[$mid]) ? $myts->htmlSpecialChars($newstatus[$mid]) : 0;
             ++$i;
         }

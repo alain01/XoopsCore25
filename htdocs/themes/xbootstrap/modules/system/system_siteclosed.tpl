@@ -27,7 +27,7 @@
     <title><{if $xoops_dirname == "system"}><{$xoops_sitename}><{if $xoops_pagetitle !=''}> - <{$xoops_pagetitle}><{/if}><{else}><{if $xoops_pagetitle
         !=''}><{$xoops_pagetitle}> - <{$xoops_sitename}><{/if}><{/if}></title>
     <{includeq file="$theme_name/tpl/shareaholic-script.tpl"}>
-    <{$xoops_module_header}>
+    <{$xoops_module_header|default:''}>
 </head>
 <body class="site-closed-body">
 <div class="container">
@@ -40,6 +40,9 @@
 
             <div class="xoops-site-closed-container">
                 <blockquote><p class="text-muted"><{$lang_siteclosemsg}></p></blockquote>
+                <{if $redirect_message|default:false}>
+                <p class="text-warning"><{$redirect_message}></p>
+                <{/if}>
                 <form action="<{xoAppUrl user.php}>" method="post" role="form" class="form-horizontal">
 
                     <label class="control-label"><{$lang_username}></label>

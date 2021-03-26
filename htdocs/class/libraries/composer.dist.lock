@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b79067c6db7d05eca2f235c7dc6df926",
+    "content-hash": "02d764246d285feaf013073dee1968db",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -329,20 +329,20 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.22.0",
+            "version": "v1.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "c6c942b1ac76c82448322025e084cadc56048b4e"
+                "reference": "aed596913b70fae57be53d86faa2e9ef85a2297b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/c6c942b1ac76c82448322025e084cadc56048b4e",
-                "reference": "c6c942b1ac76c82448322025e084cadc56048b4e",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/aed596913b70fae57be53d86faa2e9ef85a2297b",
+                "reference": "aed596913b70fae57be53d86faa2e9ef85a2297b",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=5.3.3"
             },
             "suggest": {
                 "ext-ctype": "For best performance"
@@ -350,7 +350,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.22-dev"
+                    "dev-main": "1.19-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -388,7 +388,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.22.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.19.0"
             },
             "funding": [
                 {
@@ -404,24 +404,24 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-01-07T16:49:33+00:00"
+            "time": "2020-10-23T09:01:57+00:00"
         },
         {
             "name": "symfony/polyfill-iconv",
-            "version": "v1.22.0",
+            "version": "v1.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-iconv.git",
-                "reference": "b34bfb8c4c22650ac080d2662ae3502e5f2f4ae6"
+                "reference": "085241787d52fa6f7a774fd034135fef0cfd5496"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-iconv/zipball/b34bfb8c4c22650ac080d2662ae3502e5f2f4ae6",
-                "reference": "b34bfb8c4c22650ac080d2662ae3502e5f2f4ae6",
+                "url": "https://api.github.com/repos/symfony/polyfill-iconv/zipball/085241787d52fa6f7a774fd034135fef0cfd5496",
+                "reference": "085241787d52fa6f7a774fd034135fef0cfd5496",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=5.3.3"
             },
             "suggest": {
                 "ext-iconv": "For best performance"
@@ -429,7 +429,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.22-dev"
+                    "dev-main": "1.19-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -468,7 +468,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-iconv/tree/v1.22.0"
+                "source": "https://github.com/symfony/polyfill-iconv/tree/v1.19.0"
             },
             "funding": [
                 {
@@ -484,24 +484,24 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-01-07T16:49:33+00:00"
+            "time": "2020-10-23T09:01:57+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.22.0",
+            "version": "v1.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "f377a3dd1fde44d37b9831d68dc8dea3ffd28e13"
+                "reference": "b5f7b932ee6fa802fc792eabd77c4c88084517ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/f377a3dd1fde44d37b9831d68dc8dea3ffd28e13",
-                "reference": "f377a3dd1fde44d37b9831d68dc8dea3ffd28e13",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/b5f7b932ee6fa802fc792eabd77c4c88084517ce",
+                "reference": "b5f7b932ee6fa802fc792eabd77c4c88084517ce",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=5.3.3"
             },
             "suggest": {
                 "ext-mbstring": "For best performance"
@@ -509,7 +509,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.22-dev"
+                    "dev-main": "1.19-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -548,7 +548,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.22.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.19.0"
             },
             "funding": [
                 {
@@ -564,7 +564,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-01-07T16:49:33+00:00"
+            "time": "2020-10-23T09:01:57+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -674,16 +674,16 @@
         },
         {
             "name": "xoops/base-requires25",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/XOOPS/base-requires25.git",
-                "reference": "e25bf69c7d2ad6f04d44b6cad3aaf5a8b35cc5fc"
+                "reference": "0b6ceee06dcea1eaf0f56f0f63aa1caf75552f6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/XOOPS/base-requires25/zipball/e25bf69c7d2ad6f04d44b6cad3aaf5a8b35cc5fc",
-                "reference": "e25bf69c7d2ad6f04d44b6cad3aaf5a8b35cc5fc",
+                "url": "https://api.github.com/repos/XOOPS/base-requires25/zipball/0b6ceee06dcea1eaf0f56f0f63aa1caf75552f6e",
+                "reference": "0b6ceee06dcea1eaf0f56f0f63aa1caf75552f6e",
                 "shasum": ""
             },
             "require": {
@@ -693,7 +693,7 @@
                 "smottt/wideimage": "^1.1.4",
                 "symfony/polyfill-iconv": "^1.10.0",
                 "symfony/polyfill-mbstring": "^1.10.0",
-                "xoops/xmf": "^1.2.21"
+                "xoops/xmf": "^1.2.24"
             },
             "type": "project",
             "notification-url": "https://packagist.org/downloads/",
@@ -703,22 +703,22 @@
             "description": "Primary dependencies for XOOPS/XoopsCore25",
             "support": {
                 "issues": "https://github.com/XOOPS/base-requires25/issues",
-                "source": "https://github.com/XOOPS/base-requires25/tree/v1.0.1"
+                "source": "https://github.com/XOOPS/base-requires25/tree/v1.0.2"
             },
-            "time": "2021-02-13T23:21:03+00:00"
+            "time": "2021-03-26T02:53:01+00:00"
         },
         {
             "name": "xoops/xmf",
-            "version": "v1.2.23",
+            "version": "v1.2.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/XOOPS/xmf.git",
-                "reference": "d84ac791d39753a51eae5eaebcf990342ea9f1e2"
+                "reference": "4dcdf969f278f16f50af7bc76ec9595879c9fad8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/XOOPS/xmf/zipball/d84ac791d39753a51eae5eaebcf990342ea9f1e2",
-                "reference": "d84ac791d39753a51eae5eaebcf990342ea9f1e2",
+                "url": "https://api.github.com/repos/XOOPS/xmf/zipball/4dcdf969f278f16f50af7bc76ec9595879c9fad8",
+                "reference": "4dcdf969f278f16f50af7bc76ec9595879c9fad8",
                 "shasum": ""
             },
             "require": {
@@ -727,7 +727,7 @@
                 "paragonie/random_compat": "^2",
                 "php": ">=5.3.9",
                 "symfony/yaml": "^2.8",
-                "webmozart/assert": "^1.2"
+                "webmozart/assert": "1.9.1"
             },
             "require-dev": {
                 "phpunit/phpunit": "^7.0",
@@ -746,9 +746,9 @@
             "description": "XMF - XOOPS Module Framework",
             "support": {
                 "issues": "https://github.com/XOOPS/xmf/issues",
-                "source": "https://github.com/XOOPS/xmf/tree/v1.2.23"
+                "source": "https://github.com/XOOPS/xmf/tree/v1.2.24"
             },
-            "time": "2021-02-16T00:45:46+00:00"
+            "time": "2021-03-26T02:38:23+00:00"
         }
     ],
     "packages-dev": [],
@@ -759,5 +759,8 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
+    "platform-overrides": {
+        "php": "5.3.9"
+    },
     "plugin-api-version": "2.0.0"
 }

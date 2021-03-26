@@ -15,8 +15,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     -->
     <link href="<{$xoops_url}>/favicon.ico" rel="shortcut icon">
+
     <{include file="$theme_name/tpl/xswatchCss.tpl" assign="xswatchCss"}>
-    <link rel="stylesheet" type="text/css" href="<{$xoops_imageurl}><{$xswatchCss}>/bootstrap.min.css">
+    <{include file="$theme_name/tpl/xswatchDarkCss.tpl" assign="xswatchDarkCss"}>
+    <{if $xswatchDarkCss == ''}>
+        <link rel="stylesheet" type="text/css" href="<{$xoops_imageurl}><{$xswatchCss}>/xoops.css">
+        <link rel="stylesheet" type="text/css" href="<{$xoops_imageurl}><{$xswatchCss}>/bootstrap.min.css">
+    <{else}>
+        <link rel="stylesheet" media="(prefers-color-scheme: light)" href="<{$xoops_imageurl}><{$xswatchCss}>/xoops.css">
+        <link rel="stylesheet" media="(prefers-color-scheme: light)" href="<{$xoops_imageurl}><{$xswatchCss}>/bootstrap.min.css">
+        <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="<{$xoops_imageurl}><{$xswatchDarkCss}>/xoops.css">
+        <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="<{$xoops_imageurl}><{$xswatchDarkCss}>/bootstrap.min.css">
+    <{/if}>
+
     <link rel="stylesheet" type="text/css" href="<{xoAppUrl media/font-awesome/css/font-awesome.min.css}>">
     <link rel="stylesheet" type="text/css" media="all" href="<{$xoops_themecss}>">
     <script src="<{$xoops_url}>/browse.php?Frameworks/jquery/jquery.js"></script>
@@ -25,7 +36,7 @@
 
     <title><{if $xoops_dirname == "system"}><{$xoops_sitename}><{if $xoops_pagetitle !=''}> - <{$xoops_pagetitle}><{/if}><{else}><{if $xoops_pagetitle
         !=''}><{$xoops_pagetitle}> - <{$xoops_sitename}><{/if}><{/if}></title>
-    <{$xoops_module_header}>
+    <{$xoops_module_header|default:''}>
 </head>
 <body class="site-closed-body">
 <div class="container">
@@ -38,6 +49,9 @@
 
             <div class="xoops-site-closed-container">
                 <p class="text-muted"><{$lang_siteclosemsg}></p>
+                <{if $redirect_message|default:false}>
+                    <p class="text-warning"><{$redirect_message}></p>
+                <{/if}>
                 <form action="<{xoAppUrl user.php}>" method="post" role="form" class="form-horizontal">
                     <label for="xo-login-uname"><{$lang_username}></label>
                     <div class="input-group mb-3">
