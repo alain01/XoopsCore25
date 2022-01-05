@@ -4,9 +4,25 @@ LANGUAGE DIFFERENCES
 Below are language differences from a version to next version.
 
 ================================
-2020/02/14: Version 2.5.11-Beta1
+2021/09/02: Version 2.5.11-Betas
 ================================
+
 CHANGED FILES:
+htdocs/language/english/admin.php
+- added define('_AD_WARNING_NO_XML', 'The PHP XML Extension is required for this function.');
+
+htdocs/xoops_lib/modules/protector/language/english/admin.php
+- added define('_AM_ADMINSTATS_LAST_MONTH', 'Last Month');
+- added define('_AM_ADMINSTATS_LAST_WEEK', 'Last Week');
+- added define('_AM_ADMINSTATS_LAST_DAY', 'Last Day');
+- added define('_AM_ADMINSTATS_LAST_HOUR', 'Last Hour');
+
+htdocs/language/english/global.php
+- added define('_PRINT', 'Print');
+- added define('_PDF', 'PDF');
+- added define('_OFF', 'Off');
+- changed define('_ON', 'On'); //from 'on'
+
 htdocs/language/english/global.php
 - changed define('_SIZE', 'Size'); // font size
 - changed define('_FONT', 'Font'); // font family
