@@ -9,13 +9,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  */
 
-/* @var XoopsAvatarHandler $avt_handler */
+/** @var XoopsAvatarHandler $avt_handler */
 
 include __DIR__ . '/mainfile.php';
 
@@ -34,10 +34,10 @@ if (!is_object($xoopsUser)) {
 
 // initialize $op variable
 $op = XoopsRequest::getCmd('op', 'editprofile');
-/* @var XoopsConfigHandler $config_handler */
+/** @var XoopsConfigHandler $config_handler */
 $config_handler  = xoops_getHandler('config');
 $xoopsConfigUser = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
-$myts            = MyTextSanitizer::getInstance();
+$myts            = \MyTextSanitizer::getInstance();
 if ($op === 'saveuser') {
     if (!$GLOBALS['xoopsSecurity']->check()) {
         redirect_header('index.php', 3, _US_NOEDITRIGHT . '<br>' . implode('<br>', $GLOBALS['xoopsSecurity']->getErrors()));
@@ -46,7 +46,7 @@ if ($op === 'saveuser') {
     if (empty($uid) || $xoopsUser->getVar('uid') != $uid) {
         redirect_header('index.php', 3, _US_NOEDITRIGHT);
     }
-    $errors = array();
+    $errors = [];
     if ($xoopsConfigUser['allow_chgmail'] == 1) {
         $email = XoopsRequest::getEmail('email', '');
         if (empty($email)) {
@@ -73,7 +73,7 @@ if ($op === 'saveuser') {
         echo '</div><br>';
         $op = 'editprofile';
     } else {
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         $edituser       = $member_handler->getUser($uid);
         $edituser->setVar('name', XoopsRequest::getString('name', ''));
@@ -123,18 +123,17 @@ if ($op === 'editprofile') {
     $form->addElement($uname_label);
     $name_text = new XoopsFormText(_US_REALNAME, 'name', 30, 60, $xoopsUser->getVar('name', 'E'));
     $form->addElement($name_text);
-    $email_tray = new XoopsFormElementTray(_US_EMAIL, '<br>');
     if ($xoopsConfigUser['allow_chgmail'] == 1) {
-        $email_text = new XoopsFormText('', 'email', 30, 60, $xoopsUser->getVar('email'));
+        $email_text = new XoopsFormText(_US_EMAIL, 'email', 30, 60, $xoopsUser->getVar('email'));
+        $form->addElement($email_text, true);
     } else {
-        $email_text = new XoopsFormLabel('', $xoopsUser->getVar('email'));
+        $email_text = new XoopsFormLabel(_US_EMAIL, $xoopsUser->getVar('email'));
+        $form->addElement($email_text);
     }
-    $email_tray->addElement($email_text);
     $email_cbox_value = $xoopsUser->user_viewemail() ? 1 : 0;
     $email_cbox       = new XoopsFormCheckBox('', 'user_viewemail', $email_cbox_value);
     $email_cbox->addOption(1, _US_ALLOWVIEWEMAIL);
-    $email_tray->addElement($email_cbox);
-    $form->addElement($email_tray);
+    $form->addElement($email_cbox);
     $url_text = new XoopsFormText(_US_WEBSITE, 'url', 30, 100, $xoopsUser->getVar('url', 'E'));
     $form->addElement($url_text);
 
@@ -154,28 +153,40 @@ if ($op === 'editprofile') {
     $sig_cbox->addOption(1, _US_SHOWSIG);
     $sig_tray->addElement($sig_cbox);
     $umode_select = new XoopsFormSelect(_US_CDISPLAYMODE, 'umode', $xoopsUser->getVar('umode'));
-    $umode_select->addOptionArray(array(
-                                      'nest'   => _NESTED,
-                                      'flat'   => _FLAT,
-                                      'thread' => _THREADED));
+    $umode_select->addOptionArray(
+        [
+            'nest'   => _NESTED,
+            'flat'   => _FLAT,
+            'thread' => _THREADED,
+        ],
+    );
     $uorder_select = new XoopsFormSelect(_US_CSORTORDER, 'uorder', $xoopsUser->getVar('uorder'));
-    $uorder_select->addOptionArray(array(
-                                       XOOPS_COMMENT_OLD1ST => _OLDESTFIRST,
-                                       XOOPS_COMMENT_NEW1ST => _NEWESTFIRST));
+    $uorder_select->addOptionArray(
+        [
+            XOOPS_COMMENT_OLD1ST => _OLDESTFIRST,
+            XOOPS_COMMENT_NEW1ST => _NEWESTFIRST,
+        ],
+    );
     // RMV-NOTIFY
     // TODO: add this to admin user-edit functions...
     include_once $GLOBALS['xoops']->path('language/' . $xoopsConfig['language'] . '/notification.php');
     include_once $GLOBALS['xoops']->path('include/notification_constants.php');
     $notify_method_select = new XoopsFormSelect(_NOT_NOTIFYMETHOD, 'notify_method', $xoopsUser->getVar('notify_method'));
-    $notify_method_select->addOptionArray(array(
-                                              XOOPS_NOTIFICATION_METHOD_DISABLE => _NOT_METHOD_DISABLE,
-                                              XOOPS_NOTIFICATION_METHOD_PM      => _NOT_METHOD_PM,
-                                              XOOPS_NOTIFICATION_METHOD_EMAIL   => _NOT_METHOD_EMAIL));
+    $notify_method_select->addOptionArray(
+        [
+            XOOPS_NOTIFICATION_METHOD_DISABLE => _NOT_METHOD_DISABLE,
+            XOOPS_NOTIFICATION_METHOD_PM      => _NOT_METHOD_PM,
+            XOOPS_NOTIFICATION_METHOD_EMAIL   => _NOT_METHOD_EMAIL,
+        ],
+    );
     $notify_mode_select = new XoopsFormSelect(_NOT_NOTIFYMODE, 'notify_mode', $xoopsUser->getVar('notify_mode'));
-    $notify_mode_select->addOptionArray(array(
-                                            XOOPS_NOTIFICATION_MODE_SENDALWAYS         => _NOT_MODE_SENDALWAYS,
-                                            XOOPS_NOTIFICATION_MODE_SENDONCETHENDELETE => _NOT_MODE_SENDONCE,
-                                            XOOPS_NOTIFICATION_MODE_SENDONCETHENWAIT   => _NOT_MODE_SENDONCEPERLOGIN));
+    $notify_mode_select->addOptionArray(
+        [
+            XOOPS_NOTIFICATION_MODE_SENDALWAYS         => _NOT_MODE_SENDALWAYS,
+            XOOPS_NOTIFICATION_MODE_SENDONCETHENDELETE => _NOT_MODE_SENDONCE,
+            XOOPS_NOTIFICATION_MODE_SENDONCETHENWAIT   => _NOT_MODE_SENDONCEPERLOGIN,
+        ],
+    );
     $bio_tarea          = new XoopsFormTextArea(_US_EXTRAINFO, 'bio', $xoopsUser->getVar('bio', 'E'));
     $pwd_text           = new XoopsFormPassword('', 'password', 10, 32);
     $pwd_text2          = new XoopsFormPassword('', 'vpass', 10, 32);
@@ -208,9 +219,6 @@ if ($op === 'editprofile') {
     $form->addElement($op_hidden);
     //$form->addElement($token_hidden);
     $form->addElement($submit_button);
-    if ($xoopsConfigUser['allow_chgmail'] == 1) {
-        $form->setRequired($email_text);
-    }
     $form->display();
     include $GLOBALS['xoops']->path('footer.php');
 }
@@ -261,9 +269,9 @@ if ($op === 'avatarupload') {
     if (!$GLOBALS['xoopsSecurity']->check()) {
         redirect_header('index.php', 3, _US_NOEDITRIGHT . '<br>' . implode('<br>', $GLOBALS['xoopsSecurity']->getErrors()));
     }
-    $xoops_upload_file = array();
+    $xoops_upload_file = [];
     $uid               = 0;
-    if (!empty($_POST['xoops_upload_file']) && is_array($_POST['xoops_upload_file'])) {
+    if (!empty($_POST['xoops_upload_file']) && \is_array($_POST['xoops_upload_file'])) {
         $xoops_upload_file = $_POST['xoops_upload_file'];
     }
     if (!empty($_POST['uid'])) {
@@ -274,12 +282,13 @@ if ($op === 'avatarupload') {
     }
     if ($xoopsConfigUser['avatar_allow_upload'] == 1 && $xoopsUser->getVar('posts') >= $xoopsConfigUser['avatar_minposts']) {
         include_once $GLOBALS['xoops']->path('class/uploader.php');
-        $uploader = new XoopsMediaUploader(XOOPS_UPLOAD_PATH . '/avatars', array(
+        $uploader = new XoopsMediaUploader(XOOPS_UPLOAD_PATH . '/avatars', [
             'image/gif',
             'image/jpeg',
             'image/pjpeg',
             'image/x-png',
-            'image/png'), $xoopsConfigUser['avatar_maxsize'], $xoopsConfigUser['avatar_width'], $xoopsConfigUser['avatar_height']);
+            'image/png',
+        ], $xoopsConfigUser['avatar_maxsize'], $xoopsConfigUser['avatar_width'], $xoopsConfigUser['avatar_height']);
         if ($uploader->fetchMedia($_POST['xoops_upload_file'][0])) {
             $uploader->setPrefix('cavt');
             if ($uploader->upload()) {
@@ -305,8 +314,8 @@ if ($op === 'avatarupload') {
                             }
                         }
                     }
-                    $sql = sprintf('UPDATE %s SET user_avatar = %s WHERE uid = %u', $xoopsDB->prefix('users'), $xoopsDB->quoteString('avatars/' . $uploader->getSavedFileName()), $xoopsUser->getVar('uid'));
-                    $xoopsDB->query($sql);
+                    $sql = sprintf('UPDATE %s SET user_avatar = %s WHERE uid = %u', $xoopsDB->prefix('users'), $xoopsDB->quote('avatars/' . $uploader->getSavedFileName()), $xoopsUser->getVar('uid'));
+                    $xoopsDB->exec($sql);
                     $avt_handler->addUser($avatar->getVar('avatar_id'), $xoopsUser->getVar('uid'));
                     redirect_header('userinfo.php?t=' . time() . '&amp;uid=' . $xoopsUser->getVar('uid'), 3, _US_PROFUPDATED);
                 }
@@ -328,9 +337,10 @@ if ($op === 'avatarchoose') {
         redirect_header('index.php', 3, _US_NOEDITRIGHT);
     }
     $user_avatar = '';
+    /** @var \XoopsAvatarHandler $avt_handler */
     $avt_handler = xoops_getHandler('avatar');
     if (!empty($_POST['user_avatar'])) {
-        $user_avatar     = $myts->addSlashes(trim($_POST['user_avatar']));
+        $user_avatar     = $xoopsDB->escape(trim($_POST['user_avatar']));
         $criteria_avatar = new CriteriaCompo(new Criteria('avatar_file', $user_avatar));
         $criteria_avatar->add(new Criteria('avatar_type', 'S'));
         $avatars = $avt_handler->getObjects($criteria_avatar);
@@ -340,10 +350,10 @@ if ($op === 'avatarchoose') {
         unset($avatars, $criteria_avatar);
     }
     $user_avatarpath = realpath(XOOPS_UPLOAD_PATH . '/' . $user_avatar);
-    if (0 === strpos($user_avatarpath, realpath(XOOPS_UPLOAD_PATH)) && is_file($user_avatarpath)) {
+    if (0 === strpos($user_avatarpath, (string) realpath(XOOPS_UPLOAD_PATH)) && is_file($user_avatarpath)) {
         $oldavatar = $xoopsUser->getVar('user_avatar');
         $xoopsUser->setVar('user_avatar', $user_avatar);
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         if (!$member_handler->insertUser($xoopsUser)) {
             include $GLOBALS['xoops']->path('header.php');
@@ -357,7 +367,7 @@ if ($op === 'avatarchoose') {
             if (!empty($avatars) && count($avatars) == 1 && is_object($avatars[0])) {
                 $avt_handler->delete($avatars[0]);
                 $oldavatar_path = realpath(XOOPS_UPLOAD_PATH . '/' . $oldavatar);
-                if (0 === strpos($oldavatar_path, realpath(XOOPS_UPLOAD_PATH)) && is_file($oldavatar_path)) {
+                if (0 === strpos($oldavatar_path, (string) realpath(XOOPS_UPLOAD_PATH)) && is_file($oldavatar_path)) {
                     unlink($oldavatar_path);
                 }
             }

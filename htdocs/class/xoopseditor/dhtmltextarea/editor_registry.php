@@ -9,17 +9,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Taiwen Jiang (phppp or D.J.) <php_pp@hotmail.com>
  * @since               2.3.0
  * @package             xoopseditor
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
-return $config = array(
+return $config = [
     'class'  => 'FormDhtmlTextArea',
     'file'   => XOOPS_ROOT_PATH . '/class/xoopseditor/dhtmltextarea/dhtmltextarea.php',
     'title'  => _XOOPS_EDITOR_DHTMLTEXTAREA,
     'order'  => 2,
-    'nohtml' => 1);
+    'nohtml' => 1,
+];

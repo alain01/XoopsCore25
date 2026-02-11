@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -17,7 +17,9 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-// defined('XOOPS_ROOT_PATH') || exit("XOOPS root path not defined");
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * Get {@link XoopsThemeForm} for adding/editing fields
@@ -59,7 +61,7 @@ function profile_getFieldForm(ProfileField $field, $action = false)
         }
 
         //autotext and theme left out of this one as fields of that type should never be changed (valid assumption, I think)
-        $fieldtypes = array(
+        $fieldtypes = [
             'checkbox'     => _PROFILE_AM_CHECKBOX,
             'date'         => _PROFILE_AM_DATE,
             'datetime'     => _PROFILE_AM_DATETIME,
@@ -74,7 +76,8 @@ function profile_getFieldForm(ProfileField $field, $action = false)
             'dhtml'        => _PROFILE_AM_DHTMLTEXTAREA,
             'textbox'      => _PROFILE_AM_TEXTBOX,
             'timezone'     => _PROFILE_AM_TIMEZONE,
-            'yesno'        => _PROFILE_AM_YESNO);
+            'yesno'        => _PROFILE_AM_YESNO,
+        ];
 
         $element_select = new XoopsFormSelect(_PROFILE_AM_TYPE, 'field_type', $field->getVar('field_type', 'e'));
         $element_select->addOptionArray($fieldtypes);
@@ -83,7 +86,7 @@ function profile_getFieldForm(ProfileField $field, $action = false)
 
         switch ($field->getVar('field_type')) {
             case 'textbox':
-                $valuetypes = array(
+                $valuetypes = [
                     XOBJ_DTYPE_TXTBOX          => _PROFILE_AM_TXTBOX,
                     XOBJ_DTYPE_EMAIL           => _PROFILE_AM_EMAIL,
                     XOBJ_DTYPE_INT             => _PROFILE_AM_INT,
@@ -97,7 +100,8 @@ function profile_getFieldForm(ProfileField $field, $action = false)
                     XOBJ_DTYPE_UNICODE_TXTBOX  => _PROFILE_AM_UNICODE_TXTBOX,
                     XOBJ_DTYPE_UNICODE_TXTAREA => _PROFILE_AM_UNICODE_TXTAREA,
                     XOBJ_DTYPE_UNICODE_EMAIL   => _PROFILE_AM_UNICODE_EMAIL,
-                    XOBJ_DTYPE_UNICODE_URL     => _PROFILE_AM_UNICODE_URL);
+                    XOBJ_DTYPE_UNICODE_URL     => _PROFILE_AM_UNICODE_URL,
+                ];
 
                 $type_select = new XoopsFormSelect(_PROFILE_AM_VALUETYPE, 'field_valuetype', $field->getVar('field_valuetype', 'e'));
                 $type_select->addOptionArray($valuetypes);
@@ -106,7 +110,7 @@ function profile_getFieldForm(ProfileField $field, $action = false)
 
             case 'select':
             case 'radio':
-                $valuetypes = array(
+                $valuetypes = [
                     XOBJ_DTYPE_TXTBOX          => _PROFILE_AM_TXTBOX,
                     XOBJ_DTYPE_EMAIL           => _PROFILE_AM_EMAIL,
                     XOBJ_DTYPE_INT             => _PROFILE_AM_INT,
@@ -120,7 +124,8 @@ function profile_getFieldForm(ProfileField $field, $action = false)
                     XOBJ_DTYPE_UNICODE_TXTBOX  => _PROFILE_AM_UNICODE_TXTBOX,
                     XOBJ_DTYPE_UNICODE_TXTAREA => _PROFILE_AM_UNICODE_TXTAREA,
                     XOBJ_DTYPE_UNICODE_EMAIL   => _PROFILE_AM_UNICODE_EMAIL,
-                    XOBJ_DTYPE_UNICODE_URL     => _PROFILE_AM_UNICODE_URL);
+                    XOBJ_DTYPE_UNICODE_URL     => _PROFILE_AM_UNICODE_URL,
+                ];
 
                 $type_select = new XoopsFormSelect(_PROFILE_AM_VALUETYPE, 'field_valuetype', $field->getVar('field_valuetype', 'e'));
                 $type_select->addOptionArray($valuetypes);
@@ -233,9 +238,9 @@ function profile_getFieldForm(ProfileField $field, $action = false)
                 break;
         }
     }
-    /* @var XoopsGroupPermHandler $groupperm_handler */
+    /** @var XoopsGroupPermHandler $groupperm_handler */
     $groupperm_handler = xoops_getHandler('groupperm');
-    $searchable_types  = array(
+    $searchable_types  = [
         'textbox',
         'select',
         'radio',
@@ -243,13 +248,14 @@ function profile_getFieldForm(ProfileField $field, $action = false)
         'date',
         'datetime',
         'timezone',
-        'language');
+        'language',
+    ];
     if (in_array($field->getVar('field_type'), $searchable_types)) {
         $search_groups = $groupperm_handler->getGroupIds('profile_search', $field->getVar('field_id'), $GLOBALS['xoopsModule']->getVar('mid'));
         $form->addElement(new XoopsFormSelectGroup(_PROFILE_AM_PROF_SEARCH, 'profile_search', true, $search_groups, 5, true));
     }
     if ($field->getVar('field_edit') || $field->isNew()) {
-        $editable_groups = array();
+        $editable_groups = [];
         if (!$field->isNew()) {
             //Load groups
             $editable_groups = $groupperm_handler->getGroupIds('profile_edit', $field->getVar('field_id'), $GLOBALS['xoopsModule']->getVar('mid'));
@@ -268,7 +274,7 @@ function profile_getFieldForm(ProfileField $field, $action = false)
     $options = $field->getVar('field_options');
     if (count($options) > 0) {
         $linkText = defined('_PROFILE_AM_EDIT_OPTION_STRINGS') ? _PROFILE_AM_EDIT_OPTION_STRINGS : 'Edit Option Strings';
-        $editOptionsButton = new XoopsFormLabel('','<a href="'.$action.'&op=edit-option-strings"><i class="fa fa-fw fa-2x fa-language" aria-hidden="true"></i> ' . $linkText . '</a>');
+        $editOptionsButton = new XoopsFormLabel('', '<a href="' . $action . '&op=edit-option-strings"><i class="fa-solid fa-2x fa-language" aria-hidden="true"></i> ' . $linkText . '</a>');
         $form->addElement($editOptionsButton);
     }
 
@@ -288,7 +294,7 @@ function profile_getFieldOptionForm(ProfileField $field, $action = false)
     $form->addElement(new XoopsFormLabel(_PROFILE_AM_TITLE, $field->getVar('field_title', 'e')));
 
     $options = $field->getVar('field_options');
-    foreach($options as $name=>$value) {
+    foreach($options as $name => $value) {
         $form->addElement(new XoopsFormText($name, "field_options[$name]", 80, 255, $value));
     }
 
@@ -320,7 +326,7 @@ function profile_getRegisterForm(XoopsUser $user, $profile, $step = null)
 
     include_once $GLOBALS['xoops']->path('class/xoopsformloader.php');
     if (empty($GLOBALS['xoopsConfigUser'])) {
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler             = xoops_getHandler('config');
         $GLOBALS['xoopsConfigUser'] = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
     }
@@ -336,29 +342,31 @@ function profile_getRegisterForm(XoopsUser $user, $profile, $step = null)
     if ($step_no == 1) {
         //$uname_size = $GLOBALS['xoopsConfigUser']['maxuname'] < 35 ? $GLOBALS['xoopsConfigUser']['maxuname'] : 35;
 
-        $elements[0][] = array(
+        $elements[0][] = [
             'element'  => new XoopsFormText(_US_NICKNAME, 'uname', 35, $GLOBALS['xoopsConfigUser']['maxuname'], $user->getVar('uname', 'e')),
             'required' => true,
-			'description' => sprintf(_US_DESCRIPTIONMIN, $GLOBALS['xoopsConfigUser']['minuname']) . '<br>' . sprintf(_US_DESCRIPTIONMAX, $GLOBALS['xoopsConfigUser']['maxuname']));
+            'description' => sprintf(_US_DESCRIPTIONMIN, $GLOBALS['xoopsConfigUser']['minuname']) . '<br>' . sprintf(_US_DESCRIPTIONMAX, $GLOBALS['xoopsConfigUser']['maxuname']),
+        ];
         $weights[0][]  = 0;
 
-        $elements[0][] = array('element' => new XoopsFormText(_US_EMAIL, 'email', 35, 255, $user->getVar('email', 'e')), 'required' => true);
+        $elements[0][] = ['element' => new XoopsFormText(_US_EMAIL, 'email', 35, 255, $user->getVar('email', 'e')), 'required' => true];
         $weights[0][]  = 0;
 
-        $elements[0][] = array(
-			'element' => new XoopsFormPassword(_US_PASSWORD, 'pass', 35, 32, ''),
-			'required' => true,
-			'description' => sprintf(_US_DESCRIPTIONMIN, $GLOBALS['xoopsConfigUser']['minpass']));
+        $elements[0][] = [
+            'element' => new XoopsFormPassword(_US_PASSWORD, 'pass', 35, 32, ''),
+            'required' => true,
+            'description' => sprintf(_US_DESCRIPTIONMIN, $GLOBALS['xoopsConfigUser']['minpass']),
+        ];
         $weights[0][]  = 0;
 
-        $elements[0][] = array('element' => new XoopsFormPassword(_US_VERIFYPASS, 'vpass', 35, 32, ''), 'required' => true);
+        $elements[0][] = ['element' => new XoopsFormPassword(_US_VERIFYPASS, 'vpass', 35, 32, ''), 'required' => true];
         $weights[0][]  = 0;
     }
 
     // Dynamic fields
     $profile_handler              = xoops_getModuleHandler('profile');
     $fields                       = $profile_handler->loadFields();
-    $_SESSION['profile_required'] = array();
+    $_SESSION['profile_required'] = [];
     foreach (array_keys($fields) as $i) {
         if ($fields[$i]->getVar('step_id') == $step['step_id']) {
             $fieldinfo['element'] = $fields[$i]->getEditElement($user, $profile);
@@ -385,14 +393,14 @@ function profile_getRegisterForm(XoopsUser $user, $profile, $step = null)
         //$reg_form->insertBreak("<p>{$title}</p>{$desc}");
         //$reg_form->addElement(new XoopsFormLabel("<h2>".$title."</h2>", $desc), false);
         foreach (array_keys($elements[$k]) as $i) {
-			if (array_key_exists('description', $elements[$k][$i])){
-				$element = $elements[$k][$i]['element'];
-				$element->setDescription($elements[$k][$i]['description']);
-				$reg_form->addElement($element, $elements[$k][$i]['required']);
-				unset($element);
-			} else {
-				$reg_form->addElement($elements[$k][$i]['element'], $elements[$k][$i]['required']);
-			}
+            if (array_key_exists('description', $elements[$k][$i])) {
+                $element = $elements[$k][$i]['element'];
+                $element->setDescription($elements[$k][$i]['description']);
+                $reg_form->addElement($element, $elements[$k][$i]['required']);
+                unset($element);
+            } else {
+                $reg_form->addElement($elements[$k][$i]['element'], $elements[$k][$i]['required']);
+            }
         }
     }
     //end of Dynamic User fields
@@ -408,12 +416,12 @@ function profile_getRegisterForm(XoopsUser $user, $profile, $step = null)
     }
     global $xoopsModuleConfig;
     $useCaptchaAfterStep2 = $xoopsModuleConfig['profileCaptchaAfterStep1'];
-	
-	if ($step_no == 1) {
+
+    if ($step_no == 1) {
         $reg_form->addElement(new XoopsFormCaptcha(), true);
-    } elseif($useCaptchaAfterStep2 == 1){
-		$reg_form->addElement(new XoopsFormCaptcha(), true);
-	}
+    } elseif($useCaptchaAfterStep2 == 1) {
+        $reg_form->addElement(new XoopsFormCaptcha(), true);
+    }
 
     $reg_form->addElement(new XoopsFormHidden($next_opname, 'register'));
     $reg_form->addElement(new XoopsFormHidden('uid', $user->getVar('uid')));
@@ -432,13 +440,13 @@ function profile_getRegisterForm(XoopsUser $user, $profile, $step = null)
  *
  * @return object
  */
-function profile_getUserForm(XoopsUser $user, ProfileProfile $profile = null, $action = false)
+function profile_getUserForm(XoopsUser $user, ?ProfileProfile $profile = null, $action = false)
 {
     if ($action === false) {
         $action = $_SERVER['REQUEST_URI'];
     }
     if (empty($GLOBALS['xoopsConfigUser'])) {
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler             = xoops_getHandler('config');
         $GLOBALS['xoopsConfigUser'] = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
     }
@@ -448,34 +456,35 @@ function profile_getUserForm(XoopsUser $user, ProfileProfile $profile = null, $a
     $title = $user->isNew() ? _PROFILE_AM_ADDUSER : _US_EDITPROFILE;
 
     $form = new XoopsThemeForm($title, 'userinfo', $action, 'post', true);
-    /* @var ProfileProfileHandler $profile_handler */
+    /** @var ProfileProfileHandler $profile_handler */
     $profile_handler = xoops_getModuleHandler('profile');
     // Dynamic fields
     if (!$profile) {
-        /* @var ProfileProfileHandler $profile_handler */
+        /** @var ProfileProfileHandler $profile_handler */
         $profile_handler = xoops_getModuleHandler('profile', 'profile');
         $profile         = $profile_handler->get($user->getVar('uid'));
     }
     // Get fields
     $fields = $profile_handler->loadFields();
     // Get ids of fields that can be edited
-    /* @var  XoopsGroupPermHandler $gperm_handler */
+    /** @var  XoopsGroupPermHandler $gperm_handler */
     $gperm_handler   = xoops_getHandler('groupperm');
     $editable_fields = $gperm_handler->getItemIds('profile_edit', $GLOBALS['xoopsUser']->getGroups(), $GLOBALS['xoopsModule']->getVar('mid'));
 
     if ($user->isNew() || $GLOBALS['xoopsUser']->isAdmin()) {
-        $elements[0][] = array(
+        $elements[0][] = [
             'element'  => new XoopsFormText(_US_NICKNAME, 'uname', 25, $GLOBALS['xoopsUser']->isAdmin() ? 60 : $GLOBALS['xoopsConfigUser']['maxuname'], $user->getVar('uname', 'e')),
-            'required' => 1);
+            'required' => 1,
+        ];
         $email_text    = new XoopsFormText('', 'email', 30, 60, $user->getVar('email'));
     } else {
-        $elements[0][] = array('element' => new XoopsFormLabel(_US_NICKNAME, $user->getVar('uname')), 'required' => 0);
+        $elements[0][] = ['element' => new XoopsFormLabel(_US_NICKNAME, $user->getVar('uname')), 'required' => 0];
         $email_text    = new XoopsFormLabel('', $user->getVar('email'));
     }
     $email_tray = new XoopsFormElementTray(_US_EMAIL, '<br>');
     $email_tray->addElement($email_text, ($user->isNew() || $GLOBALS['xoopsUser']->isAdmin()) ? 1 : 0);
     $weights[0][]  = 0;
-    $elements[0][] = array('element' => $email_tray, 'required' => 0);
+    $elements[0][] = ['element' => $email_tray, 'required' => 0];
     $weights[0][]  = 0;
 
     if ($GLOBALS['xoopsUser']->isAdmin() && $user->getVar('uid') != $GLOBALS['xoopsUser']->getVar('uid')) {
@@ -485,24 +494,24 @@ function profile_getUserForm(XoopsUser $user, ProfileProfile $profile = null, $a
         $pwd_tray  = new XoopsFormElementTray(_US_PASSWORD . '<br>' . _US_TYPEPASSTWICE);
         $pwd_tray->addElement($pwd_text);
         $pwd_tray->addElement($pwd_text2);
-        $elements[0][] = array('element' => $pwd_tray, 'required' => 0); //cannot set an element tray required
+        $elements[0][] = ['element' => $pwd_tray, 'required' => 0]; //cannot set an element tray required
         $weights[0][]  = 0;
 
-        $level_radio = new XoopsFormRadio(_PROFILE_MA_USERLEVEL, 'level', $user->getVar('level'));
+        $level_radio = new XoopsFormRadio(_PROFILE_MA_USERLEVEL, 'level', (string) $user->getVar('level'));
         $level_radio->addOption(1, _PROFILE_MA_ACTIVE);
         $level_radio->addOption(0, _PROFILE_MA_INACTIVE);
         //$level_radio->addOption(-1, _PROFILE_MA_DISABLED);
-        $elements[0][] = array('element' => $level_radio, 'required' => 0);
+        $elements[0][] = ['element' => $level_radio, 'required' => 0];
         $weights[0][]  = 0;
     }
 
-    $elements[0][] = array('element' => new XoopsFormHidden('uid', $user->getVar('uid')), 'required' => 0);
+    $elements[0][] = ['element' => new XoopsFormHidden('uid', $user->getVar('uid')), 'required' => 0];
     $weights[0][]  = 0;
-    $elements[0][] = array('element' => new XoopsFormHidden('op', 'save'), 'required' => 0);
+    $elements[0][] = ['element' => new XoopsFormHidden('op', 'save'), 'required' => 0];
     $weights[0][]  = 0;
 
     $cat_handler    = xoops_getModuleHandler('category');
-    $categories     = array();
+    $categories     = [];
     $all_categories = $cat_handler->getObjects(null, true, false);
     $count_fields   = count($fields);
 
@@ -524,23 +533,23 @@ function profile_getUserForm(XoopsUser $user, ProfileProfile $profile = null, $a
             $fieldinfo['element']  = $fields[$i]->getEditElement($user, $profile);
             $fieldinfo['required'] = $fields[$i]->getVar('field_required');
 
-            $key              = @$all_categories[$fields[$i]->getVar('cat_id')]['cat_weight'] * $count_fields + $fields[$i]->getVar('cat_id');
+            $key              = isset($all_categories[$fields[$i]->getVar('cat_id')]['cat_weight']) ? (int) ($all_categories[$fields[$i]->getVar('cat_id')]['cat_weight'] * $count_fields) + $fields[$i]->getVar('cat_id') : 0;
             $elements[$key][] = $fieldinfo;
             $weights[$key][]  = $fields[$i]->getVar('field_weight');
-            $categories[$key] = @$all_categories[$fields[$i]->getVar('cat_id')];
+            $categories[$key] = $all_categories[$fields[$i]->getVar('cat_id')] ?? null;
         }
     }
 
     if ($GLOBALS['xoopsUser'] && $GLOBALS['xoopsUser']->isAdmin()) {
         xoops_loadLanguage('admin', 'profile');
-        /* @var  XoopsGroupPermHandler $gperm_handler */
+        /** @var  XoopsGroupPermHandler $gperm_handler */
         $gperm_handler = xoops_getHandler('groupperm');
         //If user has admin rights on groups
         include_once $GLOBALS['xoops']->path('modules/system/constants.php');
         if ($gperm_handler->checkRight('system_admin', XOOPS_SYSTEM_GROUP, $GLOBALS['xoopsUser']->getGroups(), 1)) {
             //add group selection
             $group_select  = new XoopsFormSelectGroup(_US_GROUPS, 'groups', false, $user->getGroups(), 5, true);
-            $elements[0][] = array('element' => $group_select, 'required' => 0);
+            $elements[0][] = ['element' => $group_select, 'required' => 0];
             //set as latest;
             $weights[0][] = $count_fields + 1;
         }
@@ -571,13 +580,13 @@ function profile_getUserForm(XoopsUser $user, ProfileProfile $profile = null, $a
  *
  * @return object
  */
-function profile_getStepForm(ProfileRegstep $step = null, $action = false)
+function profile_getStepForm(?ProfileRegstep $step = null, $action = false)
 {
     if ($action === false) {
         $action = $_SERVER['REQUEST_URI'];
     }
     if (empty($GLOBALS['xoopsConfigUser'])) {
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler             = xoops_getHandler('config');
         $GLOBALS['xoopsConfigUser'] = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
     }

@@ -9,12 +9,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          database
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * XoopsDatabaseFactory
@@ -28,9 +30,7 @@ class XoopsDatabaseFactory
     /**
      * XoopsDatabaseFactory constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Get a reference to the only instance of database class and connects to DB
@@ -56,13 +56,13 @@ class XoopsDatabaseFactory
                 }
 
                 $xoopsPreload = XoopsPreload::getInstance();
-                $xoopsPreload->triggerEvent('core.class.database.databasefactory.connection', array(&$class));
+                $xoopsPreload->triggerEvent('core.class.database.databasefactory.connection', [&$class]);
 
                 $instance = new $class();
                 $instance->setLogger(XoopsLogger::getInstance());
                 $instance->setPrefix(XOOPS_DB_PREFIX);
                 if (!$instance->connect()) {
-                    trigger_error('notrace:Unable to connect to database', E_USER_ERROR);
+                    throw new \Exception('notrace:Unable to connect to database');
                 }
             } else {
                 trigger_error('notrace:Failed to load database of type: ' . XOOPS_DB_TYPE . ' in file: ' . __FILE__ . ' at line ' . __LINE__, E_USER_WARNING);
@@ -73,7 +73,7 @@ class XoopsDatabaseFactory
     }
 
     /**
-     * Gets a reference to the only instance of database class. Currently
+     * Gets a reference to the only instance of database class. Currently,
      * only being used within the installer.
      *
      * @static

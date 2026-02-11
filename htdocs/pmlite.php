@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.0.0
@@ -31,13 +31,13 @@ $send      = XoopsRequest::getBool('send', 0, 'GET');
 $send2     = XoopsRequest::getBool('send2', 0, 'GET');
 $to_userid = XoopsRequest::getInt('to_userid', 0, 'GET');
 $msg_id    = XoopsRequest::getInt('msg_id', 0, 'GET');
-if (empty($_GET['refresh']) && $op !== 'submit') {
+if (empty($_GET['refresh']) && 'submit' !== $op) {
     $jump = 'pmlite.php?refresh=' . time() . '';
-    if ($send == 1) {
+    if (1 == $send) {
         $jump .= '&amp;send=' . $send . '';
-    } elseif ($send2 == 1) {
+    } elseif (1 == $send2) {
         $jump .= '&amp;send2=' . $send2 . '&amp;to_userid=' . $to_userid . '';
-    } elseif ($reply == 1) {
+    } elseif (1 == $reply) {
         $jump .= '&amp;reply=' . $reply . '&amp;msg_id=' . $msg_id . '';
     } else {
     }
@@ -48,7 +48,7 @@ if (empty($_GET['refresh']) && $op !== 'submit') {
 xoops_header();
 
 $method      = XoopsRequest::getMethod();
-$safeMethods = array('GET', 'HEAD');
+$safeMethods = ['GET', 'HEAD'];
 if (!in_array($method, $safeMethods)) {
     if (!$GLOBALS['xoopsSecurity']->check()) {
         echo '<br><br><div><h4>' . _ERRORS . '</h4><br>';
@@ -59,11 +59,18 @@ if (!in_array($method, $safeMethods)) {
 }
 
 if (is_object($xoopsUser)) {
-    $myts = MyTextSanitizer::getInstance();
-    if ($op === 'submit') {
-        $res = $xoopsDB->query('SELECT COUNT(*) FROM ' . $xoopsDB->prefix('users') . ' WHERE uid=' . XoopsRequest::getInt('to_userid', 0, 'POST') . '');
-        list($count) = $xoopsDB->fetchRow($res);
-        if ($count != 1) {
+    $myts = \MyTextSanitizer::getInstance();
+    if ('submit' === $op) {
+        $sql = 'SELECT COUNT(*) FROM ' . $xoopsDB->prefix('users') . ' WHERE uid=' . XoopsRequest::getInt('to_userid', 0, 'POST') . '';
+        $result = $xoopsDB->query($sql);
+        if (!$xoopsDB->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $xoopsDB->error(),
+                E_USER_ERROR,
+            );
+        }
+        [$count] = $xoopsDB->fetchRow($result);
+        if (1 != $count) {
             echo '<br><br><div><h4>' . _PM_USERNOEXIST . '<br>';
             echo _PM_PLZTRYAGAIN . '</h4><br>';
             echo "[ <a href='javascript:history.go(-1)' title=''>" . _PM_GOBACK . '</a> ]</div>';
@@ -82,16 +89,16 @@ if (is_object($xoopsUser)) {
                 echo $pm->getHtmlErrors();
                 echo "<br><a href='javascript:history.go(-1)' title=''>" . _PM_GOBACK . '</a>';
             } else {
-                echo "<br><br><div style='text-align:center;'><h4>" . _PM_MESSAGEPOSTED . "</h4><br><a href=\"javascript:window.opener.location='" . XOOPS_URL . "/viewpmsg.php';window.close();\" title=\"\">" . _PM_CLICKHERE . "</a><br><br><a href=\"javascript:window.close();\" title=\"\">" . _PM_ORCLOSEWINDOW . '</a></div>';
+                echo "<br><br><div style='text-align:center;'><h4>" . _PM_MESSAGEPOSTED . "</h4><br><a href=\"javascript:window.opener.location='" . XOOPS_URL . "/viewpmsg.php';window.close();\" title=\"\">" . _PM_CLICKHERE . '</a><br><br><a href="javascript:window.close();" title="">' . _PM_ORCLOSEWINDOW . '</a></div>';
             }
         }
-    } elseif ($reply == 1 || $send == 1 || $send2 == 1) {
+    } elseif (1 == $reply || 1 == $send || 1 == $send2) {
         include_once $GLOBALS['xoops']->path('class/xoopsformloader.php');
 
         $subject = '';
         $message = '';
 
-        if ($reply == 1) {
+        if (1 == $reply) {
             $pm_handler = xoops_getHandler('privmessage');
             $pm         = $pm_handler->get($msg_id);
             if ($pm->getVar('to_userid') == $xoopsUser->getVar('uid')) {
@@ -105,10 +112,10 @@ if (is_object($xoopsUser)) {
             }
         }
         $pmform = new XoopsThemeForm('', 'coolsus', 'pmlite.php', 'post', true);
-        if ($reply == 1) {
+        if (1 == $reply) {
             $pmform->addElement(new XoopsFormLabel(_PM_TO, $pm_uname));
             $pmform->addElement(new XoopsFormHidden('to_userid', $pm->getVar('from_userid')));
-        } elseif ($send2 == 1) {
+        } elseif (1 == $send2) {
             $to_username = XoopsUser::getUnameFromId($to_userid);
             $pmform->addElement(new XoopsFormHidden('to_userid', $to_userid));
             $pmform->addElement(new XoopsFormLabel(_PM_TO, $to_username));
@@ -116,9 +123,9 @@ if (is_object($xoopsUser)) {
             $pmform->addElement(new XoopsFormSelectUser(_PM_TO, 'to_userid', $to_userid));
         }
 
-        if ($reply == 1) {
+        if (1 == $reply) {
             $subject = $pm->getVar('subject', 'E');
-            //TODO Fix harcoded string
+            //TODO Fix hardcoded string
             if (!preg_match('/^' . _RE . '/i', $subject)) {
                 $subject = _RE . ' ' . $subject;
             }
@@ -127,9 +134,9 @@ if (is_object($xoopsUser)) {
 
         $msg_image   = '';
         $icons_radio = new XoopsFormRadio(_MESSAGEICON, 'msg_image', $msg_image);
-        $subjectImages = array();
+        $subjectImages = [];
         foreach ($subject_icons as $name => $value) {
-            $subjectImages[$name] = '<img src="' . XOOPS_URL . '/images/subject/' . $value .'">';
+            $subjectImages[$name] = '<img src="' . XOOPS_URL . '/images/subject/' . $value . '">';
         }
         $icons_radio->addOptionArray($subjectImages);
         $pmform->addElement($icons_radio);

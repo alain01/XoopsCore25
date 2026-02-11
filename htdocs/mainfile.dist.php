@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  */
 
@@ -39,7 +39,12 @@ if (!defined('XOOPS_MAINFILE_INCLUDED')) {
     // XOOPS Virtual Path (URL)
     // Virtual path to your main XOOPS directory WITHOUT trailing slash
     // Example: define("XOOPS_URL", "http://url_to_xoops_directory");
-    define('XOOPS_URL', 'http://');
+    define('XOOPS_URL', 'https://');
+
+    // in mainfile.php - add this if it doesn't exist
+    if (!defined('XOOPS_COOKIE_DOMAIN_USE_PSL')) {
+        define('XOOPS_COOKIE_DOMAIN_USE_PSL', true);
+    }
 
     // XOOPS Cookie Domain to specify when creating cookies. May be blank (i.e. for IP address host),
     // full host from XOOPS_URL (i.e. www.example.com) or just the registered domain (i.e. example.com)
@@ -49,7 +54,7 @@ if (!defined('XOOPS_MAINFILE_INCLUDED')) {
     // Shall be handled later, don't forget!
     define('XOOPS_CHECK_PATH', 0);
     // Protect against external scripts execution if safe mode is not enabled
-    if (XOOPS_CHECK_PATH && !@ini_get('safe_mode')) {
+    if (XOOPS_CHECK_PATH) {
         if (function_exists('debug_backtrace')) {
             $xoopsScriptPath = debug_backtrace();
             if (!count($xoopsScriptPath)) {
@@ -57,7 +62,7 @@ if (!defined('XOOPS_MAINFILE_INCLUDED')) {
             }
             $xoopsScriptPath = $xoopsScriptPath[0]['file'];
         } else {
-            $xoopsScriptPath = isset($_SERVER['PATH_TRANSLATED']) ? $_SERVER['PATH_TRANSLATED'] : $_SERVER['SCRIPT_FILENAME'];
+            $xoopsScriptPath = $_SERVER['PATH_TRANSLATED'] ?? $_SERVER['SCRIPT_FILENAME'];
         }
         if (DIRECTORY_SEPARATOR !== '/') {
             // IIS6 may double the \ chars
@@ -67,6 +72,14 @@ if (!defined('XOOPS_MAINFILE_INCLUDED')) {
             exit('XOOPS path check: Script is not inside XOOPS_ROOT_PATH and cannot run.');
         }
     }
+
+    // Production: disable logging for performance
+    define('XOOPS_DB_LEGACY_LOG', false);
+    define('XOOPS_DEBUG', false);
+
+    // Development/Staging: enable to track legacy usage
+    //    define('XOOPS_DB_LEGACY_LOG', true);
+    //    define('XOOPS_DEBUG', true); // Also shows E_USER_DEPRECATED notices
 
     // Secure file
     require XOOPS_VAR_PATH . '/data/secure.php';

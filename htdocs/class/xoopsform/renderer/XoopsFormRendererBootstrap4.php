@@ -15,12 +15,11 @@
  * @package   XoopsFormRendererBootstrap4
  * @author    Tad <tad0616@gmail.com>
  * @author    Richard Griffith <richard@geekwright.com>
- * @copyright 2018-2021 XOOPS Project (https://xoops.org)
- * @license   GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright 2000-2025 XOOPS Project (https://xoops.org)
+ * @license   GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  */
 class XoopsFormRendererBootstrap4 implements XoopsFormRendererInterface
 {
-
     /**
      * Render support for XoopsFormButton
      *
@@ -110,14 +109,14 @@ class XoopsFormRendererBootstrap4 implements XoopsFormRendererInterface
 
             $ret .= '<div class="form-check form-check-inline  m-2">';
             $ret .= "<input class='form-check-input' type='" . $type . "' name='{$elementName}' id='{$elementId}{$idSuffix}' title='"
-                . htmlspecialchars(strip_tags($name), ENT_QUOTES) . "' value='"
-                . htmlspecialchars($value, ENT_QUOTES) . "'";
+                . htmlspecialchars(strip_tags($name), ENT_QUOTES | ENT_HTML5) . "' value='"
+                . htmlspecialchars($value, ENT_QUOTES | ENT_HTML5) . "'";
 
-            if (is_array($elementValue) ? in_array($value, $elementValue): $value == $elementValue) {
+            if (is_array($elementValue) ? in_array($value, $elementValue) : $value == $elementValue) {
                 $ret .= ' checked';
             }
             $ret .= $element->getExtra() . '>';
-            $ret .= '<label class="form-check-label" for="'.$elementId.$idSuffix.'">' . $name . $element->getDelimeter().'</label>';
+            $ret .= '<label class="form-check-label" for="' . $elementId . $idSuffix . '">' . $name . $element->getDelimeter() . '</label>';
             $ret .= '</div>';
         }
 
@@ -146,10 +145,10 @@ class XoopsFormRendererBootstrap4 implements XoopsFormRendererInterface
             $ret .= '<div class="' . $class . '">';
             $ret .= '<label>';
             $ret .= "<input type='" . $type . "' name='{$elementName}' id='{$elementId}{$idSuffix}' title='"
-                . htmlspecialchars(strip_tags($name), ENT_QUOTES) . "' value='"
-                . htmlspecialchars($value, ENT_QUOTES) . "'";
+                . htmlspecialchars(strip_tags($name), ENT_QUOTES | ENT_HTML5) . "' value='"
+                . htmlspecialchars($value, ENT_QUOTES | ENT_HTML5) . "'";
 
-            if (is_array($elementValue) ? in_array($value, $elementValue): $value == $elementValue) {
+            if (is_array($elementValue) ? in_array($value, $elementValue) : $value == $elementValue) {
                 $ret .= ' checked';
             }
             $ret .= $element->getExtra() . '>' . $name . $element->getDelimeter();
@@ -182,14 +181,14 @@ class XoopsFormRendererBootstrap4 implements XoopsFormRendererInterface
 
             $ret .= '<div class="form-check m-2">';
             $ret .= "<input class='form-check-input' type='" . $type . "' name='{$elementName}' id='{$elementId}{$idSuffix}' title='"
-                . htmlspecialchars(strip_tags($name), ENT_QUOTES) . "' value='"
-                . htmlspecialchars($value, ENT_QUOTES) . "'";
+                . htmlspecialchars(strip_tags($name), ENT_QUOTES | ENT_HTML5) . "' value='"
+                . htmlspecialchars($value, ENT_QUOTES | ENT_HTML5) . "'";
 
-            if (is_array($elementValue) ? in_array($value, $elementValue): $value == $elementValue) {
+            if (is_array($elementValue) ? in_array($value, $elementValue) : $value == $elementValue) {
                 $ret .= ' checked';
             }
             $ret .= $element->getExtra() . '>';
-            $ret .= '<label class="form-check-label" for="'.$elementId.$idSuffix.'">'. $name . $element->getDelimeter().'</label>';
+            $ret .= '<label class="form-check-label" for="' . $elementId . $idSuffix . '">' . $name . $element->getDelimeter() . '</label>';
             $ret .= '</div>';
         }
 
@@ -248,11 +247,11 @@ class XoopsFormRendererBootstrap4 implements XoopsFormRendererInterface
             } else {
                 $GLOBALS['xoTheme']->addScript(
                     '/class/textsanitizer/image/image.js',
-                    array('type' => 'text/javascript')
+                    ['type' => 'text/javascript'],
                 );
             }
             $button = "<button type='button' class='btn btn-primary' onclick=\"form_instantPreview('" . XOOPS_URL
-                . "', '" . $element->getName() . "','" . XOOPS_URL . "/images', " . (int)$element->doHtml . ", '"
+                . "', '" . $element->getName() . "','" . XOOPS_URL . "/images', " . (int) $element->doHtml . ", '"
                 . $GLOBALS['xoopsSecurity']->createToken() . "')\" title='" . _PREVIEW . "'>" . _PREVIEW . "</button>";
 
             $ret .= '<br>' . "<div id='" . $element->getName() . "_hidden' style='display: block;'> "
@@ -292,18 +291,18 @@ EOJS;
         $textarea_id = $element->getName();
         $code = '';
         $code .= "<div class='row'><div class='col-lg-12'>";
-        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeUrl(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERURL, ENT_QUOTES) . "\", \"" . htmlspecialchars(_ENTERWEBTITLE, ENT_QUOTES) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_URL . "'><span class='fa fa-fw fa-link' aria-hidden='true'></span></button>";
-        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeEmail(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTEREMAIL, ENT_QUOTES) . "\", \"" . htmlspecialchars(_ENTERWEBTITLE, ENT_QUOTES) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_EMAIL . "'><span class='fa fa-fw fa-envelope-o' aria-hidden='true'></span></button>";
-        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeImg(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERIMGURL, ENT_QUOTES) . "\", \"" . htmlspecialchars(_ENTERIMGPOS, ENT_QUOTES) . "\", \"" . htmlspecialchars(_IMGPOSRORL, ENT_QUOTES) . "\", \"" . htmlspecialchars(_ERRORIMGPOS, ENT_QUOTES) . "\", \"" . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_IMG . "'><span class='fa fa-fw fa-file-image-o' aria-hidden='true'></span></button>";
-        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='openWithSelfMain(\"" . XOOPS_URL . "/imagemanager.php?target={$textarea_id}\",\"imgmanager\",400,430);' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_IMAGE . "'><span class='fa fa-file-image-o' aria-hidden='true'></span><small> Manager</small></button>";
-        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='openWithSelfMain(\"" . XOOPS_URL . "/misc.php?action=showpopups&amp;type=smilies&amp;target={$textarea_id}\",\"smilies\",300,475);' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_SMILEY . "'><span class='fa fa-fw fa-smile-o' aria-hidden='true'></span></button>";
+        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeUrl(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERURL, ENT_QUOTES | ENT_HTML5) . "\", \"" . htmlspecialchars(_ENTERWEBTITLE, ENT_QUOTES | ENT_HTML5) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_URL . "'><span class='fa-solid fa-link' aria-hidden='true'></span></button>";
+        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeEmail(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTEREMAIL, ENT_QUOTES | ENT_HTML5) . "\", \"" . htmlspecialchars(_ENTERWEBTITLE, ENT_QUOTES | ENT_HTML5) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_EMAIL . "'><span class='fa-solid fa-envelope' aria-hidden='true'></span></button>";
+        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeImg(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERIMGURL, ENT_QUOTES | ENT_HTML5) . "\", \"" . htmlspecialchars(_ENTERIMGPOS, ENT_QUOTES | ENT_HTML5) . "\", \"" . htmlspecialchars(_IMGPOSRORL, ENT_QUOTES | ENT_HTML5) . "\", \"" . htmlspecialchars(_ERRORIMGPOS, ENT_QUOTES | ENT_HTML5) . "\", \"" . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES | ENT_HTML5) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_IMG . "'><span class='fa-solid fa-file-image' aria-hidden='true'></span></button>";
+        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='openWithSelfMain(\"" . XOOPS_URL . "/imagemanager.php?target={$textarea_id}\",\"imgmanager\",400,430);' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_IMAGE . "'><span class='fa-solid fa-file-image' aria-hidden='true'></span><small> Manager</small></button>";
+        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='openWithSelfMain(\"" . XOOPS_URL . "/misc.php?action=showpopups&amp;type=smilies&amp;target={$textarea_id}\",\"smilies\",300,475);' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_SMILEY . "'><span class='fa-solid fa-face-smile' aria-hidden='true'></span></button>";
 
-        $myts = MyTextSanitizer::getInstance();
+        $myts = \MyTextSanitizer::getInstance();
 
         $extensions = array_filter($myts->config['extensions']);
         foreach (array_keys($extensions) as $key) {
             $extension = $myts->loadExtension($key);
-            @list($encode, $js) = $extension->encode($textarea_id);
+            @[$encode, $js] = $extension->encode($textarea_id);
             if (empty($encode)) {
                 continue;
             }
@@ -315,12 +314,12 @@ EOJS;
                 $element->js .= $js;
             }
         }
-        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeCode(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERCODE, ENT_QUOTES) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_CODE . "'><span class='fa fa-fw fa-code' aria-hidden='true'></span></button>";
-        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeQuote(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERQUOTE, ENT_QUOTES) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_QUOTE . "'><span class='fa fa-fw fa-quote-right' aria-hidden='true'></span></button>";
+        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeCode(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERCODE, ENT_QUOTES | ENT_HTML5) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_CODE . "'><span class='fa-solid fa-code' aria-hidden='true'></span></button>";
+        $code .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsCodeQuote(\"{$textarea_id}\", \"" . htmlspecialchars(_ENTERQUOTE, ENT_QUOTES | ENT_HTML5) . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALT_QUOTE . "'><span class='fa-solid fa-quote-right' aria-hidden='true'></span></button>";
         $code .= "</div></div>";
 
         $xoopsPreload = XoopsPreload::getInstance();
-        $xoopsPreload->triggerEvent('core.class.xoopsform.formdhtmltextarea.codeicon', array(&$code));
+        $xoopsPreload->triggerEvent('core.class.xoopsform.formdhtmltextarea.codeicon', [&$code]);
 
         return $code;
     }
@@ -337,16 +336,17 @@ EOJS;
         $textarea_id = $element->getName();
         $hiddentext  = $element->_hiddenText;
 
-        $fontarray = !empty($GLOBALS['formtextdhtml_fonts']) ? $GLOBALS['formtextdhtml_fonts'] : array(
+        $fontarray = !empty($GLOBALS['formtextdhtml_fonts']) ? $GLOBALS['formtextdhtml_fonts'] : [
             'Arial',
             'Courier',
             'Georgia',
             'Helvetica',
             'Impact',
             'Verdana',
-            'Haettenschweiler');
+            'Haettenschweiler',
+        ];
 
-        $colorArray = array(
+        $colorArray = [
             'Black'  => '000000',
             'Blue'   => '38AAFF',
             'Brown'  => '987857',
@@ -358,15 +358,15 @@ EOJS;
             'Red'    => 'FF211E',
             'White'  => 'FEFEFE',
             'Yellow' => 'FFD628',
-        );
+        ];
 
         $fontStr = '<div class="row"><div class="col-lg-12"><div class="btn-group" role="toolbar">';
         $fontStr .= '<div class="btn-group">'
-            . '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" title="'. _SIZE .'"'
+            . '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" title="' . _SIZE . '"'
             . ' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'
-            . '<span class = "fa fa-text-height"></span><span class="caret"></span></button>'
+            . '<span class = "fa-solid fa-text-height"></span><span class="caret"></span></button>'
             . '<ul class="dropdown-menu">';
-            //. _SIZE . '&nbsp;&nbsp;<span class="caret"></span></button><ul class="dropdown-menu">';
+        //. _SIZE . '&nbsp;&nbsp;<span class="caret"></span></button><ul class="dropdown-menu">';
         foreach ($GLOBALS['formtextdhtml_sizes'] as $value => $name) {
             $fontStr .= '<li class="dropdown-item"><a href="javascript:xoopsSetElementAttribute(\'size\', \'' . $value . '\', \''
                 . $textarea_id . '\', \'' . $hiddentext . '\');">' . $name . '</a></li>';
@@ -374,11 +374,11 @@ EOJS;
         $fontStr .= '</ul></div>';
 
         $fontStr .= '<div class="btn-group">'
-            . '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" title="'. _FONT .'"'
+            . '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" title="' . _FONT . '"'
             . ' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'
-            . '<span class = "fa fa-font"></span><span class="caret"></span></button>'
+            . '<span class = "fa-solid fa-font"></span><span class="caret"></span></button>'
             . '<ul class="dropdown-menu">';
-            //. _FONT . '&nbsp;&nbsp;<span class="caret"></span></button><ul class="dropdown-menu">';
+        //. _FONT . '&nbsp;&nbsp;<span class="caret"></span></button><ul class="dropdown-menu">';
         foreach ($fontarray as $font) {
             $fontStr .= '<li class="dropdown-item"><a href="javascript:xoopsSetElementAttribute(\'font\', \'' . $font . '\', \''
                 . $textarea_id . '\', \'' . $hiddentext . '\');">' . $font . '</a></li>';
@@ -386,39 +386,40 @@ EOJS;
         $fontStr .= '</ul></div>';
 
         $fontStr .= '<div class="btn-group">'
-            . '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" title="'. _COLOR .'"'
+            . '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" title="' . _COLOR . '"'
             . ' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'
-            . '<span class = "fa fa-tint"></span><span class="caret"></span></button>'
+            . '<span class = "fa-solid fa-palette"></span><span class="caret"></span></button>'
             . '<ul class="dropdown-menu">';
-            //. _COLOR . '&nbsp;&nbsp;<span class="caret"></span></button><ul class="dropdown-menu">';
+        //. _COLOR . '&nbsp;&nbsp;<span class="caret"></span></button><ul class="dropdown-menu">';
         foreach ($colorArray as $color => $hex) {
             $fontStr .= '<li class="dropdown-item"><a href="javascript:xoopsSetElementAttribute(\'color\', \'' . $hex . '\', \''
                 . $textarea_id . '\', \'' . $hiddentext . '\');">'
-                . '<span style="color:#' . $hex . ';">' . $color .'</span></a></li>';
+                . '<span style="color:#' . $hex . ';">' . $color . '</span></a></li>';
         }
         $fontStr .= '</ul></div>';
         $fontStr .= '</div>';
 
         //$styleStr = "<div class='row'><div class='col-lg-12'>";
         $styleStr  = "<div class='btn-group' role='group'>";
-        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeBold(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_BOLD . "' aria-label='Left Align'><span class='fa fa-bold' aria-hidden='true'></span></button>";
-        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeItalic(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_ITALIC . "' aria-label='Left Align'><span class='fa fa-italic' aria-hidden='true'></span></button>";
-        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeUnderline(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_UNDERLINE . "' aria-label='Left Align'>" . '<span class="fa fa-underline"></span></button>';
-        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeLineThrough(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_LINETHROUGH . "' aria-label='Left Align'>" . '<span class="fa fa-strikethrough"></span></button>';
+        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeBold(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_BOLD . "' aria-label='Left Align'><span class='fa-solid fa-bold' aria-hidden='true'></span></button>";
+        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeItalic(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_ITALIC . "' aria-label='Left Align'><span class='fa-solid fa-italic' aria-hidden='true'></span></button>";
+        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeUnderline(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_UNDERLINE . "' aria-label='Left Align'>" . '<span class="fa-solid fa-underline"></span></button>';
+        $styleStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeLineThrough(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_LINETHROUGH . "' aria-label='Left Align'>" . '<span class="fa-solid fa-strikethrough"></span></button>';
         $styleStr .= "</div>";
 
         $alignStr = "<div class='btn-group' role='group'>";
-        $alignStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeLeft(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_LEFT . "' aria-label='Left Align'><span class='fa fa-align-left' aria-hidden='true'></span></button>";
-        $alignStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeCenter(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_CENTER . "' aria-label='Left Align'><span class='fa fa-align-center' aria-hidden='true'></span></button>";
-        $alignStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeRight(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_RIGHT . "' aria-label='Left Align'><span class='fa fa-align-right' aria-hidden='true'></span></button>";
+        $alignStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeLeft(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_LEFT . "' aria-label='Left Align'><span class='fa-solid fa-align-left' aria-hidden='true'></span></button>";
+        $alignStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeCenter(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_CENTER . "' aria-label='Left Align'><span class='fa-solid fa-align-center' aria-hidden='true'></span></button>";
+        $alignStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick='xoopsMakeRight(\"{$hiddentext}\", \"{$textarea_id}\");' title='" . _XOOPS_FORM_ALT_RIGHT . "' aria-label='Left Align'><span class='fa-solid fa-align-right' aria-hidden='true'></span></button>";
         $alignStr .= "</div>";
 
         $fontStr .= "&nbsp;{$styleStr}&nbsp;{$alignStr}&nbsp;\n";
 
+        $maxlength = $element->configs['maxlength'] ?? 0;
         $fontStr .= "<button type='button' class='btn btn-secondary btn-sm' onclick=\"XoopsCheckLength('"
-            . $element->getName() . "', '" . @$element->configs['maxlength'] . "', '"
+            . $element->getName() . "', '" . $maxlength . "', '"
             . _XOOPS_FORM_ALT_LENGTH . "', '" . _XOOPS_FORM_ALT_LENGTH_MAX . "');\" title='"
-            . _XOOPS_FORM_ALT_CHECKLENGTH . "'><span class='fa fa-check-square-o' aria-hidden='true'></span></button>";
+            . _XOOPS_FORM_ALT_CHECKLENGTH . "'><span class='fa-solid fa-square-check' aria-hidden='true'></span></button>";
         $fontStr .= "</div></div>";
 
         return $fontStr;
@@ -434,29 +435,31 @@ EOJS;
     public function renderFormElementTray(XoopsFormElementTray $element)
     {
         $count = 0;
-        $ret = '<span class="form-inline">';
+        $inline = (\XoopsFormElementTray::ORIENTATION_VERTICAL === $element->getOrientation());
+        $ret = '';
         foreach ($element->getElements() as $ele) {
-            if ($count > 0) {
+            if ($count > 0 && !$inline) {
                 $ret .= $element->getDelimeter();
             }
+            if ($inline) {
+                $ret .= '<span class="form-inline">';
+            }
             if ($ele->getCaption() != '') {
-                $ret .= $ele->getCaption() . '&nbsp;';
+                $ret .= '<label for="' . $ele->getName() . '" class="form-label text-sm-right">'
+                    . $ele->getCaption()
+                    . ($ele->isRequired() ? '<span class="caption-required">*</span>' : '')
+                    . '</label>&nbsp;';
+
             }
             $ret .= $ele->render() . NWLINE;
+            if ($inline) {
+                $ret .= '</span>';
+            }
             if (!$ele->isHidden()) {
                 ++$count;
             }
         }
-        /*
-        if (substr_count($ret, '<div class="form-group form-inline">') > 0) {
-            $ret = str_replace('<div class="form-group form-inline">', '', $ret);
-            $ret = str_replace('</div>', '', $ret);
-        }
-        if (substr_count($ret, '<div class="checkbox-inline">') > 0) {
-            $ret = str_replace('<div class="checkbox-inline">', '', $ret);
-        }
-        */
-        $ret .= '</span>';
+
         return $ret;
     }
 
@@ -469,11 +472,10 @@ EOJS;
      */
     public function renderFormFile(XoopsFormFile $element)
     {
-
-        return '<input type="file" class="form-control"  name="' . $element->getName()
+        return '<input type="hidden" name="MAX_FILE_SIZE" value="' . $element->getMaxFileSize() . '">'
+            . '<input type="file" class="form-control"  name="' . $element->getName()
         . '" id="' . $element->getName()
         . '" title="' . $element->getTitle() . '" ' . $element->getExtra() . '>'
-            . '<input type="hidden" name="MAX_FILE_SIZE" value="' . $element->getMaxFileSize() . '">'
             . '<input type="hidden" name="xoops_upload_file[]" id="xoops_upload_file[]" value="'
             . $element->getName() . '">';
     }
@@ -487,7 +489,7 @@ EOJS;
      */
     public function renderFormLabel(XoopsFormLabel $element)
     {
-        return '<div class="form-control-static" id="' . $element->getName() . '">' . $element->getValue() . '</div>';
+        return '<label class="col-form-label" id="' . $element->getName() . '">' . $element->getValue();
     }
 
     /**
@@ -550,7 +552,7 @@ EOJS;
             $ret .= ' name="' . $ele_name . '" id="' . $ele_name . '" title="' . $ele_title . '">';
         }
         foreach ($ele_options as $value => $name) {
-            $ret .= '<option value="' . htmlspecialchars($value, ENT_QUOTES) . '"';
+            $ret .= '<option value="' . htmlspecialchars($value, ENT_QUOTES | ENT_HTML5) . '"';
             if (count($ele_value) > 0 && in_array($value, $ele_value)) {
                 $ret .= ' selected';
             }
@@ -710,13 +712,13 @@ EOJS;
                 ');
             }
         }
-		return '<div class="input-group">'
+        return '<div class="input-group">'
             . '<input class="form-control" type="text" name="' . $ele_name . '" id="' . $ele_name
             . '" size="' . $element->getSize() . '" maxlength="' . $element->getMaxlength()
             . '" value="' . $display_value . '"' . $element->getExtra() . '>'
             . '<div class="input-group-append"><button class="btn btn-secondary" type="button"'
             . ' onclick="return showCalendar(\'' . $ele_name . '\');">'
-            . '<i class="fa fa-calendar" aria-hidden="true"></i></button>'
+            . '<i class="fa-solid fa-calendar" aria-hidden="true"></i></button>'
             . '</div>'
             . '</div>';
     }
@@ -753,7 +755,7 @@ EOJS;
             if (($caption = $element->getCaption()) != '') {
                 $ret .= '<label for="' . $element->getName() . '" class="col-xs-12 col-sm-2 col-form-label text-sm-right">'
                     . $element->getCaption()
-                    . ($element->isRequired() ? '<span class="caption-required">*</span>' : '')
+                    . ($element->isRequired() ? '<span class="xo-caption-required">*</span>' : '')
                     . '</label>';
             } else {
                 $ret .= '<div class="col-xs-12 col-sm-2"> </div>';
@@ -765,6 +767,10 @@ EOJS;
             }
             $ret .= '</div>';
             $ret .= '</div>';
+        }
+        if (count($form->getRequired()) > 0) {
+            //  Add caption marker constructed using renderer's formatting
+            $ret .= NWLINE . '<div class="col-12 mb-2"> <span class="xo-caption-required">*</span> = ' . _REQUIRED . '</div>' . NWLINE;
         }
         $ret .= $hidden;
         $ret .= '</form></div>';
@@ -785,6 +791,6 @@ EOJS;
     public function addThemeFormBreak(XoopsThemeForm $form, $extra, $class)
     {
         $class = ($class != '') ? preg_replace('/[^A-Za-z0-9\s\s_-]/i', '', $class) : '';
-        $form->addElement('<div class="col-md-12 ' . $class .'">'. $extra . '</div>');
+        $form->addElement('<div class="col-md-12 ' . $class . '">' . $extra . '</div>');
     }
 }

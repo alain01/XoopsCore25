@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2017 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
@@ -17,30 +17,37 @@
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * A group of form elements
  */
 class XoopsFormElementTray extends XoopsFormElement
 {
+    public const ORIENTATION_HORIZONTAL = 'horizontal';
+    public const ORIENTATION_VERTICAL   = 'vertical';
+
     /**
      * array of form element objects
      *
      * @var array
      * @access private
      */
-    private $_elements = array();
+    private $_elements = [];
 
     /**
      * required elements
      *
      * @var array
      */
-    public $_required = array();
+    public $_required = [];
+
+    protected $orientation;
 
     /**
-     * HTML to seperate the elements
+     * HTML to separate the elements
      *
      * @var string
      * @access private
@@ -127,7 +134,7 @@ class XoopsFormElementTray extends XoopsFormElement
         if (!$recurse) {
             return $this->_elements;
         } else {
-            $ret   = array();
+            $ret   = [];
             $count = count($this->_elements);
             for ($i = 0; $i < $count; ++$i) {
                 if (!$this->_elements[$i]->isContainer()) {
@@ -154,7 +161,49 @@ class XoopsFormElementTray extends XoopsFormElement
      */
     public function getDelimeter($encode = false)
     {
-        return $encode ? htmlspecialchars(str_replace('&nbsp;', ' ', $this->_delimeter)) : $this->_delimeter;
+        return $encode ? htmlspecialchars(str_replace('&nbsp;', ' ', $this->_delimeter), ENT_QUOTES | ENT_HTML5) : $this->_delimeter;
+    }
+
+    /**
+     * setOrientation() communicate to renderer the expected tray orientation
+     *   \XoopsFormElementTray::ORIENTATION_HORIZONTAL for across
+     *   \XoopsFormElementTray::ORIENTATION_VERTICAL for up and down
+     *
+     * If not set explicitly, a default value will be assigned on getOrientation()
+     *
+     * @param string $direction ORIENTATION constant
+     */
+    public function setOrientation($direction)
+    {
+        if ($direction !== self::ORIENTATION_VERTICAL) {
+            $direction = self::ORIENTATION_HORIZONTAL;
+        }
+        $this->orientation = $direction;
+    }
+
+    /**
+     * getOrientation() return the expected tray orientation
+     *
+     * The value will be assigned a default value if not previously set.
+     *
+     * The default logic considers the presence of an HTML br tag in _delimeter
+     * as implying ORIENTATION_VERTICAL for bc
+     *
+     * @return string either \XoopsFormElementTray::ORIENTATION_HORIZONTAL
+     *                    or \XoopsFormElementTray::ORIENTATION_VERTICAL\
+    */
+    public function getOrientation()
+    {
+        if (!isset($this->orientation)) {
+            if(false !== stripos($this->_delimeter, '<br')) {
+                $this->orientation = self::ORIENTATION_VERTICAL;
+                // strip tag as renderer should supply the relevant html
+            } else {
+                $this->orientation = self::ORIENTATION_HORIZONTAL;
+            }
+        }
+        $this->_delimeter = preg_replace('#<br ?\/?>#i', '', $this->_delimeter);
+        return $this->orientation;
     }
 
     /**

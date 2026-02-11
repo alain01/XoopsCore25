@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
@@ -21,6 +21,7 @@
 if (!function_exists('opentable')) {
     /**
      * @param string $width
+     * @deprecated
      */
     function openTable($width = '100%')
     {
@@ -30,6 +31,10 @@ if (!function_exists('opentable')) {
 }
 
 if (!function_exists('closetable')) {
+    /**
+     * @return void
+     * @deprecated
+     */
     function closeTable()
     {
         $GLOBALS['xoopsLogger']->addDeprecated("Function '" . __FUNCTION__ . "' in '" . __FILE__ . "' is deprecated, should not be used any more");
@@ -41,6 +46,7 @@ if (!function_exists('themecenterposts')) {
     /**
      * @param $title
      * @param $content
+     * @deprecated
      */
     function themecenterposts($title, $content)
     {

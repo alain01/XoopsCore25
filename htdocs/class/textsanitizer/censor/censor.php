@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          textsanitizer
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Replaces banned words in a string with their replacements or terminate current request
@@ -28,16 +30,16 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
 class MytsCensor extends MyTextSanitizerExtension
 {
     /**
-     * @param $ts
+     * @param MyTextSanitizer $myts
      * @param $text
      *
      * @return mixed|string
      */
-    public function load($ts, $text)
+    public function load($myts, $text)
     {
         static $censorConf;
         if (!isset($censorConf)) {
-            /* @var XoopsConfigHandler $config_handler */
+            /** @var XoopsConfigHandler $config_handler */
             $config_handler = xoops_getHandler('config');
             $censorConf     = $config_handler->getConfigsByCat(XOOPS_CONF_CENSOR);
             $config         = parent::loadConfig(__DIR__);
@@ -65,7 +67,8 @@ class MytsCensor extends MyTextSanitizerExtension
                     continue;
                 }
                 if (!empty($censorConf['censor_terminate'])) {
-                    trigger_error('Censor words found', E_USER_ERROR);
+                    throw new \Exception('Censor words found');
+                    // The below lines are now redundant and won't be executed.
                     $text = '';
 
                     return $text;

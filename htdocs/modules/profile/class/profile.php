@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -17,14 +17,19 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-// defined('XOOPS_ROOT_PATH') || exit("XOOPS root path not defined");
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * @package             kernel
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class ProfileProfile extends XoopsObject
 {
+    public $profile_id;
+    public $handler;
+
     /**
      * @param $fields
      */
@@ -40,7 +45,7 @@ class ProfileProfile extends XoopsObject
      */
     public function init($fields)
     {
-        if (is_array($fields) && count($fields) > 0) {
+        if (!empty($fields) && \is_array($fields)) {
             foreach (array_keys($fields) as $key) {
                 $this->initVar($key, $fields[$key]->getVar('field_valuetype'), $fields[$key]->getVar('field_default', 'n'), $fields[$key]->getVar('field_required'), $fields[$key]->getVar('field_maxlength'));
             }
@@ -50,7 +55,7 @@ class ProfileProfile extends XoopsObject
 
 /**
  * @package             kernel
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class ProfileProfileHandler extends XoopsPersistableObjectHandler
 {
@@ -63,10 +68,10 @@ class ProfileProfileHandler extends XoopsPersistableObjectHandler
      * Array of {@link XoopsProfileField} objects
      * @var array
      */
-    public $_fields = array();
+    public $_fields = [];
 
     /**
-     * @param null|XoopsDatabase $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct(XoopsDatabase $db)
     {
@@ -232,7 +237,7 @@ class ProfileProfileHandler extends XoopsPersistableObjectHandler
         if (isset($vars['options'])) {
             $field->setVar('field_options', $vars['options']);
         } else {
-            $field->setVar('field_options', array());
+            $field->setVar('field_options', []);
         }
         if ($this->insertField($field)) {
             $msg = '&nbsp;&nbsp;Field <strong>' . $vars['name'] . '</strong> added to the database';
@@ -287,13 +292,13 @@ class ProfileProfileHandler extends XoopsPersistableObjectHandler
      *
      * @return array
      */
-    public function search(CriteriaElement $criteria, $searchvars = array(), $groups = null)
+    public function search(CriteriaElement $criteria, $searchvars = [], $groups = null)
     {
         $uservars = $this->getUserVars();
 
         $searchvars_user    = array_intersect($searchvars, $uservars);
         $searchvars_profile = array_diff($searchvars, $uservars);
-        $sv                 = array('u.uid, u.uname, u.email, u.user_viewemail');
+        $sv                 = ['u.uid, u.uname, u.email, u.user_viewemail'];
         if (!empty($searchvars_user)) {
             $sv[0] .= ',u.' . implode(', u.', $searchvars_user);
         }
@@ -322,14 +327,15 @@ class ProfileProfileHandler extends XoopsPersistableObjectHandler
 
         $sql_users = $sql_select . $sql_from . $sql_clause . $sql_order;
         $result    = $this->db->query($sql_users, $limit, $start);
-
-        if (!$result) {
-            return array(array(), array(), 0);
+        if (!$this->db->isResultSet($result)) {
+            return [[], [], 0];
         }
+
         $user_handler = xoops_getHandler('user');
         $uservars     = $this->getUserVars();
-        $users        = array();
-        $profiles     = array();
+        $users        = [];
+        $profiles     = [];
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $profile = $this->create(false);
             $user    = $user_handler->create(false);
@@ -349,9 +355,15 @@ class ProfileProfileHandler extends XoopsPersistableObjectHandler
         if ((!empty($limit) && $count >= $limit) || !empty($start)) {
             $sql_count = 'SELECT COUNT(*)' . $sql_from . $sql_clause;
             $result    = $this->db->query($sql_count);
-            list($count) = $this->db->fetchRow($result);
+            if (!$this->db->isResultSet($result)) {
+                throw new \RuntimeException(
+                    \sprintf(_DB_QUERY_ERROR, $sql_count) . $this->db->error(),
+                    E_USER_ERROR,
+                );
+            }
+            [$count] = $this->db->fetchRow($result);
         }
 
-        return array($users, $profiles, (int)$count);
+        return [$users, $profiles, (int) $count];
     }
 }

@@ -9,24 +9,36 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Private Messages
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  * @package             kernel
  **/
 class XoopsPrivmessage extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $msg_id;
+    public $msg_image;
+    public $subject;
+    public $from_userid;
+    public $to_userid;
+    public $msg_time;
+    public $msg_text;
+    public $read_msg;
+
     /**
      * constructor
      **/
@@ -143,7 +155,7 @@ class XoopsPrivmessage extends XoopsObject
  * @package             kernel
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  *
  * @todo Why is this not a XoopsPersistableObjectHandler?
@@ -168,15 +180,16 @@ class XoopsPrivmessageHandler extends XoopsObjectHandler
     /**
      * Load a {@link XoopsPrivmessage} object
      * @param  int $id ID of the message
-     * @return XoopsPrivmessage
+     * @return XoopsPrivmessage|false
      **/
     public function get($id)
     {
         $pm = false;
-        $id = (int)$id;
+        $id = (int) $id;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('priv_msgs') . ' WHERE msg_id=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return $pm;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -216,9 +229,9 @@ class XoopsPrivmessageHandler extends XoopsObjectHandler
         }
         if ($pm->isNew()) {
             $msg_id = $this->db->genId('priv_msgs_msg_id_seq');
-            $sql    = sprintf('INSERT INTO %s (msg_id, msg_image, subject, from_userid, to_userid, msg_time, msg_text, read_msg) VALUES (%u, %s, %s, %u, %u, %u, %s, %u)', $this->db->prefix('priv_msgs'), $msg_id, $this->db->quoteString($msg_image), $this->db->quoteString($subject), $from_userid, $to_userid, time(), $this->db->quoteString($msg_text), 0);
+            $sql    = sprintf('INSERT INTO %s (msg_id, msg_image, subject, from_userid, to_userid, msg_time, msg_text, read_msg) VALUES (%u, %s, %s, %u, %u, %u, %s, %u)', $this->db->prefix('priv_msgs'), $msg_id, $this->db->quote($msg_image), $this->db->quote($subject), $from_userid, $to_userid, time(), $this->db->quote($msg_text), 0);
         } else {
-            $sql = sprintf('UPDATE %s SET msg_image = %s, subject = %s, from_userid = %u, to_userid = %u, msg_text = %s, read_msg = %u WHERE msg_id = %u', $this->db->prefix('priv_msgs'), $this->db->quoteString($msg_image), $this->db->quoteString($subject), $from_userid, $to_userid, $this->db->quoteString($msg_text), $read_msg, $msg_id);
+            $sql = sprintf('UPDATE %s SET msg_image = %s, subject = %s, from_userid = %u, to_userid = %u, msg_text = %s, read_msg = %u WHERE msg_id = %u', $this->db->prefix('priv_msgs'), $this->db->quote($msg_image), $this->db->quote($subject), $from_userid, $to_userid, $this->db->quote($msg_text), $read_msg, $msg_id);
         }
         $queryFunc = empty($force) ? 'query' : 'queryF';
         if (!$result = $this->db->{$queryFunc}($sql)) {
@@ -257,32 +270,37 @@ class XoopsPrivmessageHandler extends XoopsObjectHandler
      * @param  bool   $id_as_key use ID as key into the array?
      * @return array  Array of {@link XoopsPrivmessage} objects
      **/
-    public function getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT * FROM ' . $this->db->prefix('priv_msgs');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
-            $sort = !in_array($criteria->getSort(), array(
-                'msg_id',
-                'msg_time',
-                'from_userid')) ? 'msg_id' : $criteria->getSort();
+            $sort = !in_array(
+                $criteria->getSort(),
+                [
+                    'msg_id',
+                    'msg_time',
+                    'from_userid',
+                ],
+            ) ? 'msg_id' : $criteria->getSort();
             $sql .= ' ORDER BY ' . $sort . ' ' . $criteria->getOrder();
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $pm = new XoopsPrivmessage();
             $pm->assignVars($myrow);
             if (!$id_as_key) {
-                $ret[] =& $pm;
+                $ret[] = & $pm;
             } else {
-                $ret[$myrow['msg_id']] =& $pm;
+                $ret[$myrow['msg_id']] = & $pm;
             }
             unset($pm);
         }
@@ -295,18 +313,19 @@ class XoopsPrivmessageHandler extends XoopsObjectHandler
      * @param  CriteriaElement|CriteriaCompo $criteria = null     {@link CriteriaElement} object
      * @return int
      **/
-    public function getCount(CriteriaElement $criteria = null)
+    public function getCount(?CriteriaElement $criteria = null)
     {
         $sql = 'SELECT COUNT(*) FROM ' . $this->db->prefix('priv_msgs');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
         }
-        if (!$result = $this->db->query($sql)) {
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
             return 0;
         }
-        list($count) = $this->db->fetchRow($result);
+        [$count] = $this->db->fetchRow($result);
 
-        return $count;
+        return (int) $count;
     }
 
     /**
@@ -324,7 +343,7 @@ class XoopsPrivmessageHandler extends XoopsObjectHandler
         }
 
         $sql = sprintf('UPDATE %s SET read_msg = 1 WHERE msg_id = %u', $this->db->prefix('priv_msgs'), $pm->getVar('msg_id'));
-        if (!$this->db->queryF($sql)) {
+        if (!$this->db->exec($sql)) {
             return false;
         }
 

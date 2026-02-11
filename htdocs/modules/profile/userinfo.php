@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -17,10 +17,12 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
+use Xmf\Request;
+
 include __DIR__ . '/header.php';
 include_once $GLOBALS['xoops']->path('modules/system/constants.php');
 
-$uid = isset($_GET['uid']) ? (int)$_GET['uid'] : 0;
+$uid = Request::getInt('uid', 0, 'GET') ;
 if ($uid <= 0) {
     if (is_object($GLOBALS['xoopsUser'])) {
         $uid = $GLOBALS['xoopsUser']->getVar('uid');
@@ -30,9 +32,9 @@ if ($uid <= 0) {
     }
 }
 
-/* @var  XoopsGroupPermHandler $gperm_handler */
+/** @var  XoopsGroupPermHandler $gperm_handler */
 $gperm_handler = xoops_getHandler('groupperm');
-$groups        = is_object($GLOBALS['xoopsUser']) ? $GLOBALS['xoopsUser']->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
+$groups        = is_object($GLOBALS['xoopsUser']) ? $GLOBALS['xoopsUser']->getGroups() : [XOOPS_GROUP_ANONYMOUS];
 
 if (is_object($GLOBALS['xoopsUser']) && $uid == $GLOBALS['xoopsUser']->getVar('uid')) {
     //disable cache
@@ -40,7 +42,7 @@ if (is_object($GLOBALS['xoopsUser']) && $uid == $GLOBALS['xoopsUser']->getVar('u
     $GLOBALS['xoopsOption']['template_main']                                                   = 'profile_userinfo.tpl';
     include $GLOBALS['xoops']->path('header.php');
 
-    /* @var XoopsConfigHandler $config_handler */
+    /** @var XoopsConfigHandler $config_handler */
     $config_handler             = xoops_getHandler('config');
     $GLOBALS['xoopsConfigUser'] = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
 
@@ -57,9 +59,9 @@ if (is_object($GLOBALS['xoopsUser']) && $uid == $GLOBALS['xoopsUser']->getVar('u
         $GLOBALS['xoopsTpl']->assign('user_candelete', false);
     }
     $GLOBALS['xoopsTpl']->assign('user_changeemail', $GLOBALS['xoopsConfigUser']['allow_chgmail']);
-    $thisUser =& $GLOBALS['xoopsUser'];
+    $thisUser = & $GLOBALS['xoopsUser'];
 } else {
-    /* @var XoopsMemberHandler $member_handler */
+    /** @var XoopsMemberHandler $member_handler */
     $member_handler = xoops_getHandler('member');
     $thisUser       = $member_handler->getUser($uid);
 
@@ -74,19 +76,19 @@ if (is_object($GLOBALS['xoopsUser']) && $uid == $GLOBALS['xoopsUser']->getVar('u
      * Note:
      * "thisUser" refers to the user whose profile will be accessed; "xoopsUser" refers to the current user $GLOBALS['xoopsUser']
      * "Basic Groups" refer to XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS and XOOPS_GROUP_ANONYMOUS;
-     * "Non Basic Groups" refer to all other custom groups
+     * "Non-Basic Groups" refer to all other custom groups
      *
      * Admin groups: If thisUser belongs to admin groups, the xoopsUser has access if and only if one of xoopsUser's groups is allowed to access admin group; else
-     * Non basic groups: If thisUser belongs to one or more non basic groups, the xoopsUser has access if and only if one of xoopsUser's groups is allowed to allowed to any of the non basic groups; else
-     * User group: If thisUser belongs to User group only, the xoopsUser has access if and only if one of his groups is allowed to access User group
+     * Non-basic groups: If thisUser belongs to one or more non-basic groups, the xoopsUser has access if and only if one of xoopsUser's groups is allowed to access any of the non-basic groups; else
+     * User group: If thisUser belongs to User group only, the xoopsUser has access if and only if one of their groups is allowed to access User group
      *
      */
     // Redirect if current user is not allowed to access the user's profile based on group permission
-    $groups_basic             = array(XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS);
+    $groups_basic             = [XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS];
     $groups_thisUser          = $thisUser->getGroups();
     $groups_thisUser_nonbasic = array_diff($groups_thisUser, $groups_basic);
     $groups_xoopsUser         = $groups;
-    /* @var  XoopsGroupPermHandler $gperm_handler */
+    /** @var  XoopsGroupPermHandler $gperm_handler */
     $gperm_handler            = xoops_getHandler('groupperm');
     $groups_accessible        = $gperm_handler->getItemIds('profile_access', $groups_xoopsUser, $GLOBALS['xoopsModule']->getVar('mid'));
 
@@ -168,7 +170,7 @@ foreach (array_keys($fields) as $i) {
         $value = implode('<br>', array_values($value));
     }
     if ($value) {
-        $categories[$cat_id]['fields'][] = array('title' => $fields[$i]->getVar('field_title'), 'value' => $value);
+        $categories[$cat_id]['fields'][] = ['title' => $fields[$i]->getVar('field_title'), 'value' => $value];
         $weights[$cat_id][]              = $fields[$i]->getVar('cat_id');
     }
 }
@@ -177,14 +179,14 @@ $GLOBALS['xoopsTpl']->assign('categories', $categories);
 // Dynamic user profiles end
 
 if ($GLOBALS['xoopsModuleConfig']['profile_search']) {
-    /* @var XoopsModuleHandler $module_handler */
+    /** @var XoopsModuleHandler $module_handler */
     $module_handler = xoops_getHandler('module');
     $criteria       = new CriteriaCompo(new Criteria('hassearch', 1));
     $criteria->add(new Criteria('isactive', 1));
     $modules = $module_handler->getObjects($criteria, true);
     $mids    = array_keys($modules);
 
-    $myts         = MyTextSanitizer::getInstance();
+    $myts         = \MyTextSanitizer::getInstance();
     $allowed_mids = $gperm_handler->getItemIds('module_read', $groups);
     if (count($mids) > 0 && count($allowed_mids) > 0) {
         foreach ($mids as $mid) {
@@ -211,10 +213,14 @@ if ($GLOBALS['xoopsModuleConfig']['profile_search']) {
                     if ($count == 5) {
                         $showall_link = '<a href="' . XOOPS_URL . '/search.php?action=showallbyuser&amp;mid=' . $mid . '&amp;uid=' . $thisUser->getVar('uid') . '">' . _US_SHOWALL . '</a>';
                     }
-                    $GLOBALS['xoopsTpl']->append('modules', array(
-                        'name'         => $modules[$mid]->getVar('name'),
-                        'results'      => $results,
-                        'showall_link' => $showall_link));
+                    $GLOBALS['xoopsTpl']->append(
+                        'modules',
+                        [
+                            'name'         => $modules[$mid]->getVar('name'),
+                            'results'      => $results,
+                            'showall_link' => $showall_link,
+                        ],
+                    );
                 }
                 unset($modules[$mid]);
             }
@@ -227,5 +233,5 @@ $GLOBALS['xoopsTpl']->assign('uname', $thisUser->getVar('uname'));
 $GLOBALS['xoopsTpl']->assign('email', $email);
 $GLOBALS['xoopsTpl']->assign('avatar', $avatar);
 $GLOBALS['xoopsTpl']->assign('recent_activity', _PROFILE_MA_RECENTACTIVITY);
-$xoBreadcrumbs[] = array('title' => _PROFILE_MA_USERINFO);
+$xoBreadcrumbs[] = ['title' => _PROFILE_MA_USERINFO];
 include __DIR__ . '/footer.php';

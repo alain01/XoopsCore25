@@ -2,7 +2,7 @@
 /**
  * Cache handlers
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @since               1.00
@@ -14,7 +14,7 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_CACHE')):
     define('FRAMEWORKS_ART_FUNCTIONS_CACHE', true);
 
     /**
-     * @param null|array $groups
+     * @param array|null $groups
      *
      * @return string
      */
@@ -22,11 +22,11 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_CACHE')):
     {
         global $xoopsUser;
 
-        if (!empty($groups) && is_array($groups)) {
+        if (!empty($groups) && \is_array($groups)) {
         } elseif (is_object($xoopsUser)) {
             $groups = $xoopsUser->getGroups();
         }
-        if (!empty($groups) && is_array($groups)) {
+        if (!empty($groups) && \is_array($groups)) {
             sort($groups);
             $contentCacheId = substr(md5(implode(',', $groups) . XOOPS_DB_PASS . XOOPS_DB_NAME), 0, strlen(XOOPS_DB_USER) * 2);
         } else {
@@ -36,180 +36,180 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_CACHE')):
         return $contentCacheId;
     }
 
-    /**
-     * @param null $groups
-     *
-     * @return string
-     */
-    function mod_generateCacheId($groups = null)
-    {
-        return mod_generateCacheId_byGroup($groups);
-    }
+/**
+ * @param mixed $groups
+ *
+ * @return string
+ */
+function mod_generateCacheId($groups = null)
+{
+    return mod_generateCacheId_byGroup($groups);
+}
 
-    /**
-     * @param        $data
-     * @param null|string   $name
-     * @param null|string   $dirname
-     * @param string $root_path
-     *
-     * @return bool
-     */
-    function mod_createFile($data, $name = null, $dirname = null, $root_path = XOOPS_CACHE_PATH)
-    {
-        global $xoopsModule;
+/**
+ * @param mixed $data
+ * @param string|null   $name
+ * @param string|null   $dirname
+ * @param string $root_path
+ *
+ * @return bool
+ */
+function mod_createFile($data, $name = null, $dirname = null, $root_path = XOOPS_CACHE_PATH)
+{
+    global $xoopsModule;
 
-        $name    = $name ? : (string)time();
-        $dirname = $dirname ? : (is_object($xoopsModule) ? $xoopsModule->getVar('dirname', 'n') : 'system');
+    $name    = $name ?: (string) time();
+    $dirname = $dirname ?: (is_object($xoopsModule) ? $xoopsModule->getVar('dirname', 'n') : 'system');
 
-        xoops_load('XoopsCache');
-        $key = "{$dirname}_{$name}";
+    xoops_load('XoopsCache');
+    $key = "{$dirname}_{$name}";
 
-        return XoopsCache::write($key, $data);
-    }
+    return XoopsCache::write($key, $data);
+}
 
-    /**
-     * @param      $data
-     * @param null $name
-     * @param null $dirname
-     *
-     * @return bool
-     */
-    function mod_createCacheFile($data, $name = null, $dirname = null)
-    {
-        return mod_createFile($data, $name, $dirname);
-    }
+/**
+ * @param mixed $data
+ * @param string|null $name
+ * @param string|null $dirname
+ *
+ * @return bool
+ */
+function mod_createCacheFile($data, $name = null, $dirname = null)
+{
+    return mod_createFile($data, $name, $dirname);
+}
 
-    /**
-     * @param      $data
-     * @param null|string $name
-     * @param null $dirname
-     * @param null $groups
-     *
-     * @return bool
-     */
-    function mod_createCacheFile_byGroup($data, $name = null, $dirname = null, $groups = null)
-    {
-        $name .= mod_generateCacheId_byGroup();
+/**
+ * @param mixed $data
+ * @param string|null $name
+ * @param string|null $dirname
+ * @param mixed $groups
+ *
+ * @return bool
+ */
+function mod_createCacheFile_byGroup($data, $name = null, $dirname = null, $groups = null)
+{
+    $name .= mod_generateCacheId_byGroup();
 
-        return mod_createCacheFile($data, $name, $dirname);
-    }
+    return mod_createCacheFile($data, $name, $dirname);
+}
 
-    /**
-     * @param        $name
-     * @param null|string   $dirname
-     * @param string $root_path
-     *
-     * @return mixed|null
-     */
-    function mod_loadFile($name, $dirname = null, $root_path = XOOPS_CACHE_PATH)
-    {
-        global $xoopsModule;
+/**
+ * @param string $name
+ * @param string|null   $dirname
+ * @param string $root_path
+ *
+ * @return mixed|null
+ */
+function mod_loadFile($name, $dirname = null, $root_path = XOOPS_CACHE_PATH)
+{
+    global $xoopsModule;
 
-        $data = null;
+    $data = null;
 
-        if (empty($name)) {
-            return $data;
-        }
-        $dirname = $dirname ? : (is_object($xoopsModule) ? $xoopsModule->getVar('dirname', 'n') : 'system');
-        xoops_load('XoopsCache');
-        $key = "{$dirname}_{$name}";
-
-        return XoopsCache::read($key);
-    }
-
-    /**
-     * @param      $name
-     * @param null $dirname
-     *
-     * @return mixed|null
-     */
-    function mod_loadCacheFile($name, $dirname = null)
-    {
-        $data = mod_loadFile($name, $dirname);
-
+    if (empty($name)) {
         return $data;
     }
+    $dirname = $dirname ?: (is_object($xoopsModule) ? $xoopsModule->getVar('dirname', 'n') : 'system');
+    xoops_load('XoopsCache');
+    $key = "{$dirname}_{$name}";
 
-    /**
-     * @param      $name
-     * @param null $dirname
-     * @param null $groups
-     *
-     * @return mixed|null
-     */
-    function mod_loadCacheFile_byGroup($name, $dirname = null, $groups = null)
-    {
-        $name .= mod_generateCacheId_byGroup();
-        $data = mod_loadFile($name, $dirname);
+    return XoopsCache::read($key);
+}
 
-        return $data;
-    }
+/**
+ * @param string $name
+ * @param string|null $dirname
+ *
+ * @return mixed
+ */
+function mod_loadCacheFile($name, $dirname = null)
+{
+    $data = mod_loadFile($name, $dirname);
 
-    /* Shall we use the function of glob for better performance ? */
+    return $data;
+}
 
-    /**
-     * @param string $name
-     * @param null   $dirname
-     * @param string $root_path
-     *
-     * @return bool
-     */
-    function mod_clearFile($name = '', $dirname = null, $root_path = XOOPS_CACHE_PATH)
-    {
-        if (empty($dirname)) {
-            $pattern = $dirname ? "{$dirname}_{$name}.*\.php" : "[^_]+_{$name}.*\.php";
-            if ($handle = opendir($root_path)) {
-                while (false !== ($file = readdir($handle))) {
-                    if (is_file($root_path . '/' . $file) && preg_match("/{$pattern}$/", $file)) {
-                        @unlink($root_path . '/' . $file);
-                    }
-                }
-                closedir($handle);
-            }
-        } else {
-            $files = (array)glob($root_path . "/*{$dirname}_{$name}*.php");
-            foreach ($files as $file) {
-                @unlink($file);
-            }
-        }
+/**
+ * @param string $name
+ * @param string|null $dirname
+ * @param mixed $groups
+ *
+ * @return mixed
+ */
+function mod_loadCacheFile_byGroup($name, $dirname = null, $groups = null)
+{
+    $name .= mod_generateCacheId_byGroup();
+    $data = mod_loadFile($name, $dirname);
 
-        return true;
-    }
+    return $data;
+}
 
-    /**
-     * @param string $name
-     * @param null   $dirname
-     *
-     * @return bool
-     */
-    function mod_clearCacheFile($name = '', $dirname = null)
-    {
-        return mod_clearFile($name, $dirname);
-    }
+/* Shall we use the function of glob for better performance ? */
 
-    /**
-     * @param string $pattern
-     *
-     * @return bool
-     */
-    function mod_clearSmartyCache($pattern = '')
-    {
-        global $xoopsModule;
-
-        if (empty($pattern)) {
-            $dirname = (is_object($xoopsModule) ? $xoopsModule->getVar('dirname', 'n') : 'system');
-            $pattern = "/(^{$dirname}\^.*\.html$|blk_{$dirname}_.*[^\.]*\.html$)/";
-        }
-        if ($handle = opendir(XOOPS_CACHE_PATH)) {
+/**
+ * @param string $name
+ * @param string|null   $dirname
+ * @param string $root_path
+ *
+ * @return bool
+ */
+function mod_clearFile($name = '', $dirname = null, $root_path = XOOPS_CACHE_PATH)
+{
+    if (empty($dirname)) {
+        $pattern = $dirname ? "{$dirname}_{$name}.*\.php" : "[^_]+_{$name}.*\.php";
+        if ($handle = opendir($root_path)) {
             while (false !== ($file = readdir($handle))) {
-                if (is_file(XOOPS_CACHE_PATH . '/' . $file) && preg_match($pattern, $file)) {
-                    @unlink(XOOPS_CACHE_PATH . '/' . $file);
+                if (is_file($root_path . '/' . $file) && preg_match("/{$pattern}$/", $file)) {
+                    @unlink($root_path . '/' . $file);
                 }
             }
             closedir($handle);
         }
-
-        return true;
+    } else {
+        $files = (array) glob($root_path . "/*{$dirname}_{$name}*.php");
+        foreach ($files as $file) {
+            @unlink($file);
+        }
     }
+
+    return true;
+}
+
+/**
+ * @param string $name
+ * @param string|null   $dirname
+ *
+ * @return bool
+ */
+function mod_clearCacheFile($name = '', $dirname = null)
+{
+    return mod_clearFile($name, $dirname);
+}
+
+/**
+ * @param string $pattern
+ *
+ * @return bool
+ */
+function mod_clearSmartyCache($pattern = '')
+{
+    global $xoopsModule;
+
+    if (empty($pattern)) {
+        $dirname = (is_object($xoopsModule) ? $xoopsModule->getVar('dirname', 'n') : 'system');
+        $pattern = "/(^{$dirname}\^.*\.html$|blk_{$dirname}_.*[^\.]*\.html$)/";
+    }
+    if ($handle = opendir(XOOPS_CACHE_PATH)) {
+        while (false !== ($file = readdir($handle))) {
+            if (is_file(XOOPS_CACHE_PATH . '/' . $file) && preg_match($pattern, $file)) {
+                @unlink(XOOPS_CACHE_PATH . '/' . $file);
+            }
+        }
+        closedir($handle);
+    }
+
+    return true;
+}
 
 endif;

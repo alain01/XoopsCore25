@@ -15,27 +15,31 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.3.0
  * @author           Taiwen Jiang <phppp@users.sourceforge.net>
  */
-class PathStuffController
+class PathController
 {
-    public $xoopsPath   = array(
+    public $xoopsPath   = [
         'lib'  => '',
-        'data' => '');
-    public $path_lookup = array(
+        'data' => '',
+    ];
+    public $path_lookup = [
         'data' => 'VAR_PATH',
-        'lib'  => 'PATH');
+        'lib'  => 'PATH',
+    ];
 
-    public $validPath = array(
+    public $validPath = [
         'data' => 0,
-        'lib'  => 0);
+        'lib'  => 0,
+    ];
 
-    public $permErrors = array(
-        'data' => null);
+    public $permErrors = [
+        'data' => null,
+    ];
 
     public function __construct()
     {
@@ -191,15 +195,19 @@ class PathStuffController
      */
     public function checkPermissions($path = 'data')
     {
-        $paths  = array(
-            'data' => array(
-                'caches' => array(
+        $paths  = [
+            'data' => [
+                'caches' => [
                     'xoops_cache',
                     'smarty_cache',
-                    'smarty_compile'),
-                'configs'));
-        $errors = array(
-            'data' => null);
+                    'smarty_compile',
+                ],
+                'configs',
+            ],
+        ];
+        $errors = [
+            'data' => null,
+        ];
         if (!isset($this->xoopsPath[$path])) {
             return false;
         }

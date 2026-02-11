@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2020 XOOPS Project (https://xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          logger
@@ -20,7 +20,9 @@
  *
  * @todo                Not well written, just keep as it is. Refactored in 3.0
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Collects information for a page request
@@ -37,13 +39,13 @@ class XoopsLogger
      *
      * @var array
      */
-    public $queries    = array();
-    public $blocks     = array();
-    public $extra      = array();
-    public $logstart   = array();
-    public $logend     = array();
-    public $errors     = array();
-    public $deprecated = array();
+    public $queries    = [];
+    public $blocks     = [];
+    public $extra      = [];
+    public $logstart   = [];
+    public $logend     = [];
+    public $errors     = [];
+    public $deprecated = [];
     /**
      * *#@-
      */
@@ -59,9 +61,7 @@ class XoopsLogger
     /**
      * XoopsLogger::__construct()
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Deprecated, use getInstance() instead
@@ -84,7 +84,7 @@ class XoopsLogger
             // Always catch errors, for security reasons
             set_error_handler('XoopsErrorHandler_HandleError');
             // grab any uncaught exception
-            set_exception_handler(array($instance, 'handleException'));
+            set_exception_handler([$instance, 'handleException']);
         }
 
         return $instance;
@@ -99,7 +99,7 @@ class XoopsLogger
     public function enableRendering()
     {
         if (!$this->renderingEnabled) {
-            ob_start(array(&$this, 'render'));
+            ob_start([&$this, 'render']);
             $this->renderingEnabled = true;
         }
     }
@@ -111,9 +111,10 @@ class XoopsLogger
      */
     public function microtime()
     {
+        /** @var array $now */
         $now = explode(' ', microtime());
 
-        return (float)$now[0] + (float)$now[1];
+        return (float) $now[0] + (float) $now[1];
     }
 
     /**
@@ -144,14 +145,14 @@ class XoopsLogger
      * Log a database query
      *
      * @param string $sql   SQL string
-     * @param string $error error message (if any)
-     * @param int    $errno error number (if any)
-     * @param null   $query_time
+     * @param string|null $error error message (if any)
+     * @param int|null    $errno error number (if any)
+     * @param float|null   $query_time
      */
     public function addQuery($sql, $error = null, $errno = null, $query_time = null)
     {
         if ($this->activated) {
-            $this->queries[] = array('sql' => $sql, 'error' => $error, 'errno' => $errno, 'query_time' => $query_time);
+            $this->queries[] = ['sql' => $sql, 'error' => $error, 'errno' => $errno, 'query_time' => $query_time];
         }
     }
 
@@ -165,7 +166,7 @@ class XoopsLogger
     public function addBlock($name, $cached = false, $cachetime = 0)
     {
         if ($this->activated) {
-            $this->blocks[] = array('name' => $name, 'cached' => $cached, 'cachetime' => $cachetime);
+            $this->blocks[] = ['name' => $name, 'cached' => $cached, 'cachetime' => $cachetime];
         }
     }
 
@@ -178,29 +179,31 @@ class XoopsLogger
     public function addExtra($name, $msg)
     {
         if ($this->activated) {
-            $this->extra[] = array('name' => $name, 'msg' => $msg);
+            $this->extra[] = ['name' => $name, 'msg' => $msg];
         }
     }
 
     /**
      * Log messages for deprecated functions
      *
-     * @deprecated
+     * this was deprecated, but is still in broad use?
      *
-     * @param int $msg text message for the entry
+     * @param string $msg text message for the entry
      *
      */
     public function addDeprecated($msg)
     {
         if ($this->activated) {
             $backTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-            $miniTrace = ' trace: ';
+            $miniTrace = "<br> trace: ";
             foreach ($backTrace as $i => $trace) {
-                $miniTrace .= $trace['file'] . ':' . $trace['line'] . ' ';
+                // Check if 'file' and 'line' exist in the current trace step
+                $file = $trace['file'] ?? '(unknown file)';
+                $line = $trace['line'] ?? '(unknown line)';
+                $miniTrace .= $file . ':' . $line . "<br>";
             }
-            $miniTrace = str_replace(XOOPS_VAR_PATH, '', $miniTrace);
-            $miniTrace = str_replace(XOOPS_PATH, '', $miniTrace);
-            $miniTrace = str_replace(XOOPS_ROOT_PATH, '', $miniTrace);
+            // Replace paths to keep the output clean
+            $miniTrace = str_replace([XOOPS_VAR_PATH, XOOPS_PATH, XOOPS_ROOT_PATH], '', $miniTrace);
 
             $this->deprecated[] = $msg . $miniTrace;
         }
@@ -213,24 +216,27 @@ class XoopsLogger
      * @param string  $errstr
      * @param string  $errfile
      * @param string  $errline
+     * @param array|null $trace
      */
-    public function handleError($errno, $errstr, $errfile, $errline)
+    public function handleError($errno, $errstr, $errfile, $errline, $trace = null)
     {
         if ($this->activated && ($errno & error_reporting())) {
             // NOTE: we only store relative pathnames
             $this->errors[] = compact('errno', 'errstr', 'errfile', 'errline');
         }
         if ($errno == E_USER_ERROR) {
-            $trace = true;
+            $includeTrace = true;
             if (substr($errstr, 0, '8') === 'notrace:') {
-                $trace  = false;
+                $includeTrace  = false;
                 $errstr = substr($errstr, 8);
             }
             echo sprintf(_XOOPS_FATAL_MESSAGE, $errstr);
-            if ($trace && function_exists('debug_backtrace')) {
+            if ($includeTrace) {
                 echo "<div style='color:#f0f0f0;background-color:#f0f0f0;'>" . _XOOPS_FATAL_BACKTRACE . ':<br>';
-                $trace = debug_backtrace();
-                array_shift($trace);
+                if ($trace === null && function_exists('debug_backtrace')) {
+                    $trace = \debug_backtrace();
+                    array_shift($trace);  // Remove the first element, which is this function itself
+                }
                 foreach ($trace as $step) {
                     if (isset($step['file'])) {
                         echo $this->sanitizePath($step['file']);
@@ -253,8 +259,8 @@ class XoopsLogger
     public function handleException($e)
     {
         if ($this->isThrowable($e)) {
-            $msg = get_class($e) . ': ' . $e->getMessage();
-            $this->handleError(E_USER_ERROR, $msg, $e->getFile(), $e->getLine());
+            $msg = get_class($e) . ': ' . $this->sanitizePath($this->sanitizeDbMessage($e->getMessage()));
+            $this->handleError(E_USER_ERROR, $msg, $e->getFile(), $e->getLine(), $e->getTrace());
         }
     }
 
@@ -281,9 +287,26 @@ class XoopsLogger
      */
     public function sanitizePath($path)
     {
-        $path = str_replace(array('\\', XOOPS_ROOT_PATH, str_replace('\\', '/', realpath(XOOPS_ROOT_PATH))), array('/', '', ''), $path);
+        $path = str_replace(['\\', XOOPS_ROOT_PATH, str_replace('\\', '/', realpath(XOOPS_ROOT_PATH))], ['/', '', ''], $path);
 
         return $path;
+    }
+
+    /**
+     * sanitizeDbMessage
+     * @access protected
+     *
+     * @param string $message
+     *
+     * @return string
+     */
+    protected function sanitizeDbMessage($message)
+    {
+        // XOOPS_DB_PREFIX  XOOPS_DB_NAME
+        $message = str_replace(XOOPS_DB_PREFIX . '_', '', $message);
+        $message = str_replace(XOOPS_DB_NAME . '.', '', $message);
+
+        return $message;
     }
 
     /**
@@ -339,7 +362,7 @@ class XoopsLogger
         if (!isset($this->logstart[$name])) {
             return 0;
         }
-        $stop  = isset($this->logend[$name]) ? $this->logend[$name] : $this->microtime();
+        $stop  = $this->logend[$name] ?? $this->microtime();
         $start = $this->logstart[$name];
 
         if ($unset) {
@@ -357,12 +380,12 @@ class XoopsLogger
      * @param  string  $errStr
      * @param  string  $errFile
      * @param  string  $errLine
-     * @param  integer $errNo
+     * @param  int $errNo
      * @return void
      */
     public function triggerError($errkey = 0, $errStr = '', $errFile = '', $errLine = '', $errNo = 0)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated('\'$xoopsLogger->triggerError();\' is deprecated since XOOPS 2.5.4');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . '  is deprecated since XOOPS 2.5.4');
 
         if (!empty($errStr)) {
             $errStr = sprintf($errStr, $errkey);
@@ -378,7 +401,7 @@ class XoopsLogger
      */
     public function dumpAll()
     {
-        $GLOBALS['xoopsLogger']->addDeprecated('\'$xoopsLogger->dumpAll();\' is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'\');\' instead.');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . '  is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'\');\' instead.');
 
         return $this->dump('');
     }
@@ -390,7 +413,7 @@ class XoopsLogger
      */
     public function dumpBlocks()
     {
-        $GLOBALS['xoopsLogger']->addDeprecated('\'$xoopsLogger->dumpBlocks();\' is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'blocks\');\' instead.');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . '  is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'blocks\');\' instead.');
 
         return $this->dump('blocks');
     }
@@ -402,7 +425,7 @@ class XoopsLogger
      */
     public function dumpExtra()
     {
-        $GLOBALS['xoopsLogger']->addDeprecated('\'$xoopsLogger->dumpExtra();\' is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'extra\');\' instead.');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . '  is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'extra\');\' instead.');
 
         return $this->dump('extra');
     }
@@ -414,7 +437,7 @@ class XoopsLogger
      */
     public function dumpQueries()
     {
-        $GLOBALS['xoopsLogger']->addDeprecated('\'$xoopsLogger->dumpQueries();\' is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'queries\');\' instead.');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . '  is deprecated since XOOPS 2.5.4, please use \'$xoopsLogger->dump(\'queries\');\' instead.');
 
         return $this->dump('queries');
     }
@@ -429,7 +452,7 @@ class XoopsLogger
  * NB: You're not supposed to call this function directly, if you don't understand why, then
  * you'd better spend some time reading your PHP manual before you hurt somebody
  *
- * @internal : Using a function and not calling the handler method directly because of old PHP versions
+ * @internal Using a function and not calling the handler method directly because of old PHP versions
  * set_error_handler() have problems with the array( obj,methodname ) syntax
  * @param       $errNo
  * @param       $errStr

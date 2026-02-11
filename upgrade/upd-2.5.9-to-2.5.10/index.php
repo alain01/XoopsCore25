@@ -8,7 +8,7 @@ use Xmf\Database\Tables;
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2019 XOOPS Project (https://xoops.org)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license          GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          Upgrade
  * @since            2.5.10
@@ -22,8 +22,8 @@ class Upgrade_2510 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array('metarobots', 'protectordata');
-        $this->usedFiles = array();
+        $this->tasks = ['metarobots', 'protectordata'];
+        $this->usedFiles = [];
     }
 
     /**
@@ -33,7 +33,7 @@ class Upgrade_2510 extends XoopsUpgrade
      */
     public function check_metarobots()
     {
-        /* @var XoopsMySQLDatabase $db */
+        /** @var XoopsMySQLDatabase $db */
         $db = XoopsDatabaseFactory::getDatabaseConnection();
 
         $table = $db->prefix('config');
@@ -41,12 +41,12 @@ class Upgrade_2510 extends XoopsUpgrade
         $sql = sprintf(
             'SELECT count(*) FROM `%s` '
             . "WHERE `conf_formtype` = 'select' AND `conf_name` = 'meta_robots' AND `conf_modid` = 0",
-            $db->escape($table)
+            $db->escape($table),
         );
 
         /** @var mysqli_result $result */
         $result = $db->query($sql);
-        if ($result) {
+        if ($db->isResultSet($result)) {
             $row = $db->fetchRow($result);
             if ($row) {
                 $count = $row[0];
@@ -70,7 +70,7 @@ class Upgrade_2510 extends XoopsUpgrade
 
         $migrate = new Tables();
         $migrate->useTable('config');
-        $migrate->update('config', array('conf_formtype' => 'textbox'), "WHERE `conf_name` = 'meta_robots' AND `conf_modid` = 0");
+        $migrate->update('config', ['conf_formtype' => 'textbox'], "WHERE `conf_name` = 'meta_robots' AND `conf_modid` = 0");
         return $migrate->executeQueue(true);
     }
 

@@ -9,23 +9,37 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license     GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author      Gregory Mage (AKA Mage)
  * @package     system
  */
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * System Banner
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  */
 
 class SystemBanner extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $bid;
+    public $cid;
+    public $imptotal;
+    public $impmade;
+    public $clicks;
+    public $imageurl;
+    public $clickurl;
+    public $date;
+    public $htmlbanner;
+    public $htmlcode;
+
     /**
      *
      */
@@ -62,7 +76,7 @@ class SystemBanner extends XoopsObject
         xoops_load('XoopsFormLoader');
 
         $form = new XoopsThemeForm($title, 'form', $action, 'post', true);
-        /* @var  SystemBannerclientHandler $banner_client_Handler */
+        /** @var  SystemBannerclientHandler $banner_client_Handler */
         $banner_client_Handler = xoops_getModuleHandler('bannerclient', 'system');
         $client_select         = new XoopsFormSelect(_AM_SYSTEM_BANNERS_CLINAMET, 'cid', $this->getVar('cid'));
         $client_select->addOptionArray($banner_client_Handler->getList());
@@ -88,19 +102,19 @@ class SystemBanner extends XoopsObject
 }
 
 /**
- * System banner handler class. (Singelton)
+ * System banner handler class. (Singleton)
  *
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS block class objects.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  * @subpackage          banner
  */
 class SystemBannerHandler extends XoopsPersistableObjectHandler
 {
     /**
-     * @param null|object $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct($db)
     {

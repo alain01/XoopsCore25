@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          textsanitizer
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Class MytsSyntaxhighlight
@@ -24,19 +26,19 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
 class MytsSyntaxhighlight extends MyTextSanitizerExtension
 {
     /**
-     * @param $ts
+     * @param MyTextSanitizer $myts
      * @param $source
      * @param $language
      *
      * @return bool|mixed|string
      */
-    public function load($ts, $source, $language)
+    public function load($myts, $source, $language)
     {
         $config = parent::loadConfig(__DIR__);
         if (empty($config['highlight'])) {
             return "<pre>{$source}</pre>";
         }
-        $source = $ts->undoHtmlSpecialChars($source);
+        $source = $myts->undoHtmlSpecialChars($source);
         $source = stripslashes($source);
         $source = $this->php($source);
 

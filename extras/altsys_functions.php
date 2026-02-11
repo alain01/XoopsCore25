@@ -6,6 +6,7 @@ function altsys_set_module_config()
 {
     global $altsysModuleConfig, $altsysModuleId;
 
+    /** @var \XoopsModuleHandler $module_handler */
     $module_handler = xoops_getHandler('module');
     /** @var \XoopsModule $module */
     $module = $module_handler->getByDirname('altsys');
@@ -15,7 +16,7 @@ function altsys_set_module_config()
         $altsysModuleConfig = $config_handler->getConfigList($module->getVar('mid'));
         $altsysModuleId     = $module->getVar('mid');
     } else {
-        $altsysModuleConfig = array();
+        $altsysModuleConfig = [];
         $altsysModuleId     = 0;
     }
 }
@@ -24,11 +25,12 @@ function altsys_include_mymenu()
 {
     global $xoopsModule, $xoopsConfig, $mydirname, $mydirpath, $mytrustdirname, $mytrustdirpath, $mymenu_fake_uri;
 
-    $mymenu_find_paths = array(
+    $mymenu_find_paths = [
         $mydirpath . '/admin/mymenu.php',
         $mydirpath . '/mymenu.php',
         $mytrustdirpath . '/admin/mymenu.php',
-        $mytrustdirpath . '/mymenu.php');
+        $mytrustdirpath . '/mymenu.php',
+    ];
 
     foreach ($mymenu_find_paths as $mymenu_find_path) {
         if (file_exists($mymenu_find_path)) {
@@ -126,13 +128,25 @@ function altsys_clear_templates_c()
 {
     $dh = opendir(XOOPS_COMPILE_PATH);
     while ($file = readdir($dh)) {
+        // Skip hidden files (those starting with a dot)
         if (substr($file, 0, 1) === '.') {
             continue;
         }
-        if (substr($file, -4) !== '.php') {
+
+        // Skip files that do not end with '.php'
+        if ('php' !== pathinfo($file, PATHINFO_EXTENSION) ) {
             continue;
         }
-        @unlink(XOOPS_COMPILE_PATH . '/' . $file);
+
+        // Construct the full path to the file
+        $filePath = XOOPS_COMPILE_PATH . '/' . $file;
+
+        // Attempt to delete the file and handle any errors
+        if (file_exists($filePath) && !unlink($filePath)) {
+            // Optionally log an error or handle the failure
+            error_log("Failed to delete file: $filePath");
+        }
     }
+
     closedir($dh);
 }

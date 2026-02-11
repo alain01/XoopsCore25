@@ -9,25 +9,37 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * A Avatar
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  * @package             kernel
  */
 class XoopsAvatar extends XoopsObject
 {
     public $_userCount;
+
+    //PHP 8.2 Dynamic properties deprecated
+    public $avatar_id;
+    public $avatar_file;
+    public $avatar_name;
+    public $avatar_mimetype;
+    public $avatar_created;
+    public $avatar_display;
+    public $avatar_weight;
+    public $avatar_type;
 
     /**
      * Constructor
@@ -142,7 +154,7 @@ class XoopsAvatar extends XoopsObject
      */
     public function setUserCount($value)
     {
-        $this->_userCount = (int)$value;
+        $this->_userCount = (int) $value;
     }
 
     /**
@@ -157,13 +169,13 @@ class XoopsAvatar extends XoopsObject
 }
 
 /**
- * XOOPS avatar handler class. (Singelton)
+ * XOOPS avatar handler class. (Singleton)
  *
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS block class objects.
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             kernel
  * @subpackage          block
  */
@@ -189,15 +201,16 @@ class XoopsAvatarHandler extends XoopsObjectHandler
      * Egt Object
      *
      * @param  int $id
-     * @return XoopsAvatar
+     * @return XoopsAvatar|false
      */
     public function get($id)
     {
         $avatar = false;
-        $id     = (int)$id;
+        $id     = (int) $id;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('avatar') . ' WHERE avatar_id=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return false;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -236,11 +249,11 @@ class XoopsAvatarHandler extends XoopsObjectHandler
         }
         if ($avatar->isNew()) {
             $avatar_id = $this->db->genId('avatar_avatar_id_seq');
-            $sql       = sprintf('INSERT INTO %s (avatar_id, avatar_file, avatar_name, avatar_created, avatar_mimetype, avatar_display, avatar_weight, avatar_type) VALUES (%u, %s, %s, %u, %s, %u, %u, %s)', $this->db->prefix('avatar'), $avatar_id, $this->db->quoteString($avatar_file), $this->db->quoteString($avatar_name), time(), $this->db->quoteString($avatar_mimetype), $avatar_display, $avatar_weight, $this->db->quoteString($avatar_type));
+            $sql       = sprintf('INSERT INTO %s (avatar_id, avatar_file, avatar_name, avatar_created, avatar_mimetype, avatar_display, avatar_weight, avatar_type) VALUES (%u, %s, %s, %u, %s, %u, %u, %s)', $this->db->prefix('avatar'), $avatar_id, $this->db->quote($avatar_file), $this->db->quote($avatar_name), time(), $this->db->quote($avatar_mimetype), $avatar_display, $avatar_weight, $this->db->quote($avatar_type));
         } else {
-            $sql = sprintf('UPDATE %s SET avatar_file = %s, avatar_name = %s, avatar_created = %u, avatar_mimetype= %s, avatar_display = %u, avatar_weight = %u, avatar_type = %s WHERE avatar_id = %u', $this->db->prefix('avatar'), $this->db->quoteString($avatar_file), $this->db->quoteString($avatar_name), $avatar_created, $this->db->quoteString($avatar_mimetype), $avatar_display, $avatar_weight, $this->db->quoteString($avatar_type), $avatar_id);
+            $sql = sprintf('UPDATE %s SET avatar_file = %s, avatar_name = %s, avatar_created = %u, avatar_mimetype= %s, avatar_display = %u, avatar_weight = %u, avatar_type = %s WHERE avatar_id = %u', $this->db->prefix('avatar'), $this->db->quote($avatar_file), $this->db->quote($avatar_name), $avatar_created, $this->db->quote($avatar_mimetype), $avatar_display, $avatar_weight, $this->db->quote($avatar_type), $avatar_id);
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($avatar_id)) {
@@ -267,11 +280,11 @@ class XoopsAvatarHandler extends XoopsObjectHandler
 
         $id  = $avatar->getVar('avatar_id');
         $sql = sprintf('DELETE FROM %s WHERE avatar_id = %u', $this->db->prefix('avatar'), $id);
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         $sql    = sprintf('DELETE FROM %s WHERE avatar_id = %u', $this->db->prefix('avatar_user_link'), $id);
-        $result = $this->db->query($sql);
+        $result = $this->db->exec($sql);
 
         return true;
     }
@@ -281,23 +294,27 @@ class XoopsAvatarHandler extends XoopsObjectHandler
      *
      * @param  CriteriaElement|CriteriaCompo $criteria
      * @param  bool  $id_as_key
-     * @return object
+     * @return array
      */
-    public function &getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function &getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT a.*, COUNT(u.user_id) AS count FROM ' . $this->db->prefix('avatar') . ' a LEFT JOIN ' . $this->db->prefix('avatar_user_link') . ' u ON u.avatar_id=a.avatar_id';
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
             $sql .= ' GROUP BY a.avatar_id ORDER BY avatar_weight, avatar_id';
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
-            return $ret;
+        if (!$this->db->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $this->db->error(),
+                E_USER_ERROR,
+            );
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $avatar = new XoopsAvatar();
             $avatar->assignVars($myrow);
@@ -319,20 +336,22 @@ class XoopsAvatarHandler extends XoopsObjectHandler
      * @param  CriteriaElement|CriteriaCompo $criteria
      * @return int
      */
-    public function getCount(CriteriaElement $criteria = null)
+    public function getCount(?CriteriaElement $criteria = null)
     {
 
 
         $sql = 'SELECT COUNT(*) FROM ' . $this->db->prefix('avatar');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
         }
-        if (!$result = $this->db->query($sql)) {
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
             return 0;
         }
-        list($count) = $this->db->fetchRow($result);
 
-        return $count;
+        [$count] = $this->db->fetchRow($result);
+
+        return (int) $count;
     }
 
     /**
@@ -344,15 +363,15 @@ class XoopsAvatarHandler extends XoopsObjectHandler
      */
     public function addUser($avatar_id, $user_id)
     {
-        $avatar_id = (int)$avatar_id;
-        $user_id   = (int)$user_id;
+        $avatar_id = (int) $avatar_id;
+        $user_id   = (int) $user_id;
         if ($avatar_id < 1 || $user_id < 1) {
             return false;
         }
         $sql = sprintf('DELETE FROM %s WHERE user_id = %u', $this->db->prefix('avatar_user_link'), $user_id);
-        $this->db->query($sql);
+        $this->db->exec($sql);
         $sql = sprintf('INSERT INTO %s (avatar_id, user_id) VALUES (%u, %u)', $this->db->prefix('avatar_user_link'), $avatar_id, $user_id);
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -363,11 +382,11 @@ class XoopsAvatarHandler extends XoopsObjectHandler
      * Get User
      *
      * @param  XoopsAvatar $avatar
-     * @return array
+     * @return array|false
      */
     public function getUser(XoopsAvatar $avatar)
     {
-        $ret = array();
+        $ret = [];
         /**
          * @TODO: Change to if (!(class_exists($this->className) && $obj instanceof $this->className)) when going fully PHP5
          */
@@ -375,9 +394,11 @@ class XoopsAvatarHandler extends XoopsObjectHandler
             return false;
         }
         $sql = 'SELECT user_id FROM ' . $this->db->prefix('avatar_user_link') . ' WHERE avatar_id=' . $avatar->getVar('avatar_id');
-        if (!$result = $this->db->query($sql)) {
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $ret[] = &$myrow['user_id'];
         }
@@ -388,8 +409,8 @@ class XoopsAvatarHandler extends XoopsObjectHandler
     /**
      * Get a list of Avatars
      *
-     * @param  string $avatar_type
-     * @param  string $avatar_display
+     * @param string|null $avatar_type  'S' for system, 'C' for custom
+     * @param  bool|null $avatar_display null lists all, bool respects avatar_display
      * @return array
      */
     public function getList($avatar_type = null, $avatar_display = null)
@@ -400,11 +421,10 @@ class XoopsAvatarHandler extends XoopsObjectHandler
             $criteria->add(new Criteria('avatar_type', $avatar_type));
         }
         if (isset($avatar_display)) {
-            $criteria->add(new Criteria('avatar_display', (int)$avatar_display));
+            $criteria->add(new Criteria('avatar_display',  (string) ((int) $avatar_display)));
         }
         $avatars = &$this->getObjects($criteria, true);
-        $ret     = array(
-            'blank.gif' => _NONE);
+        $ret     = ['blank.gif' => _NONE];
         foreach (array_keys($avatars) as $i) {
             $ret[$avatars[$i]->getVar('avatar_file')] = $avatars[$i]->getVar('avatar_name');
         }

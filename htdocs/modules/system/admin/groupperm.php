@@ -10,35 +10,36 @@
  */
 
 /**
- * @copyright    XOOPS Project http://xoops.org/
- * @license      GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    2000-2025 XOOPS Project (https://xoops.org)
+ * @license      GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package
  * @since
  * @author       XOOPS Development Team, Kazumi Ono (AKA onokazu)
  */
-/* @var  XoopsUser $xoopsUser */
-include_once dirname(dirname(dirname(__DIR__))) . '/include/cp_header.php';
+/** @var  XoopsUser $xoopsUser */
+include_once dirname(__DIR__, 3) . '/include/cp_header.php';
 $modid = isset($_POST['modid']) ? (int)$_POST['modid'] : 0;
 
 // we don't want system module permissions to be changed here
 if ($modid <= 1 || !is_object($xoopsUser) || !$xoopsUser->isAdmin($modid)) {
     redirect_header(XOOPS_URL . '/index.php', 1, _NOPERM);
 }
-/* @var XoopsModuleHandler $module_handler */
+/** @var XoopsModuleHandler $module_handler */
 $module_handler = xoops_getHandler('module');
-$module         = $module_handler->get($modid);
+/** @var \XoopsModule $module */
+$module = $module_handler->get($modid);
 if (!is_object($module) || !$module->getVar('isactive')) {
     redirect_header(XOOPS_URL . '/admin.php', 1, _MODULENOEXIST);
 }
 
-$msg = array();
+$msg = [];
 
-/* @var XoopsMemberHandler $member_handler */
+/** @var XoopsMemberHandler $member_handler */
 $member_handler = xoops_getHandler('member');
 $group_list     = $member_handler->getGroupList();
 
 if (is_array($_POST['perms']) && !empty($_POST['perms'])) {
-    /* @var  XoopsGroupPermHandler $gperm_handler */
+    /** @var  XoopsGroupPermHandler $gperm_handler */
     $gperm_handler = xoops_getHandler('groupperm');
     foreach ($_POST['perms'] as $perm_name => $perm_data) {
         if ($GLOBALS['xoopsSecurity']->check(true, false, $perm_name) && false !== $gperm_handler->deleteByModule($modid, $perm_name)) {
@@ -47,7 +48,7 @@ if (is_array($_POST['perms']) && !empty($_POST['perms'])) {
                     if ($selected == 1) {
                         // make sure that all parent ids are selected as well
                         if ($perm_data['parents'][$item_id] !== '') {
-                            $parent_ids = explode(':', $perm_data['parents'][$item_id]);
+                            $parent_ids = explode(':', (string) $perm_data['parents'][$item_id]);
                             foreach ($parent_ids as $pid) {
                                 //                                if ($pid != 0 && !in_array($pid, array_keys($item_ids))) {
                                 if ($pid != 0 && !array_key_exists($pid, $item_ids)) {
@@ -57,7 +58,7 @@ if (is_array($_POST['perms']) && !empty($_POST['perms'])) {
                                 }
                             }
                         }
-                        /* @var XoopsGroupPerm $gperm */
+                        /** @var XoopsGroupPerm $gperm */
                         $gperm = $gperm_handler->create();
                         $gperm->setVar('gperm_groupid', $group_id);
                         $gperm->setVar('gperm_name', $perm_name);
@@ -80,7 +81,7 @@ if (is_array($_POST['perms']) && !empty($_POST['perms'])) {
 
 $backlink = xoops_getenv('HTTP_REFERER');
 if ($module->getVar('hasadmin')) {
-    $adminindex = isset($_POST['redirect_url']) ? $_POST['redirect_url'] : $module->getInfo('adminindex');
+    $adminindex = $_POST['redirect_url'] ?? $module->getInfo('adminindex');
     if ($adminindex) {
         $backlink = XOOPS_URL . '/modules/' . $module->getVar('dirname') . '/' . $adminindex;
     }

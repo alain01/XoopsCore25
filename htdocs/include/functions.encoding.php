@@ -15,13 +15,15 @@
 /**
  *  Xoops Functions
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.4.0
  * @author              Simon
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * xoops_hex2bin()
@@ -63,7 +65,7 @@ function xoops_bin2hex($bin)
  */
 function xoops_ishexstr($hex, $checklen = 32)
 {
-    $accepted = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+    $accepted = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
     $len      = strlen($hex);
     if ($checklen > $len) {
         $checklen = $len;//And???

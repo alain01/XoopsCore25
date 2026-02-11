@@ -11,16 +11,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @copyright       Grégory Mage (Aka Mage)
- * @copyright   (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright   (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license         GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author          Grégory Mage (Aka Mage)
  */
 class ModuleAdmin
 {
-    private $_itemButton        = array();
-    private $_itemInfoBox       = array();
-    private $_itemInfoBoxLine   = array();
-    private $_itemConfigBoxLine = array();
+    private $_itemButton        = [];
+    private $_itemInfoBox       = [];
+    private $_itemInfoBoxLine   = [];
+    private $_itemConfigBoxLine = [];
 
     /**
      * @var XoopsModule
@@ -57,9 +57,9 @@ class ModuleAdmin
      */
     public function getInfo()
     {
-        $infoArray = array();
+        $infoArray = [];
         if (!isset($infoArray) || empty($infoArray)) {
-            $infoArray                = array();
+            $infoArray                = [];
             $infoArray['version']     = $this->getVersion();
             $infoArray['releasedate'] = $this->getReleaseDate();
             $infoArray['methods']     = $this->getClassMethods();
@@ -77,7 +77,7 @@ class ModuleAdmin
         /**
          * version is rev of this class
          */
-        include_once 'xoops_version.php';
+        include_once __DIR__ . '/xoops_version.php';
         $version = XOOPS_FRAMEWORKS_MODULEADMIN_VERSION;
 
         return $version;
@@ -92,7 +92,7 @@ class ModuleAdmin
         /**
          * version is rev of this class
          */
-        include_once 'xoops_version.php';
+        include_once __DIR__ . '/xoops_version.php';
         $releasedate = XOOPS_FRAMEWORKS_MODULEADMIN_RELEASEDATE;
 
         return $releasedate;
@@ -105,7 +105,7 @@ class ModuleAdmin
      */
     public function getClassMethods()
     {
-        $myMethods = get_class_methods(__CLASS__);
+        $myMethods = get_class_methods(self::class);
 
         return $myMethods;
     }
@@ -147,7 +147,7 @@ class ModuleAdmin
         $ret = "<div class=\"rmmenuicon\">\n";
         foreach (array_keys($this->_obj->adminmenu) as $i) {
             if ($this->_obj->adminmenu[$i]['link'] !== 'admin/index.php') {
-                $ret .= "<a href=\"../" . $this->_obj->adminmenu[$i]['link'] . "\" title=\"" . (isset($this->_obj->adminmenu[$i]['desc']) ? $this->_obj->adminmenu[$i]['desc'] : '') . "\">";
+                $ret .= "<a href=\"../" . $this->_obj->adminmenu[$i]['link'] . "\" title=\"" . ($this->_obj->adminmenu[$i]['desc'] ?? '') . "\">";
                 //$ret .= "<img src=\"" . $path . $this->_obj->adminmenu[$i]['icon']. "\" alt=\"" . $this->_obj->adminmenu[$i]['title'] . "\" />";
                 //mb for direct URL access to icons in modules Admin
                 $ret .= "<img src=\"" . (filter_var($this->_obj->adminmenu[$i]['icon'], FILTER_VALIDATE_URL) ? $this->_obj->adminmenu[$i]['icon'] : $path . $this->_obj->adminmenu[$i]['icon']) . "\" alt=\"" . $this->_obj->adminmenu[$i]['title'] . "\" />";
@@ -222,7 +222,7 @@ class ModuleAdmin
      */
     public function addItemButton($title, $link, $icon = 'add', $extra = '')
     {
-        $ret = array();
+        $ret = [];
         $ret['title']        = $title;
         $ret['link']         = $link;
         $ret['icon']         = $icon . '.png';
@@ -357,11 +357,11 @@ class ModuleAdmin
                 $reqVer            = $curVer = 0;
                 for ($i = 0; $i < $icount; ++$i) {
                     $j--;
-                    $reqVer += $iReqVerParts[$i] * pow(10, $j);
+                    $reqVer += $iReqVerParts[$i] * 10 ** $j;
                     if (isset($iCurrentVerParts[$i])) {
-                        $curVer += $iCurrentVerParts[$i] * pow(10, $j);
+                        $curVer += $iCurrentVerParts[$i] * 10 ** $j;
                     } else {
-                        $curVer *= pow(10, $j);
+                        $curVer *= 10 ** $j;
                     }
                 }
                 if ($reqVer > $curVer) {
@@ -374,7 +374,7 @@ class ModuleAdmin
             // xoops version
             if ($this->_obj->getInfo('min_xoops')) {
                 $currentXoopsVersion = strtolower(str_replace('XOOPS ', '', XOOPS_VERSION));
-                if (version_compare($currentXoopsVersion, strtolower($this->_obj->getInfo('min_xoops')), '<')) {
+                if ($this->_obj->versionCompare($currentXoopsVersion, strtolower($this->_obj->getInfo('min_xoops')), '<')) {
                     $ret .= "<span style='color : red; font-weight : bold;'><img src='" . $path . "0.png' >" . sprintf(_AM_MODULEADMIN_CONFIG_XOOPS, $this->_obj->getInfo('min_xoops'), substr(XOOPS_VERSION, 6, strlen(XOOPS_VERSION) - 6)) . "</span>\n";
                 } else {
                     $ret .= "<span style='color : green;'><img src='" . $path . "1.png' >" . sprintf(_AM_MODULEADMIN_CONFIG_XOOPS, $this->_obj->getInfo('min_xoops'), substr(XOOPS_VERSION, 6)) . "</span>\n";
@@ -417,7 +417,7 @@ class ModuleAdmin
      */
     public function addInfoBox($title)
     {
-        $ret = array();
+        $ret = [];
         $ret['title']         = $title;
         $this->_itemInfoBox[] = $ret;
 
@@ -444,7 +444,7 @@ class ModuleAdmin
      */
     public function addInfoBoxLine($label, $text, $value = '', $color = 'inherit', $type = 'default')
     {
-        $ret = array();
+        $ret = [];
         $ret['label'] = $label;
         $line         = '';
         switch ($type) {
@@ -503,22 +503,22 @@ class ModuleAdmin
         $date         = explode('/', $date);
         $author       = explode(',', $this->_obj->getInfo('author'));
         $nickname     = explode(',', $this->_obj->getInfo('nickname'));
-        $release_date = formatTimestamp(mktime(0, 0, 0, $date[1], $date[2], $date[0]), 's');
+        $release_date = formatTimestamp(mktime(0, 0, 0, (int)$date[1], (int)$date[2], (int)$date[0]), 's');
         $module_dir   = $this->_obj->getVar('dirname');
         $module_info  = "<div id=\"about\"><label class=\"label_after\">" . _AM_MODULEADMIN_ABOUT_DESCRIPTION . "</label>\n"
                       . "<text>" . $this->_obj->getInfo('description') . "</text><br>\n"
                       . "<label class=\"label_after\">" . _AM_MODULEADMIN_ABOUT_UPDATEDATE . "</label>\n"
                       . "<text class=\"bold\">" . formatTimestamp($this->_obj->getVar('last_update'), 'm') . "</text><br>\n"
                       . "<label class=\"label_after\">" . _AM_MODULEADMIN_ABOUT_MODULESTATUS . "</label>\n"
-                      . "<text>" . $this->_obj->getInfo('module_status') . "</text><br>\n"
+                      . "<text>" . $this->_obj->getStatus() . "</text><br>\n"
                       . "<label class=\"label_after\">" . _AM_MODULEADMIN_ABOUT_WEBSITE . "</label>\n"
                       . "<text><a class=\"tooltip\" href=\"http://" . $this->_obj->getInfo('module_website_url') . "\" rel=\"external\" title=\""
                       . $this->_obj->getInfo('module_website_name') . " - " . $this->_obj->getInfo('module_website_url') . "\">"
                       . $this->_obj->getInfo('module_website_name') . "</a></text>\n"
                       . "</div>\n";
-        $authorArray  = array();
+        $authorArray  = [];
         foreach ( $author as $k => $aName ) {
-            $authorArray[$k] = ( isset( $nickname[$k] ) && ( '' != $nickname[$k] ) ) ? "{$aName} ({$nickname[$k]})" : "{$aName}";
+            $authorArray[$k] = ( isset( $nickname[$k] ) && ( '' != $nickname[$k] ) ) ? "{$aName} ({$nickname[$k]})" : (string)($aName);
         }
         $license_url = $this->_obj->getInfo('license_url');
         $license_url = preg_match('%^(https?:)?//%', $license_url) ? $license_url : 'http://' . $license_url;
@@ -531,7 +531,7 @@ class ModuleAdmin
              . "<img src=\"" . XOOPS_URL . '/modules/' . $module_dir . '/' . $this->_obj->getInfo('image') . "\" alt=\"" . $module_dir . "\" style=\"float: left; margin-right: 10px;\">\n"
              . "</td><td>\n"
              . "<div style=\"margin-top: 1px; margin-bottom: 4px; font-size: 18px; line-height: 18px; color: #2F5376; font-weight: bold;\">\n"
-             . $this->_obj->getInfo('name') . ' ' . $this->_obj->getInfo('version') . ' ' . $this->_obj->getInfo('module_status') . " ({$release_date})\n"
+             . $this->_obj->getInfo('name') . ' ' . $this->_obj->getVar('version') . ' ' . " ({$release_date})\n"
              . "<br>\n"
              . "</div>\n"
              . "<div style=\"line-height: 16px; font-weight: bold;\">\n"
@@ -555,8 +555,7 @@ class ModuleAdmin
                   . "<input name=\"currency_code\" type=\"hidden\" value=\"" . _AM_MODULEADMIN_ABOUT_AMOUNT_CURRENCY . "\">\n"
                   . "<label class=\"label_after\" for=\"amount\">" . _AM_MODULEADMIN_ABOUT_AMOUNT . "</label><text><input class=\"donate_amount\" type=\"text\" name=\"amount\" value=\"" . _AM_MODULEADMIN_ABOUT_AMOUNT_SUGGESTED . "\" title=\"" . _AM_MODULEADMIN_ABOUT_AMOUNT_TTL . "\" pattern=\"" . _AM_MODULEADMIN_ABOUT_AMOUNT_PATTERN . "\"></text>\n"
                   . "<br>\n"
-                  . "<text><input type=\"image\" name=\"submit\" class=\"donate_button\" src=\"https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif\" alt=\"" . _AM_MODULEADMIN_ABOUT_DONATE_IMG_ALT . "\"></text>\n"
-                  . "<img alt=\"\" height=\"1\" src=\"https://www.paypalobjects.com/en_US/i/scr/pixel.gif\" style=\"border-width: 0px;\" width=\"1\">\n"
+                  . "<text><input type=\"image\" name=\"submit\" class=\"donate_button\" src=\"" . XOOPS_URL . "/images/btn_donate_LG.png\" alt=\"" . _AM_MODULEADMIN_ABOUT_DONATE_IMG_ALT . "\"></text>\n"
                   . "</form>\n"
                   . "<br>\n"
                   . "</fieldset>\n"
@@ -609,7 +608,7 @@ class ModuleAdmin
         $navigation = '';
         $path       = XOOPS_URL . '/modules/' . $this->_obj->getVar('dirname') . '/';
         $this->_obj->loadAdminMenu();
-        foreach (array_keys($this->_obj->adminmenu) as $i) {
+        foreach (array_keys((array) $this->_obj->adminmenu) as $i) {
             if ($this->_obj->adminmenu[$i]['link'] == 'admin/' . $menu) {
                 $navigation .= $this->_obj->adminmenu[$i]['title'] . ' | ';
                 $ret = "<div class=\"CPbigTitle\" style=\"background-image: url(" . $path . $this->_obj->adminmenu[$i]['icon'] . "); background-repeat: no-repeat; background-position: left; padding-left: 50px;\">

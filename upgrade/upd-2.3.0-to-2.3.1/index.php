@@ -15,8 +15,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.3.0
  * @author           Taiwen Jiang <phppp@users.sourceforge.net>
@@ -29,7 +29,7 @@ class Upgrade_231 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array('field');
+        $this->tasks = ['field'];
     }
 
     /**
@@ -38,7 +38,7 @@ class Upgrade_231 extends XoopsUpgrade
      */
     public function check_field()
     {
-        $fields = array(
+        $fields = [
             'cache_data' => 'cache_model',
             'htmlcode' => 'banner',
             'extrainfo' => 'bannerclient',
@@ -52,10 +52,12 @@ class Upgrade_231 extends XoopsUpgrade
             'tplset_credits' => 'tplset',
             'tpl_source' => 'tplsource',
             'user_sig' => 'users',
-            'bio' => 'users');
+            'bio' => 'users',
+        ];
         foreach ($fields as $field => $table) {
             $sql = 'SHOW COLUMNS FROM `' . $GLOBALS['xoopsDB']->prefix($table) . "` LIKE '{$field}'";
-            if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+            $result = $GLOBALS['xoopsDB']->queryF($sql);
+            if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
                 return false;
             }
             while (false !== ($row = $GLOBALS['xoopsDB']->fetchArray($result))) {

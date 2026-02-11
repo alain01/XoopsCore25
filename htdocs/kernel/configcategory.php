@@ -9,24 +9,31 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * A category of configs
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  * @package             kernel
  */
 class XoopsConfigCategory extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $confcat_id;
+    public $confcat_name;
+    public $confcat_order;
+
     /**
      * Constructor
      *
@@ -87,7 +94,7 @@ class XoopsConfigCategory extends XoopsObject
  * of XOOPS configuration category class objects.
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  * @package             kernel
  * @subpackage          config
@@ -116,15 +123,16 @@ class XoopsConfigCategoryHandler extends XoopsObjectHandler
      *
      * @param int $id ID
      *
-     * @return XoopsConfigCategory {@link XoopsConfigCategory}, FALSE on fail
+     * @return XoopsConfigCategory|false {@link XoopsConfigCategory}, false on fail
      */
     public function get($id)
     {
         $confcat = false;
-        $id      = (int)$id;
+        $id      = (int) $id;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('configcategory') . ' WHERE confcat_id=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return $confcat;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -161,11 +169,11 @@ class XoopsConfigCategoryHandler extends XoopsObjectHandler
         }
         if ($confcat->isNew()) {
             $confcat_id = $this->db->genId('configcategory_confcat_id_seq');
-            $sql        = sprintf('INSERT INTO %s (confcat_id, confcat_name, confcat_order) VALUES (%u, %s, %u)', $this->db->prefix('configcategory'), $confcat_id, $this->db->quoteString($confcat_name), $confcat_order);
+            $sql        = sprintf('INSERT INTO %s (confcat_id, confcat_name, confcat_order) VALUES (%u, %s, %u)', $this->db->prefix('configcategory'), $confcat_id, $this->db->quote($confcat_name), $confcat_order);
         } else {
-            $sql = sprintf('UPDATE %s SET confcat_name = %s, confcat_order = %u WHERE confcat_id = %u', $this->db->prefix('configcategory'), $this->db->quoteString($confcat_name), $confcat_order, $confcat_id);
+            $sql = sprintf('UPDATE %s SET confcat_name = %s, confcat_order = %u WHERE confcat_id = %u', $this->db->prefix('configcategory'), $this->db->quote($confcat_name), $confcat_order, $confcat_id);
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($confcat_id)) {
@@ -191,7 +199,7 @@ class XoopsConfigCategoryHandler extends XoopsObjectHandler
         }
 
         $sql = sprintf('DELETE FROM %s WHERE confcat_id = %u', $this->db->prefix('configcategory'), $confcat->getVar('confcat_id'));
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -206,30 +214,35 @@ class XoopsConfigCategoryHandler extends XoopsObjectHandler
      *
      * @return array Array of {@link XoopsConfigCategory}s
      */
-    public function getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT * FROM ' . $this->db->prefix('configcategory');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
-            $sort = !in_array($criteria->getSort(), array(
-                'confcat_id',
-                'confcat_name',
-                'confcat_order')) ? 'confcat_order' : $criteria->getSort();
+            $sort = !in_array(
+                $criteria->getSort(),
+                [
+                    'confcat_id',
+                    'confcat_name',
+                    'confcat_order',
+                ],
+            ) ? 'confcat_order' : $criteria->getSort();
             $sql .= ' ORDER BY ' . $sort . ' ' . $criteria->getOrder();
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $confcat = new XoopsConfigCategory();
             $confcat->assignVars($myrow);
             if (!$id_as_key) {
-                $ret[] =& $confcat;
+                $ret[] = & $confcat;
             } else {
                 $ret[$myrow['confcat_id']] = &$confcat;
             }
@@ -246,7 +259,7 @@ class XoopsConfigCategoryHandler extends XoopsObjectHandler
      */
     public function getCatByModule($modid = 0)
     {
-        trigger_error(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated', E_USER_WARNING);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return false;
     }

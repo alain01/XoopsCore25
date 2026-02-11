@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          utility
  * @since               1.0.0
  * @author              Author: Kazumi Ono (AKA onokazu)
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 include_once XOOPS_ROOT_PATH . '/class/xml/saxparser.php';
 include_once XOOPS_ROOT_PATH . '/class/xml/xmltaghandler.php';
@@ -26,15 +28,15 @@ include_once XOOPS_ROOT_PATH . '/class/xml/xmltaghandler.php';
  */
 class XoopsThemeSetParser extends SaxParser
 {
-    public $tempArr       = array();
-    public $themeSetData  = array();
-    public $imagesData    = array();
-    public $templatesData = array();
+    public $tempArr       = [];
+    public $themeSetData  = [];
+    public $imagesData    = [];
+    public $templatesData = [];
 
     /**
      * @param $input
      */
-    public function __construct(&$input)
+    public function __construct($input)
     {
         parent::__construct($input);
         $this->addTagHandler(new ThemeSetThemeNameHandler());
@@ -62,18 +64,14 @@ class XoopsThemeSetParser extends SaxParser
     }
 
     /**
-     * @param null $name
+     * @param string|null  $name
      *
      * @return array|bool
      */
-    public function &getThemeSetData($name = null)
+    public function getThemeSetData($name = null)
     {
         if (isset($name)) {
-            if (isset($this->themeSetData[$name])) {
-                return $this->themeSetData[$name];
-            }
-
-            return false;
+            return $this->themeSetData[$name] ?? false;
         }
 
         return $this->themeSetData;
@@ -136,7 +134,7 @@ class XoopsThemeSetParser extends SaxParser
     public function resetTempArr()
     {
         unset($this->tempArr);
-        $this->tempArr = array();
+        $this->tempArr = [];
     }
 }
 
@@ -148,9 +146,7 @@ class ThemeSetDateCreatedHandler extends XmlTagHandler
     /**
      * ThemeSetDateCreatedHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -184,9 +180,7 @@ class ThemeSetAuthorHandler extends XmlTagHandler
     /**
      * ThemeSetAuthorHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -222,9 +216,7 @@ class ThemeSetDescriptionHandler extends XmlTagHandler
     /**
      * ThemeSetDescriptionHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -261,9 +253,7 @@ class ThemeSetGeneratorHandler extends XmlTagHandler
     /**
      * ThemeSetGeneratorHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -297,9 +287,7 @@ class ThemeSetNameHandler extends XmlTagHandler
     /**
      * ThemeSetNameHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -336,9 +324,7 @@ class ThemeSetEmailHandler extends XmlTagHandler
     /**
      * ThemeSetEmailHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -372,9 +358,7 @@ class ThemeSetLinkHandler extends XmlTagHandler
     /**
      * ThemeSetLinkHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -408,9 +392,7 @@ class ThemeSetTemplateHandler extends XmlTagHandler
     /**
      * ThemeSetTemplateHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -447,9 +429,7 @@ class ThemeSetImageHandler extends XmlTagHandler
     /**
      * ThemeSetImageHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -486,9 +466,7 @@ class ThemeSetModuleHandler extends XmlTagHandler
     /**
      * ThemeSetModuleHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -523,9 +501,7 @@ class ThemeSetFileTypeHandler extends XmlTagHandler
     /**
      * ThemeSetFileTypeHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string
@@ -559,9 +535,7 @@ class ThemeSetTagHandler extends XmlTagHandler
     /**
      * ThemeSetTagHandler constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string

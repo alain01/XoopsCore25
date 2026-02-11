@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              John Neill (AKA Catzwolf)
  * @author              Andricq Nicolas (AKA MusS)
  */
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * Class SystemMenuHandler
@@ -26,8 +28,8 @@ class SystemMenuHandler
      *
      * @var string
      */
-    public $_menutop  = array();
-    public $_menutabs = array();
+    public $_menutop  = [];
+    public $_menutabs = [];
     public $_obj;
     public $_header;
     public $_subheader;
@@ -170,12 +172,16 @@ class SystemMenuHandler
         $i        = 0;
 
         /**
-         * Selects current menu tab
+         * Select current menu tab, sets id names for menu tabs
          */
+        $j=0;
         foreach ($this->_menutabs as $k => $menus) {
-            $menuItems[] = $menus;
+            if ($j == $currentoption) {
+                $breadcrumb = $menus;
+            }
+            $menuItems[] = 'modmenu_' . $j++;
         }
-        $breadcrumb                = $menuItems[$currentoption];
+
         $menuItems[$currentoption] = 'current';
         $menu                      = "<div id='buttontop_mod'>";
         $menu .= "<table style='width: 100%; padding: 0;' cellspacing='0'>\n<tr>";

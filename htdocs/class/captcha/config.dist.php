@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2021 XOOPS Project (https://xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          CAPTCHA
@@ -17,16 +17,18 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * This keeping config in files has really got to stop. If we can't actually put these into
  * the actual XOOPS config then we should do this. (Who said this? You are right!)
  */
-return $config = array(
+return $config = [
     'disabled'    => false,  // Disable CAPTCHA
     'mode'        => 'text',  // default mode, you can choose 'text', 'image', 'recaptcha2'(requires api key)
     'name'        => 'xoopscaptcha',  // captcha name
     'skipmember'  => true,  // Skip CAPTCHA check for members
     'maxattempts' => 10,  // Maximum attempts for each session
-);
+];

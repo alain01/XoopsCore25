@@ -4,6 +4,85 @@ LANGUAGE DIFFERENCES
 Below are language differences from a version to next version.
 
 ================================
+2025/03/30: Version 2.5.12-Betas
+================================
+/htdocs/modules/system/language/english/blocks.php
+-added define('_MB_SYSTEM_WAITING_CONTENT_DEPRECATED', "Block 'Waiting Contents' is deprecated since XOOPS 2.5.11, please use Waiting module");
+
+/htdocs/install/language/english/welcome.php
+- updated PHP & MySQL versions
+
+/htdocs/modules/pm/language/english/main.php
+- updated define('_PM_EMAIL_DESC', 'Dear %s, this is a message transfered from your account at ' . $GLOBALS['xoopsConfig']['sitename']);
+- updated define('_PM_EMAIL_DESC', 'Dear %s, this is a message transferred from your account at ' . $GLOBALS['xoopsConfig']['sitename']);
+
+/htdocs/class/xoopseditor/tinymce5/language/english.php
+- renamed _XOOPS_EDITOR_TINYMCE_LANGUAGE5 to _XOOPS_EDITOR_TINYMCE5_LANGUAGE
+
+/htdocs/modules/system/themes/transition/language/english/admin.php
+- renamed _OXYGEN_Server_API to _OXYGEN_SERVER_API
+
+/htdocs/modules/system/language/english/admin/preferences.php.
+- added define('_MD_AM_SENDMAIL_NOT_FOUND', 'Sendmail binary not found. Please check your server configuration.');
+- added define('_MD_AM_SENDMAIL_HELP_MISSING_BIN', 'No valid sendmail-compatible binary was detected. Install an MTA (e.g. Postfix, msmtp) or switch to SMTP in Preferences.');
+
+/htdocs/modules/system/language/english/admin/users.php
+- added define('_AM_SYSTEM_USERS_UNKNOWN_GROUP', 'Unknown group');
+
+/htdocs/modules/system/language/english/comment.php
+- added define('_CM_ADDCOMMENT', 'Add Comment');
+
+
+/htdocs/install/language/english/install.php
+- added define('_WEBSITE_NAME', 'XOOPS Site');
+- added define('_WEBSITE_SLOGAN', 'Just use it!');
+- added define('_WEBSITE_META_KEYWORDS', 'xoops, web application framework, cms, content management system');
+- added define('_WEBSITE_FOOTER', "Powered by XOOPS © 2001-{X_YEAR} <a href='https://xoops.org' rel='external' title='The XOOPS Project'>The XOOPS Project</a>");
+- added define('_WEBSITE_COPYRIGHT', 'Copyright © 2001-{X_YEAR}');
+- added define('_WEBSITE_DESCRIPTION', 'XOOPS is a dynamic Object Oriented based open source portal script written in PHP.');
+- added define('_WEBSITE_CENSOR_REPLACE', 'OOPS');
+
+
+================================
+2023/10/01: Version 2.5.11-Final
+================================
+/language/english/uploader.php
+-added define('_ER_UP_MODE_NOT_CHANGED', 'File uploaded, but could not change the mode');
+
+================================
+2023/10/01: Version 2.5.11-RC3
+================================
+
+CHANGED FILES:
+upgrade/language/english/upgrade.php
+upgrade/language/english/smarty3.php
+
+htdocs/class/xoopseditor/tinymce/language/english.php
+- added define('_FAILGETIMG', 'Failed to get image %s');
+
+/htdocs/modules/system/language/english/modinfo.php
+- added define('_MI_DEFAULT_NOTIFICATION_METHOD_DISABLE', 'Temporarily disable');
+- added define('_MI_DEFAULT_NOTIFICATION_METHOD_EMAIL', 'Email');
+- added define('_MI_DEFAULT_NOTIFICATION_METHOD_PM', 'Private message');
+
+/htdocs/modules/system/language/english/admin/preferences.php
+- added define('_MD_AM_DEFAULT_NOTIFICATION_METHOD', 'Default notification method');
+- added define('_MD_AM_DEFAULT_NOTIFICATION_METHOD_DESC', 'For new users when they subscribe to notifications from, e.g., a forum.');
+- added define('_MD_AM_MODULEPREF',
+
+
+================================
+2023/03/19: Version 2.5.11-RC1
+================================
+
+CHANGED FILES:
+htdocs/language/english/global.php
+- added define('_DB_QUERY_ERROR', 'Query Failed! SQL: %s - Error: ');
+- added define('_PRINT', 'Print');
+- added define('_PDF', 'PDF');
+- added define('_OFF', 'Off');
+
+================================
 2021/09/02: Version 2.5.11-Betas
 ================================
 
@@ -27,13 +106,20 @@ htdocs/language/english/global.php
 - changed define('_SIZE', 'Size'); // font size
 - changed define('_FONT', 'Font'); // font family
 - changed define('_COLOR', 'Color'); // font color
+
 htdocs/install/language/english/install.php
 - added define('ERR_COPY_CONFIG_FILE', 'Could not copy the configuration file %s');
+
 htdocs/install/language/english/welcome.php
 - changed recommended PHP & MySQL versions, links changed to "https:"
+
 htdocs/modules/system/language/english/admin/preferences.php
 - changed define('_MD_AM_SMTPHOSTDESC', 'Either a single hostname or multiple semicolon-delimited hostnames.<br>You can also specify a different port for each host by using this format: [hostname:port] (e.g. "smtp1.example.com:25;smtp2.example.com").<br>You can also specify encryption type, for example: (e.g. "tls://smtp1.example.com:587;ssl://smtp2.example.com:465").<br>Hosts will be tried in order.');
+
 htdocs/modules/system/language/english/help/blocksadmin.html
+
+htdocs/modules/system/language/english/admin/modulesadmin.php
+- changed define('_AM_SYSTEM_MODULES_ADMIN', 'XOOPS Module Administration');
 
 NEW FILES:
 htdocs/themes/xswatch4/language/english/main.php
@@ -58,6 +144,15 @@ htdocs/modules/system/language/english/admin/mailusers.php
 
 htdocs/modules/system/language/english/admin/images.php
 - added define("_AM_SYSTEM_IMAGES_SCATDELNG","Can't delete this category");
+
+htdocs/modules/system/language/english/admin/modulesadmin.php
+- added define('_AM_SYSTEM_MODULES_INSTALL_THISMODULE', 'This Module Admin');
+
+DELETED FILES:
+htdocs/modules/system/language/english/admin/users.php
+- deleted define('_AM_SYSTEM_USERS_MODIFYUSER', 'Modify User');
+- deleted define('_AM_SYSTEM_USERS_DELUSER', 'Delete User');
+- deleted define('_AM_SYSTEM_USERS_GO', 'Go!');
 
 ================================
 2019/04/29: Version 2.5.10 Final

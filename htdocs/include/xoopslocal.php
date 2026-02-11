@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * XoopsLocalWrapper
@@ -24,7 +26,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
 class XoopsLocalWrapper
 {
     /**
-     * @param null $language
+     * @param mixed $language
      *
      * @return bool
      */
@@ -53,9 +55,13 @@ function xoops_local()
     $func      = array_shift($func_args);
 
     // local method defined
-    return call_user_func_array(array(
-                                    'XoopsLocal',
-                                    $func), $func_args);
+    return call_user_func_array(
+        [
+            'XoopsLocal',
+            $func,
+        ],
+        $func_args,
+    );
 }
 
 XoopsLocalWrapper::load();

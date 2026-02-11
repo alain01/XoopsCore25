@@ -9,24 +9,32 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * A Config-Option
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  * @package             kernel
  */
 class XoopsConfigOption extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $confop_id;
+    public $confop_name;
+    public $confop_value;
+    public $conf_id;
+
     /**
      * Constructor
      */
@@ -95,7 +103,7 @@ class XoopsConfigOption extends XoopsObject
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS configuration option class objects.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @author              Kazumi Ono <onokazu@xoops.org>
  *
  * @package             kernel
@@ -125,15 +133,16 @@ class XoopsConfigOptionHandler extends XoopsObjectHandler
      *
      * @param int $id ID of the option
      *
-     * @return XoopsConfigOption reference to the {@link XoopsConfigOption}, FALSE on fail
+     * @return XoopsConfigOption|false reference to the {@link XoopsConfigOption}, false on fail
      */
     public function get($id)
     {
         $confoption = false;
-        $id         = (int)$id;
+        $id         = (int) $id;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('configoption') . ' WHERE confop_id=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return $confoption;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -179,7 +188,7 @@ class XoopsConfigOptionHandler extends XoopsObjectHandler
                 $confop_id,
                 $this->db->quote($confop_name),
                 $this->db->quote($confop_value),
-                $conf_id
+                $conf_id,
             );
         } else {
             $sql = sprintf(
@@ -187,10 +196,10 @@ class XoopsConfigOptionHandler extends XoopsObjectHandler
                 $this->db->prefix('configoption'),
                 $this->db->quote($confop_name),
                 $this->db->quote($confop_value),
-                $confop_id
+                $confop_id,
             );
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($confop_id)) {
@@ -215,7 +224,7 @@ class XoopsConfigOptionHandler extends XoopsObjectHandler
             return false;
         }
         $sql = sprintf('DELETE FROM %s WHERE confop_id = %u', $this->db->prefix('configoption'), $confoption->getVar('confop_id'));
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -230,25 +239,26 @@ class XoopsConfigOptionHandler extends XoopsObjectHandler
      *
      * @return array Array of {@link XoopsConfigOption}s
      */
-    public function getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT * FROM ' . $this->db->prefix('configoption');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere() . ' ORDER BY confop_id ' . $criteria->getOrder();
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $confoption = new XoopsConfigOption();
             $confoption->assignVars($myrow);
             if (!$id_as_key) {
-                $ret[] =& $confoption;
+                $ret[] = & $confoption;
             } else {
                 $ret[$myrow['confop_id']] = &$confoption;
             }
@@ -256,5 +266,31 @@ class XoopsConfigOptionHandler extends XoopsObjectHandler
         }
 
         return $ret;
+    }
+
+    /**
+     * get count of matching configoption rows
+     *
+     * @param CriteriaElement $criteria
+     *
+     * @return int Count of matching XoopsConfigOption
+     */
+    public function getCount(?CriteriaElement $criteria = null)
+    {
+        $sql = 'SELECT COUNT(*) as `count` FROM ' . $this->db->prefix('configoption');
+        if (isset($criteria) && $criteria instanceof \CriteriaElement) {
+            $sql .= ' ' . $criteria->renderWhere();
+        }
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $this->db->error(),
+                E_USER_ERROR,
+            );
+        }
+        $row = $this->db->fetchArray($result);
+        $count = $row['count'];
+        $this->db->freeRecordSet($result);
+        return (int) $count;
     }
 }

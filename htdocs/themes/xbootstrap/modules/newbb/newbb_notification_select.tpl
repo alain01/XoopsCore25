@@ -1,4 +1,4 @@
-<{if $xoops_notification.show}>
+<{if !empty($xoops_notification.show)}>
     <form name="notification_select" action="<{$xoops_url}>/modules/<{$xoops_dirname}>/<{$xoops_notification.target_page}>" method="post">
         <h4 class="txtcenter"><{$lang_activenotifications}>    </h4>
         <!-- irmtfan remove value=xoops_url -->
@@ -15,8 +15,8 @@
                                         value="<{$lang_checkall}>"></td>
                 <td class="head"><{$lang_events}></td>
             </tr>
-            <{foreach name=outer item=category from=$xoops_notification.categories}>
-                <{foreach name=inner item=event from=$category.events}>
+            <{foreach item=category from=$xoops_notification.categories|default:null name=outer}>
+                <{foreach item=event from=$category.events|default:null name=inner}>
                     <tr>
                         <{if $smarty.foreach.inner.first}>
                             <td class="even" rowspan="<{$smarty.foreach.inner.total}>"><{$category.title}></td>
@@ -25,7 +25,7 @@
                             <{counter assign=index}>
                             <input type="hidden" name="not_list[<{$index}>][params]"
                                    value="<{$category.name}>,<{$category.itemid}>,<{$event.name}>">
-                            <input type="checkbox" id="not_list[]" name="not_list[<{$index}>][status]" value="1"
+                            <input type="checkbox" name="not_list[<{$index}>][status]" value="1"
                                    <{if $event.subscribed}>checked<{/if}> >
                         </td>
                         <td class="odd"><{$event.caption}></td>

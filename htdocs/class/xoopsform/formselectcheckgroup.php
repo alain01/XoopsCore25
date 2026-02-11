@@ -13,14 +13,16 @@
 /**
  *  Xoops Form Class Elements
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
  * @since               2.3.0
  * @author              John Neill <catzwolf@xoops.org>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_load('XoopsFormCheckBox');
 
@@ -28,7 +30,7 @@ xoops_load('XoopsFormCheckBox');
  * Xoops Form Select Check Groups
  *
  * @author              John Neill <catzwolf@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             kernel
  * @subpackage          form
  * @access              public
@@ -44,7 +46,7 @@ class XoopsFormSelectCheckGroup extends XoopsFormCheckBox
      */
     public function __construct($caption, $name, $value = null)
     {
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler   = xoops_getHandler('member');
         $userGroups = $member_handler->getGroupList();
         parent::__construct($caption, $name, $value);

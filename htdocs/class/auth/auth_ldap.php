@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright           The XOOPS Project (http://xoops.org)
+ * @copyright           2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          auth
  * @since               2.0
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  *
@@ -24,7 +26,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @subpackage          auth
  * @description         Authentification class for standard LDAP Server V2 or V3
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 if (file_exists($file = $GLOBALS['xoops']->path('class/auth/auth_provisionning.php'))) {
     include_once $file;
@@ -41,12 +43,12 @@ if (!class_exists('XoopsAuthProvisionning')) {
  *
  * @package
  * @author              John
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @access              public
  */
 class XoopsAuthLdap extends XoopsAuth
 {
-    public $cp1252_map = array(
+    public array $cp1252_map = [
         "\xc2\x80" => "\xe2\x82\xac",
         /**
          * EURO SIGN
@@ -133,7 +135,7 @@ class XoopsAuthLdap extends XoopsAuth
          */
         "\xc2\x99" => "\xe2\x84\xa2",
         /**
-         * TRADE MARK SIGN
+         * TRADEMARK SIGN
          */
         "\xc2\x9a" => "\xc5\xa1",
         /**
@@ -151,34 +153,52 @@ class XoopsAuthLdap extends XoopsAuth
         /**
          * LATIN SMALL LETTER Z WITH CARON
          */
-        "\xc2\x9f" => "\xc5\xb8");
+        "\xc2\x9f" => "\xc5\xb8",
+    ];
     /**
      * LATIN CAPITAL LETTER Y WITH DIAERESIS
      */
 
-    public $ldap_server;
-    public $ldap_port    = '389';
-    public $ldap_version = '3';
-    public $ldap_base_dn;
-    public $ldap_loginname_asdn;
-    public $ldap_loginldap_attr;
-    public $ldap_mail_attr;
-    public $ldap_name_attr;
-    public $ldap_surname_attr;
-    public $ldap_givenname_attr;
-    public $ldap_manager_dn;
-    public $ldap_manager_pass;
-    public $_ds;
+    public ?string $ldap_server = null;
+    public int $ldap_port = 389;
+    public string $ldap_version = '3';
+    public ?string $ldap_base_dn = null;
+    public ?bool $ldap_loginname_asdn = null;
+    public ?string $ldap_loginldap_attr = null;
+    public ?string $ldap_mail_attr = null;
+    public ?string $ldap_name_attr = null;
+    public ?string $ldap_surname_attr = null;
+    public ?string $ldap_givenname_attr = null;
+    public ?string $ldap_manager_dn = null;
+    public ?string $ldap_manager_pass = null;
+    public ?string $ldap_filter_person = null;
+    public ?bool $ldap_use_TLS = null;
+    public ?string $ldap_domain_name = null;
+    public ?string $ldap_provisionning = null;
+    public ?string $ldap_provisionning_upd = null;
+    public ?array $ldap_provisionning_group = null;
+    public ?string $ldap_field_mapping = null;
+    public ?array $ldap_users_bypass = null;
+    public ?string $ldap_filter_person_adv = null;
+    public ?string $ldap_filter_attr = null;
+    public ?string $ldap_filter_value = null;
+    public string $ldap_filter_operator;
+    public string $ldap_filter_groupattr;
+    public string $ldap_filter_groupvalue;
+    public string $ldap_filter_member;
+    public string $ldap_filter_memberattr;
+    public string $ldap_filter_membervalue;
+    public mixed $_ds;
 
     /**
      * Authentication Service constructor
      * @param XoopsDatabase $dao
      */
-    public function __construct(XoopsDatabase $dao = null)
+    public function __construct(?XoopsDatabase $dao = null)
     {
         $this->_dao = $dao;
         // The config handler object allows us to look at the configuration options that are stored in the database
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler = xoops_getHandler('config');
         $config         = $config_handler->getConfigsByCat(XOOPS_CONF_AUTH);
         $confcount      = count($config);
@@ -196,7 +216,7 @@ class XoopsAuthLdap extends XoopsAuth
      */
     public function cp1252_to_utf8($str)
     {
-        return strtr(utf8_encode($str), $this->cp1252_map);
+        return strtr(xoops_utf8_encode($str), $this->cp1252_map);
     }
 
     /**
@@ -206,7 +226,7 @@ class XoopsAuthLdap extends XoopsAuth
      *         Authenticate with manager, search the dn
      *
      * @param  string $uname Username
-     * @param  string $pwd   Password
+     * @param  string|null $pwd   Password
      * @return bool
      */
     public function authenticate($uname, $pwd = null)
@@ -242,7 +262,9 @@ class XoopsAuthLdap extends XoopsAuth
         } else {
             $this->setErrors(0, _AUTH_LDAP_SERVER_NOT_FOUND);
         }
-        @ldap_close($this->_ds);
+        if (is_resource($this->_ds)) {
+            ldap_unbind($this->_ds);
+        }
 
         return $authenticated;
     }
@@ -250,8 +272,8 @@ class XoopsAuthLdap extends XoopsAuth
     /**
      * Compose the user DN with the configuration.
      *
-     * @param $uname
-     * @return userDN or false
+     * @param string $uname
+     * @return string|false userDN or false
      */
     public function getUserDN($uname)
     {
@@ -266,7 +288,7 @@ class XoopsAuthLdap extends XoopsAuth
             $filter = $this->getFilter($uname);
             $sr     = ldap_search($this->_ds, $this->ldap_base_dn, $filter);
             $info   = ldap_get_entries($this->_ds, $sr);
-            if ($info['count'] > 0) {
+            if (is_array($info) && $info['count'] > 0) {
                 $userDN = $info[0]['dn'];
             } else {
                 $this->setErrors(0, sprintf(_AUTH_LDAP_USER_NOT_FOUND, $uname, $filter, $this->ldap_base_dn));
@@ -281,8 +303,8 @@ class XoopsAuthLdap extends XoopsAuth
     /**
      * Load user from XOOPS Database
      *
-     * @param $uname
-     * @return XoopsUser object
+     * @param string $uname
+     * @return string XoopsUser object
      */
     public function getFilter($uname)
     {
@@ -309,7 +331,7 @@ class XoopsAuthLdap extends XoopsAuth
         $provisHandler = XoopsAuthProvisionning::getInstance($this);
         $sr            = ldap_read($this->_ds, $userdn, '(objectclass=*)');
         $entries       = ldap_get_entries($this->_ds, $sr);
-        if ($entries['count'] > 0) {
+        if (is_array($entries) && $entries['count'] > 0) {
             $xoopsUser = $provisHandler->sync($entries[0], $uname, $pwd);
         } else {
             $this->setErrors(0, sprintf('loadXoopsUser - ' . _AUTH_LDAP_CANT_READ_ENTRY, $userdn));

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          auth
@@ -17,7 +17,9 @@
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  *
@@ -25,25 +27,26 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @subpackage          auth
  * @description         Authentification base class
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsAuth
 {
-    public $_dao;
-    public $_errors;
+    public ?XoopsDatabase $_dao;
+    public array $_errors = [];
+    public string $auth_method = '';
 
     /**
      * Authentication Service constructor
      * @param XoopsDatabase $dao
      */
-    public function __construct(XoopsDatabase $dao = null)
+    public function __construct(?XoopsDatabase $dao = null)
     {
         $this->_dao = $dao;
     }
 
     /**
      * @param  string $uname
-     * @abstract need to be write in the derived class
+     * @abstract need to be written in the derived class
      */
     public function authenticate($uname)
     {

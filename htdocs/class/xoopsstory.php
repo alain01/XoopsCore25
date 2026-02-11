@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
@@ -17,7 +17,9 @@
  * @deprecated
  */
 
-defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('XOOPS root path not defined');
+}
 
 $GLOBALS['xoopsLogger']->addDeprecated("'/class/xoopstory.php' is deprecated since XOOPS 2.5.4, please create your own class instead.");
 include_once XOOPS_ROOT_PATH . '/class/xoopstopic.php';
@@ -63,7 +65,7 @@ class XoopsStory
         if (is_array($storyid)) {
             $this->makeStory($storyid);
         } elseif ($storyid != -1) {
-            $this->getStory((int)$storyid);
+            $this->getStory((int) $storyid);
         }
     }
 
@@ -72,7 +74,7 @@ class XoopsStory
      */
     public function setStoryId($value)
     {
-        $this->storyid = (int)$value;
+        $this->storyid = (int) $value;
     }
 
     /**
@@ -80,7 +82,7 @@ class XoopsStory
      */
     public function setTopicId($value)
     {
-        $this->topicid = (int)$value;
+        $this->topicid = (int) $value;
     }
 
     /**
@@ -88,7 +90,7 @@ class XoopsStory
      */
     public function setUid($value)
     {
-        $this->uid = (int)$value;
+        $this->uid = (int) $value;
     }
 
     /**
@@ -120,7 +122,7 @@ class XoopsStory
      */
     public function setPublished($value)
     {
-        $this->published = (int)$value;
+        $this->published = (int) $value;
     }
 
     /**
@@ -128,7 +130,7 @@ class XoopsStory
      */
     public function setExpired($value)
     {
-        $this->expired = (int)$value;
+        $this->expired = (int) $value;
     }
 
     /**
@@ -184,7 +186,7 @@ class XoopsStory
      */
     public function setApproved($value)
     {
-        $this->approved = (int)$value;
+        $this->approved = (int) $value;
     }
 
     /**
@@ -208,7 +210,7 @@ class XoopsStory
      */
     public function setComments($value)
     {
-        $this->comments = (int)$value;
+        $this->comments = (int) $value;
     }
 
     /**
@@ -218,14 +220,15 @@ class XoopsStory
      */
     public function store($approved = false)
     {
+        global $xoopsDB;
         //$newpost = 0;
-        $myts     = MyTextSanitizer::getInstance();
+        $myts     = \MyTextSanitizer::getInstance();
         $title    = $myts->censorString($this->title);
         $hometext = $myts->censorString($this->hometext);
         $bodytext = $myts->censorString($this->bodytext);
-        $title    = $myts->addSlashes($title);
-        $hometext = $myts->addSlashes($hometext);
-        $bodytext = $myts->addSlashes($bodytext);
+        $title    = $xoopsDB->escape($title);
+        $hometext = $xoopsDB->escape($hometext);
+        $bodytext = $xoopsDB->escape($bodytext);
         if (!isset($this->nohtml) || $this->nohtml != 1) {
             $this->nohtml = 0;
         }
@@ -254,7 +257,7 @@ class XoopsStory
             }
             $newstoryid = $this->storyid;
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($newstoryid)) {
@@ -270,9 +273,16 @@ class XoopsStory
      */
     public function getStory($storyid)
     {
-        $storyid = (int)$storyid;
+        $storyid = (int) $storyid;
         $sql     = 'SELECT * FROM ' . $this->table . ' WHERE storyid=' . $storyid . '';
-        $array   = $this->db->fetchArray($this->db->query($sql));
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $this->db->error(),
+                E_USER_ERROR,
+            );
+        }
+        $array   = $this->db->fetchArray($result);
         $this->makeStory($array);
     }
 
@@ -292,7 +302,7 @@ class XoopsStory
     public function delete()
     {
         $sql = sprintf('DELETE FROM %s WHERE storyid = %u', $this->table, $this->storyid);
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -305,7 +315,7 @@ class XoopsStory
     public function updateCounter()
     {
         $sql = sprintf('UPDATE %s SET counter = counter+1 WHERE storyid = %u', $this->table, $this->storyid);
-        if (!$result = $this->db->queryF($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -320,7 +330,7 @@ class XoopsStory
     public function updateComments($total)
     {
         $sql = sprintf('UPDATE %s SET comments = %u WHERE storyid = %u', $this->table, $total, $this->storyid);
-        if (!$result = $this->db->queryF($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -360,7 +370,7 @@ class XoopsStory
      */
     public function title($format = 'Show')
     {
-        $myts   = MyTextSanitizer::getInstance();
+        $myts   = \MyTextSanitizer::getInstance();
         $smiley = 1;
         if ($this->nosmiley()) {
             $smiley = 0;
@@ -372,7 +382,7 @@ class XoopsStory
                 break;
             case 'Preview':
             case 'InForm':
-                $title = $myts->htmlSpecialChars($myts->stripSlashesGPC($this->title));
+                $title = $myts->htmlSpecialChars($this->title);
                 break;
         }
 
@@ -386,7 +396,7 @@ class XoopsStory
      */
     public function hometext($format = 'Show')
     {
-        $myts   = MyTextSanitizer::getInstance();
+        $myts   = \MyTextSanitizer::getInstance();
         $html   = 1;
         $smiley = 1;
         $xcodes = 1;
@@ -401,13 +411,13 @@ class XoopsStory
                 $hometext = $myts->displayTarea($this->hometext, $html, $smiley, $xcodes);
                 break;
             case 'Edit':
-                $hometext = htmlspecialchars($this->hometext, ENT_QUOTES);
+                $hometext = htmlspecialchars($this->hometext, ENT_QUOTES | ENT_HTML5);
                 break;
             case 'Preview':
                 $hometext = $myts->previewTarea($this->hometext, $html, $smiley, $xcodes);
                 break;
             case 'InForm':
-                $hometext = htmlspecialchars($myts->stripSlashesGPC($this->hometext), ENT_QUOTES);
+                $hometext = htmlspecialchars($this->hometext, ENT_QUOTES | ENT_HTML5);
                 break;
         }
 
@@ -421,7 +431,7 @@ class XoopsStory
      */
     public function bodytext($format = 'Show')
     {
-        $myts   = MyTextSanitizer::getInstance();
+        $myts   = \MyTextSanitizer::getInstance();
         $html   = 1;
         $smiley = 1;
         $xcodes = 1;
@@ -436,13 +446,13 @@ class XoopsStory
                 $bodytext = $myts->displayTarea($this->bodytext, $html, $smiley, $xcodes);
                 break;
             case 'Edit':
-                $bodytext = htmlspecialchars($this->bodytext, ENT_QUOTES);
+                $bodytext = htmlspecialchars($this->bodytext, ENT_QUOTES | ENT_HTML5);
                 break;
             case 'Preview':
                 $bodytext = $myts->previewTarea($this->bodytext, $html, $smiley, $xcodes);
                 break;
             case 'InForm':
-                $bodytext = htmlspecialchars($myts->stripSlashesGPC($this->bodytext), ENT_QUOTES);
+                $bodytext = htmlspecialchars($this->bodytext, ENT_QUOTES | ENT_HTML5);
                 break;
         }
 

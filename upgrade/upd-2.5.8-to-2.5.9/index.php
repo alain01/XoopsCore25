@@ -8,7 +8,7 @@ use Xmf\Database\Tables;
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license          GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          Upgrade
  * @since            2.5.9
@@ -22,12 +22,12 @@ class Upgrade_259 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array('sess_id', 'mainfile', 'zaplegacy');
-        $this->usedFiles = array(
+        $this->tasks = ['sess_id', 'mainfile', 'zaplegacy'];
+        $this->usedFiles = [
             'mainfile.php',
             XOOPS_VAR_PATH . '/data/secure.php',
-            'modules/system/themes/legacy/legacy.php'
-        );
+            'modules/system/themes/legacy/legacy.php',
+        ];
     }
 
     /**
@@ -40,7 +40,7 @@ class Upgrade_259 extends XoopsUpgrade
      */
     private function getColumnLength($table, $column)
     {
-        /* @var XoopsMySQLDatabase $db */
+        /** @var XoopsMySQLDatabase $db */
         $db = XoopsDatabaseFactory::getDatabaseConnection();
 
         $dbname = constant('XOOPS_DB_NAME');
@@ -51,12 +51,12 @@ class Upgrade_259 extends XoopsUpgrade
             . "WHERE TABLE_SCHEMA = '%s'AND TABLE_NAME = '%s' AND COLUMN_NAME = '%s'",
             $db->escape($dbname),
             $db->escape($table),
-            $db->escape($column)
+            $db->escape($column),
         );
 
         /** @var mysqli_result $result */
         $result = $db->query($sql);
-        if ($result) {
+        if ($db->isResultSet($result)) {
             $row = $db->fetchRow($result);
             if ($row) {
                 $columnLength = $row[0];
@@ -160,7 +160,7 @@ class Upgrade_259 extends XoopsUpgrade
             $upgradeControl->mainfileKeys,
             XOOPS_ROOT_PATH,
             'mainfile.dist.php',
-            'mainfile.php'
+            'mainfile.php',
         );
         if ($result !== true) {
             $this->logs[] = $result;
@@ -169,7 +169,7 @@ class Upgrade_259 extends XoopsUpgrade
                 $upgradeControl->mainfileKeys,
                 XOOPS_VAR_PATH . '/data',
                 'secure.dist.php',
-                'secure.php'
+                'secure.php',
             );
             if ($result !== true) {
                 $this->logs[] = $result;

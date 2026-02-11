@@ -9,32 +9,34 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**#@+
  * @deprecated
  */
 
 /**
- * Displayes xoopsCode buttons and target textarea to which xoopscodes are inserted
+ * Displays xoopsCode buttons and target textarea to which xoopscodes are inserted
  *
- * @param   string $textarea_id a unique id of the target textarea
- * @param int      $cols
- * @param int      $rows
- * @param null     $suffix
+ * @param string      $textarea_id a unique id of the target textarea
+ * @param int         $cols
+ * @param int         $rows
+ * @param string|null $suffix
  */
 function xoopsCodeTarea($textarea_id, $cols = 60, $rows = 15, $suffix = null)
 {
     xoops_load('XoopsFormDhtmlTextArea');
     $hiddenText              = isset($suffix) ? 'xoopsHiddenText' . trim($suffix) : 'xoopsHiddenText';
-    $content                 = isset($GLOBALS[$textarea_id]) ? $GLOBALS[$textarea_id] : '';
+    $content                 = $GLOBALS[$textarea_id] ?? '';
     $text_editor             = new XoopsFormDhtmlTextArea('', $textarea_id, $content, $rows, $cols, $hiddenText);
     $text_editor->htmlEditor = null;
     $text_editor->smilies    = false;
@@ -48,11 +50,11 @@ function xoopsCodeTarea($textarea_id, $cols = 60, $rows = 15, $suffix = null)
  */
 function xoopsSmilies($textarea_id)
 {
-    $myts   = MyTextSanitizer::getInstance();
+    $myts   = \MyTextSanitizer::getInstance();
     $smiles = $myts->getSmileys(false);
     $count  = count($smiles);
     for ($i = 0; $i < $count; ++$i) {
-        echo "<img src='" . XOOPS_UPLOAD_URL . '/' . htmlspecialchars($smiles[$i]['smile_url'], ENT_QUOTES) . "' border='0' alt='' onclick='xoopsCodeSmilie(\"{$textarea_id}\", \" " . $smiles[$i]['code'] . " \");' onmouseover='style.cursor=\"hand\"' />";
+        echo "<img src='" . XOOPS_UPLOAD_URL . '/' . htmlspecialchars($smiles[$i]['smile_url'], ENT_QUOTES | ENT_HTML5) . "' border='0' alt='' onclick='xoopsCodeSmilie(\"{$textarea_id}\", \" " . $smiles[$i]['code'] . " \");' onmouseover='style.cursor=\"hand\"' />";
     }
     echo "&nbsp;[<a href='#moresmiley' onmouseover='style.cursor=\"hand\"' alt='' onclick='openWithSelfMain(\"" . XOOPS_URL . "/misc.php?action=showpopups&amp;type=smilies&amp;target={$textarea_id}\",\"smilies\",300,475);'>" . _MORE . '</a>]';
 }

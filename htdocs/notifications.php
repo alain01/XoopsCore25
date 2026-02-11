@@ -9,11 +9,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.0.0
  */
+
+use Xmf\Request;
 
 $xoopsOption['pagetype'] = 'notification';
 include __DIR__ . '/mainfile.php';
@@ -26,9 +28,9 @@ $uid = $xoopsUser->getVar('uid');
 
 $op = 'list';
 if (isset($_POST['op'])) {
-    $op = trim($_POST['op']);
+    $op = Request::getString('op', '', 'POST');
 } elseif (isset($_GET['op'])) {
-    $op = trim($_GET['op']);
+    $op = Request::getString('op', '', 'GET');
 }
 if (isset($_POST['delete'])) {
     $op = 'delete';
@@ -56,15 +58,15 @@ switch ($op) {
         // Get an array of all notifications for the selected user
         $criteria = new Criteria('not_uid', $uid);
         $criteria->setSort('not_modid,not_category,not_itemid');
-        /* @var  XoopsNotificationHandler $notification_handler */
+        /** @var  XoopsNotificationHandler $notification_handler */
         $notification_handler = xoops_getHandler('notification');
         $notifications        = $notification_handler->getObjects($criteria);
 
         // Generate the info for the template
-        /* @var XoopsModuleHandler $module_handler */
+        /** @var XoopsModuleHandler $module_handler */
         $module_handler = xoops_getHandler('module');
         include_once $GLOBALS['xoops']->path('include/notification_functions.php');
-        $modules       = array();
+        $modules       = [];
         $prev_modid    = -1;
         $prev_category = -1;
         $prev_item     = -1;
@@ -74,11 +76,13 @@ switch ($op) {
                 $prev_modid      = $modid;
                 $prev_category   = -1;
                 $prev_item       = -1;
+                /** @var \XoopsModule $module */
                 $module          = $module_handler->get($modid);
-                $modules[$modid] = array(
+                $modules[$modid] = [
                     'id'         => $modid,
                     'name'       => $module->getVar('name'),
-                    'categories' => array());
+                    'categories' => [],
+                ];
                 // TODO: note, we could auto-generate the url from the id
                 // and category info... (except when category has multiple
                 // subscription scripts defined...)
@@ -105,10 +109,11 @@ switch ($op) {
                 $prev_category                            = $category;
                 $prev_item                                = -1;
                 $category_info                            = &notificationCategoryInfo($category, $modid);
-                $modules[$modid]['categories'][$category] = array(
+                $modules[$modid]['categories'][$category] = [
                     'name'  => $category,
                     'title' => $category_info['title'],
-                    'items' => array());
+                    'items' => [],
+                ];
             }
             $item = $n->getVar('not_itemid');
             if ($item != $prev_item) {
@@ -116,18 +121,20 @@ switch ($op) {
                 if (!empty($lookup_func)) {
                     $item_info = $lookup_func($category, $item);
                 } else {
-                    $item_info = array(
+                    $item_info = [
                         'name' => '[' . _NOT_NAMENOTAVAILABLE . ']',
-                        'url'  => '');
+                        'url'  => '',
+                    ];
                 }
-                $modules[$modid]['categories'][$category]['items'][$item] = array(
+                $modules[$modid]['categories'][$category]['items'][$item] = [
                     'id'            => $item,
                     'name'          => $item_info['name'],
                     'url'           => $item_info['url'],
-                    'notifications' => array());
+                    'notifications' => [],
+                ];
             }
-            $event_info                                                                  =& notificationEventInfo($category, $n->getVar('not_event'), $n->getVar('not_modid'));
-            $modules[$modid]['categories'][$category]['items'][$item]['notifications'][] = array(
+            $event_info                                                                  = & notificationEventInfo($category, $n->getVar('not_event'), $n->getVar('not_modid'));
+            $modules[$modid]['categories'][$category]['items'][$item]['notifications'][] = [
                 'id'             => $n->getVar('not_id'),
                 'module_id'      => $n->getVar('not_modid'),
                 'category'       => $n->getVar('not_category'),
@@ -135,12 +142,13 @@ switch ($op) {
                 'item_id'        => $n->getVar('not_itemid'),
                 'event'          => $n->getVar('not_event'),
                 'event_title'    => $event_info['title'],
-                'user_id'        => $n->getVar('not_uid'));
+                'user_id'        => $n->getVar('not_uid'),
+            ];
         }
         $GLOBALS['xoopsOption']['template_main'] = 'system_notification_list.tpl';
         include $GLOBALS['xoops']->path('header.php');
         $xoopsTpl->assign('modules', $modules);
-        $user_info = array('uid' => $xoopsUser->getVar('uid'));
+        $user_info = ['uid' => $xoopsUser->getVar('uid')];
         $xoopsTpl->assign('user', $user_info);
         $xoopsTpl->assign('lang_cancel', _CANCEL);
         $xoopsTpl->assign('lang_clear', _NOT_CLEAR);
@@ -174,10 +182,11 @@ switch ($op) {
             redirect_header('notifications.php', 2, _NOT_NOTHINGTODELETE);
         }
         include $GLOBALS['xoops']->path('header.php');
-        $hidden_vars = array(
+        $hidden_vars = [
             'uid'       => $uid,
             'delete_ok' => 1,
-            'del_not'   => $_POST['del_not']);
+            'del_not'   => $_POST['del_not'],
+        ];
         echo '<h4>' . _NOT_DELETINGNOTIFICATIONS . '</h4>';
         xoops_confirm($hidden_vars, xoops_getenv('PHP_SELF'), _NOT_RUSUREDEL);
         include $GLOBALS['xoops']->path('footer.php');

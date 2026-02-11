@@ -9,22 +9,32 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Gregory Mage (AKA Mage)
  * @package             system
  */
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * System User ranks
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  */
 class SystemUserrank extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $rank_id;
+    public $rank_title;
+    public $rank_min;
+    public $rank_max;
+    public $rank_special;
+    public $rank_image;
+
     /**
      *
      */
@@ -49,7 +59,7 @@ class SystemUserrank extends XoopsObject
         if ($this->isNew()) {
             $blank_img = 'blank.gif';
         } else {
-            $blank_img = str_replace('ranks/', '', $this->getVar('rank_image', 'e'));
+            $blank_img = str_replace('ranks/', '', (string) $this->getVar('rank_image', 'e'));
         }
         if ($action === false) {
             $action = $_SERVER['REQUEST_URI'];
@@ -68,9 +78,9 @@ class SystemUserrank extends XoopsObject
         $imgpath_img     = sprintf(_AM_SYSTEM_USERRANK_IMAGE_PATH, XOOPS_UPLOAD_PATH . '/ranks/');
         $imageselect_img = new XoopsFormSelect($imgpath_img, 'rank_image', $blank_img);
         $image_array_img = XoopsLists::getImgListAsArray(XOOPS_UPLOAD_PATH . '/ranks');
-        $imageselect_img->addOption("$blank_img", $blank_img);
+        $imageselect_img->addOption((string)$blank_img, $blank_img);
         foreach ($image_array_img as $image_img) {
-            $imageselect_img->addOption("$image_img", $image_img);
+            $imageselect_img->addOption((string)$image_img, $image_img);
         }
         $imageselect_img->setExtra("onchange='showImgSelected(\"xo-ranks-img\", \"rank_image\", \"ranks\", \"\", \"" . XOOPS_UPLOAD_URL . "\")'");
         $imgtray_img->addElement($imageselect_img, false);
@@ -102,19 +112,19 @@ class SystemUserrank extends XoopsObject
 }
 
 /**
- * System user ranks handler class. (Singelton)
+ * System user ranks handler class. (Singleton)
  *
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS block class objects.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  * @subpackage          avatar
  */
 class SystemuserrankHandler extends XoopsPersistableObjectHandler
 {
     /**
-     * @param null|XoopsDatabase $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct(XoopsDatabase $db)
     {

@@ -8,7 +8,7 @@
     Contacts
     Twitter:            https://twitter.com/_AngeloRocha
     Google Plus:        https://plus.google.com/+AngeloRocha/posts
-    Linkedin:           http://br.linkedin.com/in/angelorocha
+    Linkedin:           https://br.linkedin.com/in/angelorocha
     Github:             https://github.com/angelorocha
 */
 
@@ -182,9 +182,11 @@ a.navbar-brand.xlogo {
     position: absolute;
     z-index: +30;
     opacity: 0.8;
+    -webkit-box-shadow: 2px 2px 2px #222222;
     box-shadow: 2px 2px 2px #222222;
     display: none;
 }
+
 /* 4. XOOPS Modules */
 
 /* 4.1. News */
@@ -200,7 +202,7 @@ a.navbar-brand.xlogo {
 }
 
 .home-thumbnails {
-/*    max-height: 200px; */
+    /*    max-height: 200px; */
     overflow: hidden;
     border: 3px solid #EEE;
 }
@@ -269,16 +271,14 @@ strong.hit-counter {
     padding: 5px 10px 5px 10px;
     color: #EEE;
     border-radius: 50px;
-    -moz-border-radius: 50px;
-    -webkit-border-radius: 50px;
     letter-spacing: 0.5px;
-    transition: all linear 300ms;
-    -moz-transition: all linear 300ms;
     -webkit-transition: all linear 300ms;
+    transition: all linear 300ms;
 }
 
 .xoops-news-navigation a:hover {
     background: #EEE;
+    -webkit-box-shadow: 0 0 5px #222;
     box-shadow: 0 0 5px #222;
     color: #333;
 }
@@ -429,8 +429,6 @@ ul.userblock > li span.badge {
     color: #404040;
     padding: 10px;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
     position: relative;
 }
 
@@ -456,8 +454,6 @@ ul.userblock > li span.badge {
     border: 1px solid #DDD;
     margin-bottom: 10px;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
 
 .xoops-comment-form input[type=text]:focus, div.xoops-comment-form textarea:focus {
@@ -475,8 +471,6 @@ ul.userblock > li span.badge {
     padding: 5px;
     color: #FFF;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
     float: right;
 }
 
@@ -518,8 +512,7 @@ ul.userblock > li span.badge {
     background: #FFF;
     padding: 10px;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+    -webkit-box-shadow: 0 0 10px #333, 0 0 10px #333;
     box-shadow: 0 0 10px #333, 0 0 10px #333;
 }
 
@@ -560,8 +553,6 @@ ul.profile-values > li.profile-category-title {
     max-height: 250px;
     margin-bottom: 10px;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
 
 .contact-module input[type=text]:focus,
@@ -580,13 +571,13 @@ ul.profile-values > li.profile-category-title {
     min-height: 40px;
 }
 
-.xoops-message-list div.col-xs-1,
+.xoops-message-list div.col-1,
 .xoops-message-list div.col-md-1 {
     max-width: 14px;
     text-align: center;
 }
 
-.xoops-message-list div.col-xs-1 .btn,
+.xoops-message-list div.col-1 .btn,
 .xoops-message-list div.col-md-1 .btn {
     padding: 3px;
     display: inline-block;
@@ -675,7 +666,6 @@ ul.adminlinks {
     top: 0;
     right: -300px;
     height: 100%;
-    -moz-transition: all linear 300ms;
     -webkit-transition: all linear 300ms;
     transition: all linear 300ms;
 }
@@ -713,8 +703,6 @@ ul.adminlinks > li > a {
     color: #FFF;
     font-weight: bold;
     border-radius: 5px 5px 0 0;
-    -moz-border-radius: 5px 5px 0 0;
-    -webkit-border-radius: 5px 5px 0 0;
     margin: 0;
     overflow: hidden;
 }
@@ -774,8 +762,6 @@ ul.form-send-e-card input, ul.form-send-e-card textarea {
     border: 1px solid #E6E6E6;
     padding: 5px;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
 
 ul.form-send-e-card input:focus, ul.form-send-e-card textarea:focus {
@@ -1257,7 +1243,7 @@ div.order-by a {
     line-height: inherit;
 }
 
-/* No margin, paddind and lineweight -> use in title tags if necessary... */
+/* No margin, padding and lineweight -> use in title tags if necessary... */
 
 /* Media Queries */
 @media (min-width: 320px) and (max-width: 768px) {
@@ -1287,10 +1273,19 @@ div.order-by a {
     float: right;
 }
 
-.pub_article_t_top h2 a.titlelink { color: inherit; }
-.pub_article_extras a img {  display: inline; }
+.pub_article_t_top h2 a.titlelink {
+    color: inherit;
+}
 
-#xo-logger-output {padding-bottom: 6rem;}
+.pub_article_extras a img {
+    display: inline;
+}
+
+#xo-logger-output {
+    padding-bottom: 96px;
+    padding-bottom: 96px;
+    padding-bottom: 6rem;
+}
 
 .jumbotron p {
     margin-left: 0.5em;
@@ -1315,7 +1310,7 @@ img.avatar {
     color: whitesmoke;
     text-shadow: 1em 0.5em 0.5em black;
     margin: 1em;
-    background: rgba(25, 25, 25, 0.4);
+    background: rgba(25, 25, 25, .4);
 }
 
 
@@ -1328,6 +1323,8 @@ img.avatar {
 }
 
 .xo-jumbotron {
+    padding-bottom: 8px;
+    padding-bottom: 8px;
     padding-bottom: 0.5rem;
 }
 
@@ -1357,20 +1354,24 @@ img.avatar {
 .vert .carousel-item-next,
 .vert .active.carousel-item-right {
     -webkit-transform: translate3d(0, 100%, 0);
-    transform: translate3d(0, 100% 0);
+    transform: translate3d(0, 100%, 0);
 }
 
 .vert .carousel-item-prev,
 .vert .active.carousel-item-left {
-    -webkit-transform: translate3d(0,-100%, 0);
-    transform: translate3d(0,-100%, 0);
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
 }
+
 /* End Creative Commons CC-BY-SA license. */
 
-#xo-pagenav{ display: inline-block;text-align:left } 
+#xo-pagenav {
+    display: inline-block;
+    text-align: left
+}
 
 #xo-pagenav a:first-child {
-	margin-right: -4px;
+    margin-right: -4px;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
@@ -1381,34 +1382,79 @@ img.avatar {
     border-bottom-right-radius: 5px;
 }
 
-#xo-pagenav a{ 
+#xo-pagenav a {
     color: #999999;
     padding: 4px 8px;
     text-decoration: none;
+    -webkit-transition: background-color .3s;
     transition: background-color .3s;
     border: 1px solid #dfdfdf;
 }
 
 /* active */
-#xo-pagenav .xo-pagact { margin-right: -4px;background-color: lightsteelblue;color: #FFFFFF;padding: 4px 8px; border: 1px solid #dfdfdf;}
+#xo-pagenav .xo-pagact {
+    margin-right: -4px;
+    background-color: lightsteelblue;
+    color: #FFFFFF;
+    padding: 4px 8px;
+    border: 1px solid #dfdfdf;
+}
 
 /* in-active */
-#xo-pagenav a.xo-counterpage {margin-right: -9px;background-color: #f8f8f8;color: #999999;border: 1px solid #dfdfdf;} 
+#xo-pagenav a.xo-counterpage {
+    margin-right: -9px;
+    background-color: #f8f8f8;
+    color: #999999;
+    border: 1px solid #dfdfdf;
+}
 
 /* in-active-hover */
-#xo-pagenav a.xo-counterpage:hover { background-color: #9c9c9c; color: #ffffff;}
+#xo-pagenav a.xo-counterpage:hover {
+    background-color: #9c9c9c;
+    color: #ffffff;
+}
 
 /* arrow */
-#xo-pagenav a.xo-pagarrow {border: 1px solid #dfdfdf; text-decoration: none;color: #999999;background-color: #dfdfdf} 
-#xo-pagenav a.xo-pagarrow:hover {text-decoration: none;background-color: #9c9c9c; color: #ffffff;} 
+#xo-pagenav a.xo-pagarrow {
+    border: 1px solid #dfdfdf;
+    text-decoration: none;
+    color: #999999;
+    background-color: #dfdfdf
+}
+
+#xo-pagenav a.xo-pagarrow:hover {
+    text-decoration: none;
+    background-color: #9c9c9c;
+    color: #ffffff;
+}
 
 /* arrow-left */
-#xo-pagenav a.xo-pagarrow-left {border: 1px solid #dfdfdf; text-decoration: none;color: #999999;background-color: #dfdfdf} 
-#xo-pagenav a.xo-pagarrow-left:hover {text-decoration: none;background-color: #9c9c9c; color: #ffffff;} 
+#xo-pagenav a.xo-pagarrow-left {
+    border: 1px solid #dfdfdf;
+    text-decoration: none;
+    color: #999999;
+    background-color: #dfdfdf
+}
+
+#xo-pagenav a.xo-pagarrow-left:hover {
+    text-decoration: none;
+    background-color: #9c9c9c;
+    color: #ffffff;
+}
 
 /* arrow-right */
-#xo-pagenav a.xo-pagarrow-right {border: 1px solid #dfdfdf; text-decoration: none;color: #999999;background-color: #dfdfdf} 
-#xo-pagenav a.xo-pagarrow-right:hover {text-decoration: none;background-color: #9c9c9c; color: #ffffff;} 
+#xo-pagenav a.xo-pagarrow-right {
+    border: 1px solid #dfdfdf;
+    text-decoration: none;
+    color: #999999;
+    background-color: #dfdfdf
+}
+
+#xo-pagenav a.xo-pagarrow-right:hover {
+    text-decoration: none;
+    background-color: #9c9c9c;
+    color: #ffffff;
+}
 
 
 

@@ -6,8 +6,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.5.5
  * @author           Taiwen Jiang <phppp@users.sourceforge.net>
@@ -22,14 +22,15 @@ class Upgrade_255 extends XoopsUpgrade
      */
     public function check_keys()
     {
-        $tables['groups_users_link'] = array('uid');
+        $tables['groups_users_link'] = ['uid'];
 
         foreach ($tables as $table => $keys) {
             $sql = 'SHOW KEYS FROM `' . $GLOBALS['xoopsDB']->prefix($table) . '`';
-            if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+            $result = $GLOBALS['xoopsDB']->queryF($sql);
+            if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
                 continue;
             }
-            $existing_keys = array();
+            $existing_keys = [];
             while (false !== ($row = $GLOBALS['xoopsDB']->fetchArray($result))) {
                 $existing_keys[] = $row['Key_name'];
             }
@@ -50,21 +51,22 @@ class Upgrade_255 extends XoopsUpgrade
      */
     public function apply_keys()
     {
-        $tables['groups_users_link'] = array('uid');
+        $tables['groups_users_link'] = ['uid'];
 
         foreach ($tables as $table => $keys) {
             $sql = 'SHOW KEYS FROM `' . $GLOBALS['xoopsDB']->prefix($table) . '`';
-            if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+            $result = $GLOBALS['xoopsDB']->queryF($sql);
+            if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
                 continue;
             }
-            $existing_keys = array();
+            $existing_keys = [];
             while (false !== ($row = $GLOBALS['xoopsDB']->fetchArray($result))) {
                 $existing_keys[] = $row['Key_name'];
             }
             foreach ($keys as $key) {
                 if (!in_array($key, $existing_keys)) {
                     $sql = 'ALTER TABLE `' . $GLOBALS['xoopsDB']->prefix($table) . "` ADD INDEX `{$key}` (`{$key}`)";
-                    if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+                    if (!$result = $GLOBALS['xoopsDB']->exec($sql)) {
                         return false;
                     }
                 }
@@ -109,7 +111,7 @@ class Upgrade_255 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array('keys', 'imptotal');
+        $this->tasks = ['keys', 'imptotal'];
     }
 }
 

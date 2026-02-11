@@ -10,15 +10,16 @@
  */
 
 /**
- * @copyright    XOOPS Project http://xoops.org/
- * @license      GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    2000-2025 XOOPS Project (https://xoops.org)
+ * @license      GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package
  * @since
  * @author       XOOPS Development Team, Kazumi Ono (AKA onokazu)
  */
-/* @var XoopsUser $xoopsUser */
-/* @var XoopsModule $xoopsModule */
+/** @var XoopsUser $xoopsUser */
+/** @var XoopsModule $xoopsModule */
 use Xmf\Request;
+
 // Check users rights
 if (!is_object($xoopsUser) || !is_object($xoopsModule) || !$xoopsUser->isAdmin($xoopsModule->mid())) {
     exit(_NOPERM);
@@ -28,9 +29,9 @@ $nb_group = xoops_getModuleOption('groups_pager', 'system');
 // Get Action type
 $op = Request::getString('op', 'list');
 // Get groups handler
-/* @var SystemGroupHandler $groups_Handler */
+/** @var SystemGroupHandler $groups_Handler */
 $groups_Handler = xoops_getModuleHandler('group', 'system');
-/* @var XoopsMemberHandler $member_handler */
+/** @var XoopsMemberHandler $member_handler */
 $member_handler = xoops_getHandler('member');
 // Define main template
 $GLOBALS['xoopsOption']['template_main'] = 'system_groups.tpl';
@@ -70,8 +71,8 @@ switch ($op) {
                 $groups['groups_id']   = $groups_id;
                 $groups['name']        = $groups_arr[$i]->getVar('name');
                 $groups['description'] = $groups_arr[$i]->getVar('description');
-                /* @var SystemMemberHandler $member_handler */
-                $member_handler        = xoops_getHandler('member', 'system');
+                /** @var SystemMemberHandler $member_handler */
+                $member_handler        = xoops_getHandler('member');
                 if ($groups_id != XOOPS_GROUP_ANONYMOUS) {
                     $group_id_arr[0]              = $groups_id;
                     $nb_users_by_groups           = $member_handler->getUserCountByGroupLink($group_id_arr);
@@ -81,13 +82,13 @@ switch ($op) {
                 }
                 $edit_delete = '<a href="admin.php?fct=groups&amp;op=groups_edit&amp;groups_id=' . $groups_id . '">
                                            <img src="./images/icons/edit.png" border="0" alt="' . _AM_SYSTEM_GROUPS_EDIT . '" title="' . _AM_SYSTEM_GROUPS_EDIT . '"></a>';
-                if (!in_array($groups_arr[$i]->getVar('groupid'), array(XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS))) {
+                if (!in_array($groups_arr[$i]->getVar('groupid'), [XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS])) {
                     $groups['delete'] = 1;
                     $edit_delete .= '<a href="admin.php?fct=groups&amp;op=groups_delete&amp;groups_id=' . $groups_id . '">
                                      <img src="./images/icons/delete.png" border="0" alt="' . _AM_SYSTEM_GROUPS_DELETE . '" title="' . _AM_SYSTEM_GROUPS_DELETE . '"></a>';
                 }
                 $groups['edit_delete'] = $edit_delete;
-                $xoopsTpl->append_by_ref('groups', $groups);
+                $xoopsTpl->appendByRef('groups', $groups);
                 unset($groups);
             }
         }
@@ -98,7 +99,7 @@ switch ($op) {
         }
         break;
 
-    //Add a group
+        //Add a group
     case 'groups_add':
         // Define Stylesheet
         $xoTheme->addStylesheet(XOOPS_URL . '/modules/system/css/admin.css');
@@ -114,7 +115,7 @@ switch ($op) {
         $xoopsTpl->assign('form', $form->render());
         break;
 
-    //Edit a group
+        //Edit a group
     case 'groups_edit':
         // Define Stylesheet
         $xoTheme->addStylesheet(XOOPS_URL . '/modules/system/css/admin.css');
@@ -135,16 +136,16 @@ switch ($op) {
         }
         break;
 
-    //Save a new group
+        //Save a new group
     case 'groups_save_add':
         if (!$GLOBALS['xoopsSecurity']->check()) {
             redirect_header('admin.php?fct=groups', 3, implode('<br>', $GLOBALS['xoopsSecurity']->getErrors()));
         }
-        $system_catids = Request::getArray('system_catids', array());
-        $admin_mids    = Request::getArray('admin_mids', array());
-        $read_mids     = Request::getArray('read_mids', array());
-        $read_bids     = Request::getArray('read_bids', array());
-        /* @var XoopsMemberHandler $member_handler */
+        $system_catids = Request::getArray('system_catids', []);
+        $admin_mids    = Request::getArray('admin_mids', []);
+        $read_mids     = Request::getArray('read_mids', []);
+        $read_bids     = Request::getArray('read_bids', []);
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         $group          = $member_handler->createGroup();
         $group->setVar('name', $_POST['name']);
@@ -158,7 +159,7 @@ switch ($op) {
             xoops_cp_footer();
         } else {
             $groupid       = $group->getVar('groupid');
-            /* @var  XoopsGroupPermHandler $gperm_handler */
+            /** @var  XoopsGroupPermHandler $gperm_handler */
             $gperm_handler = xoops_getHandler('groupperm');
             if (count($system_catids) > 0) {
                 $admin_mids[] = 1;
@@ -200,16 +201,16 @@ switch ($op) {
         }
         break;
 
-    //Save a edit group
+        //Save a edit group
     case 'groups_save_update':
         if (!$GLOBALS['xoopsSecurity']->check()) {
             redirect_header('admin.php?fct=groups', 3, implode('<br>', $GLOBALS['xoopsSecurity']->getErrors()));
         }
-		$system_catids = Request::getArray('system_catids', array());
-        $admin_mids    = Request::getArray('admin_mids', array());
-        $read_mids     = Request::getArray('read_mids', array());
-        $read_bids     = Request::getArray('read_bids', array());
-        /* @var XoopsMemberHandler $member_handler */
+        $system_catids = Request::getArray('system_catids', []);
+        $admin_mids    = Request::getArray('admin_mids', []);
+        $read_mids     = Request::getArray('read_mids', []);
+        $read_bids     = Request::getArray('read_bids', []);
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         $gid            = Request::getInt('g_id', 0);
         if ($gid > 0) {
@@ -217,7 +218,7 @@ switch ($op) {
             $group->setVar('name', $_POST['name']);
             $group->setVar('description', $_POST['desc']);
             // if this group is not one of the default groups
-            if (!in_array($group->getVar('groupid'), array(XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS))) {
+            if (!in_array($group->getVar('groupid'), [XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS])) {
                 if (count($system_catids) > 0) {
                     $group->setVar('group_type', 'Admin');
                 } else {
@@ -230,7 +231,7 @@ switch ($op) {
                 xoops_cp_footer();
             } else {
                 $groupid       = $group->getVar('groupid');
-                /* @var  XoopsGroupPermHandler $gperm_handler */
+                /** @var  XoopsGroupPermHandler $gperm_handler */
                 $gperm_handler = xoops_getHandler('groupperm');
                 $criteria      = new CriteriaCompo(new Criteria('gperm_groupid', $groupid));
                 $criteria->add(new Criteria('gperm_modid', 1));
@@ -283,7 +284,7 @@ switch ($op) {
         }
         break;
 
-    //Del a group
+        //Del a group
     case 'groups_delete':
         $groups_id = Request::getInt('groups_id', 0);
         if ($groups_id > 0) {
@@ -292,12 +293,12 @@ switch ($op) {
                 if (!$GLOBALS['xoopsSecurity']->check()) {
                     redirect_header('admin.php?fct=groups', 3, implode(',', $GLOBALS['xoopsSecurity']->getErrors()));
                 }
-                if ($groups_id > 0 && !in_array($groups_id, array(XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS))) {
-                    /* @var XoopsMemberHandler $member_handler */
+                if ($groups_id > 0 && !in_array($groups_id, [XOOPS_GROUP_ADMIN, XOOPS_GROUP_USERS, XOOPS_GROUP_ANONYMOUS])) {
+                    /** @var XoopsMemberHandler $member_handler */
                     $member_handler = xoops_getHandler('member');
                     $group          = $member_handler->getGroup($groups_id);
                     $member_handler->deleteGroup($group);
-                    /* @var XoopsGroupPermHandler $gperm_handler */
+                    /** @var XoopsGroupPermHandler $gperm_handler */
                     $gperm_handler = xoops_getHandler('groupperm');
                     $gperm_handler->deleteByGroup($groups_id);
                     redirect_header('admin.php?fct=groups', 1, _AM_SYSTEM_GROUPS_DBUPDATED);
@@ -312,17 +313,22 @@ switch ($op) {
                 $xoBreadCrumb->addHelp(system_adminVersion('groups', 'help') . '#edit');
                 $xoBreadCrumb->render();
                 // Display message
-                xoops_confirm(array(
-                                  'ok' => 1,
-                                  'groups_id' => $_REQUEST['groups_id'],
-                                  'op' => 'groups_delete'), 'admin.php?fct=groups', sprintf(_AM_SYSTEM_GROUPS_SUREDEL) . '<br \>' . $obj->getVar('name') . '<br \>');
+                xoops_confirm(
+                    [
+                        'ok' => 1,
+                        'groups_id' => $_REQUEST['groups_id'],
+                        'op' => 'groups_delete',
+                    ],
+                    'admin.php?fct=groups',
+                    sprintf(_AM_SYSTEM_GROUPS_SUREDEL) . '<br \>' . $obj->getVar('name') . '<br \>',
+                );
             }
         } else {
             redirect_header('admin.php?fct=groups', 1, _AM_SYSTEM_DBERROR);
         }
         break;
 
-    //Add users group
+        //Add users group
     case 'action_group':
         $error = true;
         if (isset($_REQUEST['edit_group'])) {

@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_load('XoopsFormTextArea');
 
@@ -39,29 +41,29 @@ class XoopsEditor extends XoopsFormTextArea
         // For backward compatibility
         if (!is_array($args[0])) {
             $i = 0;
-            foreach (array('caption', 'name', 'value', 'rows', 'cols', 'hiddentext') as $key) {
+            foreach (['caption', 'name', 'value', 'rows', 'cols', 'hiddentext'] as $key) {
                 if (isset($args[$i])) {
                     $configs[$key] = $args[$i];
                 }
                 ++$i;
             }
-            $configs = (isset($args[$i]) && is_array($args[$i])) ? array_merge($configs, $args[$i]) : $configs;
+            $configs = (isset($args[$i]) && \is_array($args[$i])) ? array_merge($configs, $args[$i]) : $configs;
         } else {
             $configs = $args[0];
         }
-        // TODO: switch to property_exists() as of PHP 5.1.0
-        $vars = get_class_vars(__CLASS__);
-        foreach ($configs as $key => $val) {
-            if (method_exists($this, 'set' . ucfirst($key))) {
-                $this->{'set' . ucfirst($key)}($val);
-            } elseif (array_key_exists("_{$key}", $vars)) {
-                $this->{"_{$key}"} = $val;
-            } elseif (array_key_exists($key, $vars)) {
-                $this->{$key} = $val;
-            } else {
-                $this->configs[$key] = $val;
-            }
-        }
+		foreach ($configs as $key => $val) {
+			$method = 'set' . ucfirst($key);
+			if (method_exists($this, $method)) {
+				$this->{$method}($val);
+			} elseif (property_exists($this, "_{$key}")) {
+				$this->{"_{$key}"} = $val;
+			} elseif (property_exists($this, $key)) {
+				$this->{$key} = $val;
+			} else {
+				$this->configs[$key] = $val;
+			}
+		}
+
         $this->isActive();
     }
 
@@ -79,7 +81,7 @@ class XoopsEditor extends XoopsFormTextArea
 /**
  * Editor handler
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.3.0
@@ -90,7 +92,7 @@ class XoopsEditorHandler
     // static $instance;
     public $root_path       = '';
     public $nohtml          = false;
-    public $allowed_editors = array();
+    public $allowed_editors = [];
 
     /**
      * Enter description here...
@@ -112,7 +114,7 @@ class XoopsEditorHandler
     {
         static $instance;
         if (!isset($instance)) {
-            $class    = __CLASS__;
+            $class    = self::class;
             $instance = new $class();
         }
 
@@ -158,14 +160,14 @@ class XoopsEditorHandler
         */
         if (!isset($this->root_path)) {
             $this->root_path = XOOPS_ROOT_PATH . '/class/xoopseditor';
-            $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . '() should not be called statically.');
+            $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . '() should not be called statically.');
         }
 
         xoops_load('XoopsCache');
         $list = XoopsCache::read('editorlist');
         if (empty($list)) {
-            $list  = array();
-            $order = array();
+            $list  = [];
+            $order = [];
             xoops_load('XoopsLists');
             $_list = XoopsLists::getDirListAsArray($this->root_path . '/');
             foreach ($_list as $item) {
@@ -180,7 +182,7 @@ class XoopsEditorHandler
                         continue;
                     }
                     $order[]     = $config['order'];
-                    $list[$item] = array('title' => $config['title'], 'nohtml' => $config['nohtml']);
+                    $list[$item] = ['title' => $config['title'], 'nohtml' => $config['nohtml']];
                 }
             }
             array_multisort($order, $list);
@@ -191,7 +193,7 @@ class XoopsEditorHandler
         if (!empty($this->allowed_editors)) {
             $editors = array_intersect($editors, $this->allowed_editors);
         }
-        $_list = array();
+        $_list = [];
         foreach ($editors as $name) {
             if (!empty($noHtml) && empty($list[$name]['nohtml'])) {
                 continue;
@@ -206,11 +208,12 @@ class XoopsEditorHandler
      * XoopsEditorHandler::render()
      *
      * @param mixed $editor
-     * @return
+     * @return string
+     * @deprecated
      */
     public function render($editor)
     {
-        trigger_error(__CLASS__ . '::' . __FUNCTION__ . '() deprecated', E_USER_WARNING);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $editor->render();
     }

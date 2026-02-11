@@ -11,33 +11,35 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @deprecated
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Class xos_kernel_Xoops2
  */
 class xos_kernel_Xoops2
 {
-    public $paths = array('XOOPS' => array(), 'www' => array(), 'var' => array(), 'lib' => array(), 'modules' => array(), 'themes' => array());
+    public $paths = ['XOOPS' => [], 'www' => [], 'var' => [], 'lib' => [], 'modules' => [], 'themes' => []];
 
     /**
      * Actual Xoops OS
      */
     public function __construct()
     {
-        $this->paths['XOOPS']   = array(XOOPS_PATH, XOOPS_URL . 'browse.php');
-        $this->paths['www']     = array(XOOPS_ROOT_PATH, XOOPS_URL);
-        $this->paths['var']     = array(XOOPS_VAR_PATH, null);
-        $this->paths['lib']     = array(XOOPS_PATH, XOOPS_URL . 'browse.php');
-        $this->paths['modules'] = array(XOOPS_ROOT_PATH . '/modules', XOOPS_URL . '/modules');
-        $this->paths['themes']  = array(XOOPS_ROOT_PATH . '/themes', XOOPS_URL . '/themes');
+        $this->paths['XOOPS']   = [XOOPS_PATH, XOOPS_URL . '/browse.php'];
+        $this->paths['www']     = [XOOPS_ROOT_PATH, XOOPS_URL];
+        $this->paths['var']     = [XOOPS_VAR_PATH, null];
+        $this->paths['lib']     = [XOOPS_PATH, XOOPS_URL . '/browse.php'];
+        $this->paths['modules'] = [XOOPS_ROOT_PATH . '/modules', XOOPS_URL . '/modules'];
+        $this->paths['themes']  = [XOOPS_ROOT_PATH . '/themes', XOOPS_URL . '/themes'];
     }
 
     /**
@@ -48,12 +50,20 @@ class xos_kernel_Xoops2
      */
     public function path($url, $virtual = false)
     {
-        // removed , $error_type = E_USER_WARNING
         $path = '';
-        @list($root, $path) = explode('/', $url, 2);
-        if (!isset($this->paths[$root])) {
-            list($root, $path) = array('www', $url);
+        $parts = explode('/', $url, 2);
+
+        if (count($parts) < 2) {
+            $root = 'www'; // Default root
+            $path = $url;  // Entire URL is treated as the path
+        } else {
+            [$root, $path] = $parts;
         }
+
+        if (!isset($this->paths[$root])) {
+            [$root, $path] = ['www', $url];
+        }
+
         if (!$virtual) { // Returns a physical path
             $path = $this->paths[$root][0] . '/' . $path;
             $path = str_replace('/', DS, $path);
@@ -65,35 +75,35 @@ class xos_kernel_Xoops2
     }
 
     /**
-     * Convert a XOOPS path to an URL
-     * @param $url
+     * Convert a XOOPS path to a URL
+     * @param string $url
      * @return mixed|string
      */
-    public function url($url)
+    public function url(?string $url='')
     {
         return (false !== strpos($url, '://') ? $url : $this->path($url, true));
     }
 
     /**
-     * Build an URL with the specified request params
+     * Build a URL with the specified request params
      * @param         $url
      * @param  array  $params
      * @return string
      */
-    public function buildUrl($url, $params = array())
+    public function buildUrl($url, $params = [])
     {
         if ($url === '.') {
             $url = $_SERVER['REQUEST_URI'];
         }
         $split = explode('?', $url);
         if (count($split) > 1) {
-            list($url, $query) = $split;
+            [$url, $query] = $split;
             parse_str($query, $query);
             $params = array_merge($query, $params);
         }
         if (!empty($params)) {
             foreach ($params as $k => $v) {
-                $params[$k] = $k . '=' . rawurlencode($v);
+                $params[$k] = $k . '=' . rawurlencode((string)$v);
             }
             $url .= '?' . implode('&', $params);
         }
@@ -128,7 +138,7 @@ class xos_kernel_Xoops2
     public function gzipCompression()
     {
         /**
-         * Disable gzip compression if PHP is run under CLI mode and needs refactored to work correctly
+         * Disable gzip compression if PHP is run under CLI mode and needs to be refactored to work correctly
          */
         if (empty($_SERVER['SERVER_NAME']) || substr(PHP_SAPI, 0, 3) === 'cli') {
             xoops_setConfigOption('gzip_compression', 0);
@@ -163,9 +173,10 @@ class xos_kernel_Xoops2
          */
         if (empty($_SERVER['REQUEST_URI'])) { // Not defined by IIS
             // Under some configs, IIS makes SCRIPT_NAME point to php.exe :-(
-            if (!($_SERVER['REQUEST_URI'] = @$_SERVER['PHP_SELF'])) {
+            if (!(isset($_SERVER['PHP_SELF']) && ($_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF']))) {
                 $_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME'];
             }
+
             if (isset($_SERVER['QUERY_STRING'])) {
                 $_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
             }

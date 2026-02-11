@@ -10,29 +10,27 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Maxime Cointin (AKA Kraven30)
  * @package             system
  */
-/* @var XoopsUser $xoopsUser */
-/* @var XoopsModule $xoopsModule */
+/** @var XoopsUser $xoopsUser */
+/** @var XoopsModule $xoopsModule */
 use Xmf\Request;
 
-require dirname(dirname(dirname(dirname(__DIR__)))) . '/mainfile.php';
+require dirname(__DIR__, 4) . '/mainfile.php';
 require XOOPS_ROOT_PATH . '/header.php';
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 if (!is_object($xoopsUser) || !is_object($xoopsModule) || !$xoopsUser->isAdmin($xoopsModule->mid())) {
     exit(_NOPERM);
 }
 
-if (isset($_REQUEST['op'])) {
-    $op = $_REQUEST['op'];
-} else {
-    @$op = 'default';
-}
+$op = Request::getCmd('op', 'default', 'REQUEST');
 
 switch ($op) {
 
@@ -46,17 +44,17 @@ switch ($op) {
         include_once XOOPS_ROOT_PATH . '/kernel/module.php';
         include_once XOOPS_ROOT_PATH . '/modules/system/include/functions.php';
 
-        $tables = array();
+        $tables = [];
         // Count comments (approved only: com_status == XOOPS_COMMENT_ACTIVE)
-        $tables[] = array('table_name' => 'xoopscomments', 'uid_column' => 'com_uid', 'criteria' => new Criteria('com_status', XOOPS_COMMENT_ACTIVE));
+        $tables[] = ['table_name' => 'xoopscomments', 'uid_column' => 'com_uid', 'criteria' => new Criteria('com_status', XOOPS_COMMENT_ACTIVE)];
         // Count forum posts
         if (XoopsModule::getByDirname('newbb')) {
             // Added support for NewBB 5.0 new table naming convention
             $tableTest = new \Xmf\Database\Tables();
             if($tableTest->useTable('newbb_posts')) {
-                $tables[] = array('table_name' => 'newbb_posts', 'uid_column' => 'uid');
+                $tables[] = ['table_name' => 'newbb_posts', 'uid_column' => 'uid'];
             } else {
-                $tables[] = array('table_name' => 'bb_posts', 'uid_column' => 'uid');
+                $tables[] = ['table_name' => 'bb_posts', 'uid_column' => 'uid'];
             }
         }
         $uid         = Request::getInt('uid', 0);
@@ -68,7 +66,8 @@ switch ($op) {
                 $criteria->add($table['criteria']);
             }
             $sql = 'SELECT COUNT(*) AS total FROM ' . $xoopsDB->prefix($table['table_name']) . ' ' . $criteria->renderWhere();
-            if ($result = $xoopsDB->query($sql)) {
+            $result = $xoopsDB->query($sql);
+            if ($xoopsDB->isResultSet($result)) {
                 if ($row = $xoopsDB->fetchArray($result)) {
                     $total_posts += $row['total'];
                 }
@@ -76,7 +75,7 @@ switch ($op) {
         }
 
         $sql = 'UPDATE ' . $xoopsDB->prefix('users') . " SET posts = '" . $total_posts . "' WHERE uid = '" . $uid . "'";
-        if (!$result = $xoopsDB->queryF($sql)) {
+        if (!$result = $xoopsDB->exec($sql)) {
             redirect_header('admin.php?fct=users', 1, _AM_SYSTEM_USERS_CNUUSER);
         } else {
             echo $total_posts;

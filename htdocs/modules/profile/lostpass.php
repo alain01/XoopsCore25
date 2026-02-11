@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -17,9 +17,11 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
+use Xmf\Request;
+
 include __DIR__ . '/header.php';
-$email = isset($_GET['email']) ? trim($_GET['email']) : '';
-$email = isset($_POST['email']) ? trim($_POST['email']) : $email;
+$email = Request::getEmail('email', '', 'GET');
+$email = Request::getEmail('email', $email, 'POST');
 
 xoops_loadLanguage('user');
 
@@ -27,16 +29,15 @@ if ($email == '') {
     redirect_header('user.php', 2, _US_SORRYNOTFOUND, false);
 }
 
-$myts           = MyTextSanitizer::getInstance();
-/* @var XoopsMemberHandler $member_handler */
+/** @var XoopsMemberHandler $member_handler */
 $member_handler = xoops_getHandler('member');
-list($user) = $member_handler->getUsers(new Criteria('email', $myts->addSlashes($email)));
+[$user] = $member_handler->getUsers(new Criteria('email', $xoopsDB->escape($email)));
 
 if (empty($user)) {
     $msg = _US_SORRYNOTFOUND;
     redirect_header('user.php', 2, $msg, false);
 } else {
-    $code   = isset($_GET['code']) ? trim($_GET['code']) : '';
+    $code   = Request::getString('code', '', 'GET');
     $areyou = substr(md5($user->getVar('pass')), 0, 5);
     if ($code != '' && $areyou == $code) {
         $newpass     = xoops_makepass();
@@ -61,9 +62,9 @@ if (empty($user)) {
             "UPDATE %s SET pass = '%s' WHERE uid = %u",
             $GLOBALS['xoopsDB']->prefix('users'),
             password_hash($newpass, PASSWORD_DEFAULT),
-            $user->getVar('uid')
+            $user->getVar('uid'),
         );
-        if (!$GLOBALS['xoopsDB']->queryF($sql)) {
+        if (!$GLOBALS['xoopsDB']->exec($sql)) {
             include $GLOBALS['xoops']->path('header.php');
             echo _US_MAILPWDNG;
             include __DIR__ . '/footer.php';

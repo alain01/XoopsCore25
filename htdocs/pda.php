@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.0.0
@@ -18,7 +18,7 @@
 include __DIR__ . '/mainfile.php';
 
 header('Content-Type: text/html');
-echo '<html><head><title>' . htmlspecialchars($xoopsConfig['sitename']) . "</title>
+echo '<html><head><title>' . htmlspecialchars($xoopsConfig['sitename'], ENT_QUOTES | ENT_HTML5) . "</title>
       <meta name='HandheldFriendly' content='True' />
       <meta name='PalmComputingPlatform' content='True' />
       </head>
@@ -27,14 +27,19 @@ echo '<html><head><title>' . htmlspecialchars($xoopsConfig['sitename']) . "</tit
 $sql    = 'SELECT storyid, title FROM ' . $xoopsDB->prefix('stories') . ' WHERE published>0 AND published<' . time() . ' ORDER BY published DESC';
 $result = $xoopsDB->query($sql, 10, 0);
 //TODO Remove this hardcoded string
-if (!$result) {
-    echo 'An error occured';
+if (!$xoopsDB->isResultSet($result)) {
+    //    echo 'An error occurred';
+    throw new \RuntimeException(
+        \sprintf(_DB_QUERY_ERROR, $sql) . $xoopsDB->error(),
+        E_USER_ERROR,
+    );
 } else {
-    echo "<img src='images/logo.gif' alt='" . htmlspecialchars($xoopsConfig['sitename'], ENT_QUOTES) . "' border='0' /><br>";
-    echo '<h2>' . htmlspecialchars($xoopsConfig['slogan']) . '</h2>';
+    echo "<img src='images/logo.gif' alt='" . htmlspecialchars($xoopsConfig['sitename'], ENT_QUOTES | ENT_HTML5) . "' border='0' /><br>";
+    echo '<h2>' . htmlspecialchars($xoopsConfig['slogan'], ENT_QUOTES | ENT_HTML5) . '</h2>';
     echo '<div>';
-    while (false !== (list($storyid, $title) = $xoopsDB->fetchRow($result))) {
-        echo "<a href='" . XOOPS_URL . "/modules/news/print.php?storyid=$storyid'>" . htmlspecialchars($title) . '</a><br>';
+    while (false !== ($row = $xoopsDB->fetchRow($result))) {
+        [$storyid, $title] = $row;
+        echo "<a href='" . XOOPS_URL . "/modules/news/print.php?storyid=$storyid'>" . htmlspecialchars($title, ENT_QUOTES | ENT_HTML5) . '</a><br>';
     }
     echo '</div>';
 }

@@ -9,8 +9,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2021 XOOPS Project (https://xoops.org)
- * @license             GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license             GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
  * @author              Jan Pedersen
@@ -33,7 +33,7 @@ if ($op === 'main') {
         $GLOBALS['xoopsTpl']->assign('lang_login', _LOGIN);
         $GLOBALS['xoopsTpl']->assign('lang_username', _USERNAME);
         if (Request::hasVar('xoops_redirect', 'GET')) {
-            $GLOBALS['xoopsTpl']->assign('redirect_page', htmlspecialchars(Request::getUrl('xoops_redirect', 'GET'), ENT_QUOTES));
+            $GLOBALS['xoopsTpl']->assign('redirect_page', htmlspecialchars(Request::getUrl('xoops_redirect', 'GET'), ENT_QUOTES | ENT_HTML5));
         }
         if ($GLOBALS['xoopsConfig']['usercookie']) {
             $GLOBALS['xoopsTpl']->assign('lang_rememberme', _US_REMEMBERME);
@@ -84,12 +84,12 @@ if ($op === 'logout') {
     $message = '';
     // Regenerate a new session id and destroy old session
     $GLOBALS['sess_handler']->regenerate_id(true);
-    $_SESSION = array();
+    $_SESSION = [];
     xoops_setcookie($GLOBALS['xoopsConfig']['usercookie'], null, time() - 3600, '/', XOOPS_COOKIE_DOMAIN, 0);
     xoops_setcookie($GLOBALS['xoopsConfig']['usercookie'], null, time() - 3600, '/');
     // clear entry from online users table
     if (is_object($GLOBALS['xoopsUser'])) {
-        /* @var XoopsOnlineHandler $online_handler */
+        /** @var XoopsOnlineHandler $online_handler */
         $online_handler = xoops_getHandler('online');
         $online_handler->destroy($GLOBALS['xoopsUser']->getVar('uid'));
     }
@@ -106,7 +106,7 @@ if ($op === 'actv') {
 }
 
 if ($op === 'delete') {
-    /* @var XoopsConfigHandler $config_handler */
+    /** @var XoopsConfigHandler $config_handler */
     $config_handler             = xoops_getHandler('config');
     $GLOBALS['xoopsConfigUser'] = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
     if (!$GLOBALS['xoopsUser'] || $GLOBALS['xoopsConfigUser']['self_delete'] != 1) {
@@ -121,14 +121,14 @@ if ($op === 'delete') {
         if ($ok != 1) {
             include $GLOBALS['xoops']->path('header.php');
             include __DIR__ . '/header.php';
-            xoops_confirm(array('op' => 'delete', 'ok' => 1), 'user.php', _US_SURETODEL . '<br>' . _US_REMOVEINFO);
+            xoops_confirm(['op' => 'delete', 'ok' => 1], 'user.php', _US_SURETODEL . '<br>' . _US_REMOVEINFO);
             include __DIR__ . '/footer.php';
         } else {
             $del_uid        = $GLOBALS['xoopsUser']->getVar('uid');
-            /* @var XoopsMemberHandler $member_handler */
+            /** @var XoopsMemberHandler $member_handler */
             $member_handler = xoops_getHandler('member');
             if (false !== $member_handler->deleteUser($GLOBALS['xoopsUser'])) {
-                /* @var XoopsOnlineHandler $online_handler */
+                /** @var XoopsOnlineHandler $online_handler */
                 $online_handler = xoops_getHandler('online');
                 $online_handler->destroy($del_uid);
                 xoops_notification_deletebyuser($del_uid);

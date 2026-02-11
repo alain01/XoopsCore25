@@ -35,7 +35,7 @@ img.right {
     width: 16px;
     height: 19px;
     text-align: center;
-    background-image: url(../images/pagneutral.gif);
+    background-image: url(/images/pagneutral.gif);
 }
 
 .pagact {
@@ -43,7 +43,7 @@ img.right {
     width: 16px;
     height: 19px;
     text-align: center;
-    background-image: url(../images/pagact.gif);
+    background-image: url(/images/pagact.gif);
 }
 
 .paginact {
@@ -51,10 +51,18 @@ img.right {
     width: 16px;
     height: 19px;
     text-align: center;
-    background-image: url(../images/paginact.gif);
+    background-image: url(/images/paginact.gif);
 }
 
 /* For required elements in XOOPS form */
+/* For Xoops 2.5.11 - Used in XoopsFormRenderer for Bootstrap and Bootstrap based theme templates */
+.xo-caption-required {
+    background-color: inherit;
+    padding-left: 2px;
+    color: #ff0000;
+}
+
+/* Used in XoopsFormRendererLegacy */
 .xoops-form-element-caption .caption-marker {
     display: none;
 }

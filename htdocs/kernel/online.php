@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * A handler for "Who is Online?" information
@@ -23,7 +25,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @package             kernel
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsOnlineHandler
 {
@@ -80,7 +82,15 @@ class XoopsOnlineHandler
             $sql = 'SELECT COUNT(*) FROM ' . $this->db->prefix('online')
                    . " WHERE online_uid={$uid} AND online_ip={$ip}";
         }
-        list($count) = $this->db->fetchRow($this->db->queryF($sql));
+        $result = $this->db->queryF($sql);
+        if (!$this->db->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $this->db->error(),
+                E_USER_ERROR,
+            );
+        }
+
+        [$count] = $this->db->fetchRow($result);
         if ($count > 0) {
             $sql = 'UPDATE ' . $this->db->prefix('online')
                    . " SET online_updated = {$time}, online_module = {$module} WHERE online_uid = {$uid}";
@@ -92,7 +102,7 @@ class XoopsOnlineHandler
                 // this condition (no entry for a real user) exists when a user first signs in
                 // first, cleanup the uid == 0 row the user generated before signing in
                 $loginSql = sprintf('DELETE FROM %s WHERE online_uid = 0 AND online_ip=%s', $this->db->prefix('online'), $ip);
-                $this->db->queryF($loginSql);
+                $this->db->exec($loginSql);
             }
             $sql = sprintf(
                 'INSERT INTO %s (online_uid, online_uname, online_updated, online_ip, online_module)'
@@ -102,10 +112,10 @@ class XoopsOnlineHandler
                 $uname,
                 $time,
                 $ip,
-                $module
+                $module,
             );
         }
-        if (!$this->db->queryF($sql)) {
+        if (!$this->db->exec($sql)) {
             return false;
         }
 
@@ -122,7 +132,7 @@ class XoopsOnlineHandler
     public function destroy($uid)
     {
         $sql = sprintf('DELETE FROM %s WHERE online_uid = %u', $this->db->prefix('online'), $uid);
-        if (!$result = $this->db->queryF($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -141,20 +151,20 @@ class XoopsOnlineHandler
         $sql = sprintf(
             'DELETE FROM %s WHERE online_updated < %u',
             $this->db->prefix('online'),
-            time() - (int)$expire
+            time() - (int) $expire,
         );
-        $this->db->queryF($sql);
+        $this->db->exec($sql);
     }
 
     /**
      * Get an array of online information
      *
-     * @param  CriteriaElement|CriteriaCompo $criteria {@link CriteriaElement}
-     * @return array  Array of associative arrays of online information
+     * @param  CriteriaElement|CriteriaCompo|null $criteria {@link CriteriaElement}
+     * @return array|false  Array of associative arrays of online information
      */
-    public function getAll(CriteriaElement $criteria = null)
+    public function getAll(?CriteriaElement $criteria = null)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT * FROM ' . $this->db->prefix('online');
         if (is_object($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
@@ -163,8 +173,8 @@ class XoopsOnlineHandler
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
-            return false;
+        if (!$this->db->isResultSet($result)) {
+            return $ret;
         }
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $ret[] = $myrow;
@@ -177,21 +187,22 @@ class XoopsOnlineHandler
     /**
      * Count the number of online users
      *
-     * @param CriteriaElement|CriteriaCompo $criteria {@link CriteriaElement}
+     * @param CriteriaElement|CriteriaCompo|null $criteria {@link CriteriaElement}
      *
-     * @return bool
+     * @return int
      */
-    public function getCount(CriteriaElement $criteria = null)
+    public function getCount(?CriteriaElement $criteria = null)
     {
         $sql = 'SELECT COUNT(*) FROM ' . $this->db->prefix('online');
         if (is_object($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
             $sql .= ' ' . $criteria->renderWhere();
         }
-        if (!$result = $this->db->query($sql)) {
-            return false;
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
+            return 0;
         }
-        list($ret) = $this->db->fetchRow($result);
+        [$ret] = $this->db->fetchRow($result);
 
-        return $ret;
+        return (int) $ret;
     }
 }

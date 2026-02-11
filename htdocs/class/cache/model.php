@@ -19,14 +19,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          cache
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Database Storage engine for cache
@@ -34,7 +36,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
+ * CakePHP(tm) :  Rapid Development Framework <https://www.cakephp.org/>
  * Copyright 2005-2008, Cake Software Foundation, Inc.
  *                                     1785 E. Sahara Avenue, Suite 490-204
  *                                     Las Vegas, Nevada 89104
@@ -44,11 +46,11 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  *
  * @filesource
  * @copyright  Copyright 2005-2008, Cake Software Foundation, Inc.
- * @link       http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @link       https://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
  * @package    cake
  * @subpackage cake.cake.libs.cache
  * @since      CakePHP(tm) v 1.2.0.4933
- * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @license    https://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
 /**
@@ -67,7 +69,7 @@ class XoopsCacheModel extends XoopsCacheEngine
      * @var array
      * @access public
      */
-    public $settings = array();
+    public $settings = [];
 
     /**
      * Model instance.
@@ -83,7 +85,7 @@ class XoopsCacheModel extends XoopsCacheEngine
      * @var object
      * @access private
      */
-    public $fields = array();
+    public $fields = [];
 
     /**
      * Initialize the Cache Engine
@@ -95,12 +97,12 @@ class XoopsCacheModel extends XoopsCacheEngine
      * @return boolean True if the engine has been successfully initialized, false if not
      * @access   public
      */
-    public function init($settings = array())
+    public function init($settings = [])
     {
         $xoopsDB = XoopsDatabaseFactory::getDatabaseConnection();
 
         parent::init($settings);
-        $defaults       = array('fields' => array('data', 'expires'));
+        $defaults       = ['fields' => ['data', 'expires']];
         $this->settings = array_merge($defaults, $this->settings);
         $this->fields   = $this->settings['fields'];
         $this->model    = new XoopsCacheModelHandler($xoopsDB);
@@ -192,11 +194,16 @@ class XoopsCacheModel extends XoopsCacheEngine
  *
  * @package
  * @author              John
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @access              public
  */
 class XoopsCacheModelObject extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $key;
+    public $data;
+    public $expires;
+
     /**
      * Constructor
      */
@@ -214,12 +221,12 @@ class XoopsCacheModelObject extends XoopsObject
  *
  * @package
  * @author              John
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @access              public
  */
 class XoopsCacheModelHandler extends XoopsPersistableObjectHandler
 {
-    const TABLE     = 'cache_model';
-    const CLASSNAME = 'XoopsCacheModelObject';
-    const KEYNAME   = 'key';
+    public const TABLE     = 'cache_model';
+    public const CLASSNAME = 'XoopsCacheModelObject';
+    public const KEYNAME   = 'key';
 }

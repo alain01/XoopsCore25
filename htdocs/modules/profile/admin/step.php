@@ -9,13 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
  * @author              Jan Pedersen
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
+
+use Xmf\Request;
+
 include_once __DIR__ . '/admin_header.php';
 xoops_cp_header();
 $indexAdmin = new ModuleAdmin();
@@ -24,7 +27,7 @@ $indexAdmin->addItemButton(_ADD . ' ' . _PROFILE_AM_STEP, 'step.php?op=new', 'ad
 echo $indexAdmin->addNavigation(basename(__FILE__));
 echo $indexAdmin->renderButton('right', '');
 
-$op = isset($_REQUEST['op']) ? $_REQUEST['op'] : (isset($_REQUEST['id']) ? 'edit' : 'list');
+$op = $_REQUEST['op'] ?? (isset($_REQUEST['id']) ? 'edit' : 'list');
 
 $handler = xoops_getModuleHandler('regstep');
 switch ($op) {
@@ -77,18 +80,23 @@ switch ($op) {
                 echo $obj->getHtmlErrors();
             }
         } else {
-            xoops_confirm(array(
-                              'ok' => 1,
-                              'id' => $_REQUEST['id'],
-                              'op' => 'delete'), $_SERVER['REQUEST_URI'], sprintf(_PROFILE_AM_RUSUREDEL, $obj->getVar('step_name')));
+            xoops_confirm(
+                [
+                    'ok' => 1,
+                    'id' => $_REQUEST['id'],
+                    'op' => 'delete',
+                ],
+                $_SERVER['REQUEST_URI'],
+                sprintf(_PROFILE_AM_RUSUREDEL, $obj->getVar('step_name')),
+            );
         }
         break;
 
     case 'toggle':
         if (isset($_GET['step_id'])) {
-            $field_id = (int)$_GET['step_id'];
+            $field_id = Request::getInt('step_id', 0, 'GET');
             if (isset($_GET['step_save'])) {
-                $step_save = (int)$_GET['step_save'];
+                $step_save = Request::getInt('step_save', 0, 'GET');
                 profile_stepsave_toggle($step_id, $step_save);
             }
         }

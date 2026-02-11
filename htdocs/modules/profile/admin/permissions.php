@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -69,7 +69,7 @@ $module_id = $GLOBALS['xoopsModule']->getVar('mid');
 include_once $GLOBALS['xoops']->path('/class/xoopsform/grouppermform.php');
 $form = new XoopsGroupPermForm($title_of_form, $module_id, $perm_name, $perm_desc, 'admin/permissions.php?op=' . $op, $anonymous);
 if ($op === 'access') {
-    /* @var XoopsMemberHandler $member_handler */
+    /** @var XoopsMemberHandler $member_handler */
     $member_handler = xoops_getHandler('member');
     $glist          = $member_handler->getGroupList();
     foreach (array_keys($glist) as $i) {
@@ -88,7 +88,7 @@ if ($op === 'access') {
             }
         }
     } else {
-        $searchable_types = array(
+        $searchable_types = [
             'textbox',
             'select',
             'radio',
@@ -96,7 +96,8 @@ if ($op === 'access') {
             'date',
             'datetime',
             'timezone',
-            'language');
+            'language',
+        ];
         foreach (array_keys($fields) as $i) {
             if (in_array($fields[$i]->getVar('field_type'), $searchable_types)) {
                 $form->addItem($fields[$i]->getVar('field_id'), xoops_substr($fields[$i]->getVar('field_title'), 0, 25));

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2017 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
@@ -17,7 +17,9 @@
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_load('XoopsFormElement');
 
@@ -27,7 +29,7 @@ xoops_load('XoopsFormElement');
  * @author              Kazumi Ono <onokazu@xoops.org>
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @author              John Neill <catzwolf@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             kernel
  * @subpackage          form
  * @access              public
@@ -40,7 +42,7 @@ class XoopsFormSelect extends XoopsFormElement
      * @var array
      * @access private
      */
-    public $_options = array();
+    public $_options = [];
 
     /**
      * Allow multiple selections?
@@ -59,12 +61,12 @@ class XoopsFormSelect extends XoopsFormElement
     public $_size;
 
     /**
-     * Pre-selcted values
+     * Pre-selected values
      *
      * @var array
      * @access private
      */
-    public $_value = array();
+    public $_value = [];
 
     /**
      * Constructor
@@ -72,7 +74,7 @@ class XoopsFormSelect extends XoopsFormElement
      * @param string $caption  Caption
      * @param string $name     "name" attribute
      * @param mixed  $value    Pre-selected value (or array of them).
-     * @param int    $size     Number or rows. "1" makes a drop-down-list
+     * @param int    $size     Number of rows. "1" makes a drop-down-list
      * @param bool   $multiple Allow multiple selections?
      */
     public function __construct($caption, $name, $value = null, $size = 1, $multiple = false)
@@ -117,9 +119,9 @@ class XoopsFormSelect extends XoopsFormElement
         if (!$encode) {
             return $this->_value;
         }
-        $value = array();
+        $value = [];
         foreach ($this->_value as $val) {
-            $value[] = $val ? htmlspecialchars($val, ENT_QUOTES) : $val;
+            $value[] = $val ? htmlspecialchars($val, ENT_QUOTES | ENT_HTML5) : $val;
         }
 
         return $value;
@@ -173,7 +175,7 @@ class XoopsFormSelect extends XoopsFormElement
     /**
      * Get an array with all the options
      *
-     * Note: both name and value should be sanitized. However for backward compatibility, only value is sanitized for now.
+     * Note: both name and value should be sanitized. However, for backward compatibility, only value is sanitized for now.
      *
      * @param bool|int $encode To sanitizer the text? potential values: 0 - skip; 1 - only for value; 2 - for both value and name
      *
@@ -184,9 +186,9 @@ class XoopsFormSelect extends XoopsFormElement
         if (!$encode) {
             return $this->_options;
         }
-        $value = array();
+        $value = [];
         foreach ($this->_options as $val => $name) {
-            $value[$encode ? htmlspecialchars($val, ENT_QUOTES) : $val] = ($encode > 1) ? htmlspecialchars($name, ENT_QUOTES) : $name;
+            $value[$encode ? htmlspecialchars($val, ENT_QUOTES | ENT_HTML5) : $val] = ($encode > 1) ? htmlspecialchars($name, ENT_QUOTES | ENT_HTML5) : $name;
         }
 
         return $value;

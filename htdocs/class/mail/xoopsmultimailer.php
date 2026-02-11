@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             Kernel
  * @subpackage          mail
@@ -25,17 +25,19 @@
  * @author     Jochen Büînagel <jb@buennagel.com>
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
+
+use Xmf\Mail\SendmailRunner;
+use PHPMailer\PHPMailer\PHPMailer;
+
+// bridge class for PhpMailer 6.x PHPMailer\PHPMailer\Exception
+
 /**
  * load the base class
  */
-if (!file_exists($file = XOOPS_ROOT_PATH . '/class/mail/phpmailer/class.phpmailer.php')) {
-    trigger_error('Required File  ' . str_replace(XOOPS_ROOT_PATH, '', $file) . ' was not found in file ' . __FILE__ . ' at line ' . __LINE__, E_USER_WARNING);
 
-    return false;
-}
-require_once XOOPS_ROOT_PATH . '/class/mail/phpmailer/PHPMailerAutoload.php';
-//include_once XOOPS_ROOT_PATH . '/class/mail/phpmailer/class.phpmailer.php';
 
 /**
  * Mailer Class.
@@ -142,16 +144,17 @@ class XoopsMultiMailer extends PHPMailer
      */
     public function __construct()
     {
-        parent::__construct();
-        /* @var XoopsConfigHandler $config_handler */
+        parent::__construct(true); // Enable exceptions in PHPMailer
+
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler    = xoops_getHandler('config');
         $xoopsMailerConfig = $config_handler->getConfigsByCat(XOOPS_CONF_MAILER);
         $this->From        = $xoopsMailerConfig['from'];
-        if ($this->From == '') {
+        if ('' == $this->From) {
             $this->From = $GLOBALS['xoopsConfig']['adminmail'];
         }
         $this->Sender = $this->From;
-        if ($xoopsMailerConfig['mailmethod'] === 'smtpauth') {
+        if ('smtpauth' === $xoopsMailerConfig['mailmethod']) {
             $this->Mailer   = 'smtp';
             $this->SMTPAuth = true;
             // TODO: change value type of xoopsConfig 'smtphost' from array to text
@@ -175,5 +178,40 @@ class XoopsMultiMailer extends PHPMailer
         //$this->pluginDir = XOOPS_ROOT_PATH . '/class/mail/phpmailer/';
     }
 
+    /**
+     * Overrides PHPMailer's protected sendmailSend method to use XOOPS' hardened runner for sendmail delivery.
+     *
+     * Security enhancement: Instead of directly invoking the sendmail binary, this method uses XOOPS' SendmailRunner,
+     * which applies additional security checks and policies to the delivery process.
+     *
+     * @param string $header RFC 5322-compliant message headers, with LF line endings.
+     * @param string $body   Message body, with LF line endings.
+     *                       Both parameters are expected to be formatted as provided by PHPMailer.
+     * @return bool True on successful delivery, false otherwise.
+     * @throws PHPMailer\PHPMailer\Exception when exceptions are enabled and delivery fails.
+     */
+    protected function sendmailSend($header, $body): bool
+    {
+        // Build a complete RFC 5322 message. PHPMailer gives LF; runner normalizes to CRLF.
+        $rfc822 = rtrim($header, "\r\n") . "\n\n" . $body;
+
+        // XOOPS config already set this in ctor from preferences:
+        $path = (string)$this->Sendmail;
+        // Prefer Sender (envelope-from), fall back to From if Sender is empty:
+        $envelopeFrom = $this->Sender ?: $this->From ?: null;
+
+        try {
+            $runner = new SendmailRunner();           // optionally pass a custom allowlist/policy
+            $runner->deliver($path, $rfc822, $envelopeFrom);
+            return true;
+        } catch (\RuntimeException $e) {
+            // Preserve PHPMailer’s error/exception contract
+            if ($this->exceptions) {
+                throw new \PHPMailer\PHPMailer\Exception($e->getMessage(), 0, $e);
+            }
+            $this->setError($e->getMessage());
+            return false;
+        }
+    }
 
 }

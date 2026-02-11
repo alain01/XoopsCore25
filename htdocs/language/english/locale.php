@@ -12,14 +12,16 @@
 /**
  * Xoops locale
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @todo                To be handled by i18n/l10n
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 setlocale(LC_ALL, 'en_US');
 
@@ -30,7 +32,7 @@ define('_YESTERDAY', "\Y\\e\s\\t\\e\\r\d\a\y G:i");
 define('_MONTHDAY', 'n/j G:i');
 define('_YEARMONTHDAY', 'Y/n/j G:i');
 define('_ELAPSE', '%s ago');
-define('_TIMEFORMAT_DESC', "Valid formats: \"s\" - " . _SHORTDATESTRING . "; \"m\" - " . _MEDIUMDATESTRING . "; \"l\" - " . _DATESTRING . ';<br>' . "\"c\" or \"custom\" - format determined according to interval to present; \"e\" - Elapsed; \"mysql\" - Y-m-d H:i:s;<br>" . "specified string - Refer to <a href=\"http://php.net/manual/en/function.date.php\" rel=\"external\">PHP manual</a>.");
+define('_TIMEFORMAT_DESC', "Valid formats: \"s\" - " . _SHORTDATESTRING . "; \"m\" - " . _MEDIUMDATESTRING . "; \"l\" - " . _DATESTRING . ';<br>' . "\"c\" or \"custom\" - format determined according to interval to present; \"e\" - Elapsed; \"mysql\" - Y-m-d H:i:s;<br>" . "specified string - Refer to <a href=\"https://php.net/manual/en/function.date.php\" rel=\"external\">PHP manual</a>.");
 
 if (!class_exists('XoopsLocalAbstract')) {
     include_once XOOPS_ROOT_PATH . '/class/xoopslocal.php';
@@ -43,7 +45,7 @@ if (!class_exists('XoopsLocalAbstract')) {
  * @subpackage          Language
  *
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsLocal extends XoopsLocalAbstract
 {

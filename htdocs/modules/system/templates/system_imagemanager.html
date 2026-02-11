@@ -22,9 +22,12 @@
         }
         //-->
     </script>
-    <link rel="stylesheet" type="text/css" media="screen" href="<{xoAppUrl xoops.css}>">
-    <link rel="stylesheet" type="text/css" media="screen" href="<{xoAppUrl modules/system/css/imagemanager.css}>">
-    <link rel="stylesheet" type="text/css" media="screen" href="<{xoAppUrl media/font-awesome/css/font-awesome.min.css}>">
+    <link rel="stylesheet" type="text/css" media="screen" href="<{xoAppUrl 'xoops.css'}>">
+    <link rel="stylesheet" type="text/css" media="screen" href="<{xoAppUrl 'modules/system/css/imagemanager.css'}>">
+    <link rel="stylesheet" type="text/css" media="screen" as="font" crossorigin="anonymous"  href="<{xoAppUrl 'media/font-awesome6/css/fontawesome.min.css'}>">
+    <link rel="stylesheet" type="text/css" media="screen" as="font" crossorigin="anonymous"  href="<{xoAppUrl 'media/font-awesome6/css/solid.min.css'}>">
+    <link rel="stylesheet" type="text/css" media="screen" as="font" crossorigin="anonymous"  href="<{xoAppUrl 'media/font-awesome6/css/brands.min.css'}>">
+    <link rel="stylesheet" type="text/css" media="screen" as="font" crossorigin="anonymous"  href="<{xoAppUrl 'media/font-awesome6/css/v4-shims.min.css'}>">
 
     <{php}>
         $language = $GLOBALS['xoopsConfig']['language'];
@@ -48,7 +51,7 @@
                 <input type="submit" value="<{$lang_go}>"/>
             </td>
 
-            <{if $show_cat > 0}>
+            <{if isset($show_cat) && $show_cat > 0}>
                 <td id="addimage" class="txtright"><a href="<{$xoops_url}>/imagemanager.php?target=<{$target}>&op=upload&imgcat_id=<{$show_cat}>"
                                                       title="<{$lang_addimage}>"><{$lang_addimage}></a></td>
             <{/if}>
@@ -56,8 +59,8 @@
         </tr>
     </table>
 </form>
-<div id="pagenav"><{$pagenav}></div>
-<{if $image_total > 0}>
+<div id="pagenav"><{$pagenav|default:''}></div>
+<{if isset($image_total) && $image_total > 0}>
     <table cellspacing="0" id="imagemain">
         <tr>
             <th><{$lang_imagename}></th>
@@ -71,9 +74,9 @@
                 <td><input type="hidden" name="image_id[]" value="<{$images[i].id}>"/><{$images[i].nicename}></td>
                 <td><img style="max-width:200px;" src="<{$images[i].src}>" alt=""/></td>
                 <td><{$images[i].mimetype}></td>
-                <td><button type="button" class="btn btn-default" onclick="appendCode('<{$images[i].lxcode}>');" title="<{$smarty.const._LEFT}>" aria-label="Left Align"><span class="fa fa-align-left" aria-hidden="true"></span></button>
-                    <button type="button" class="btn btn-default" onclick="appendCode('<{$images[i].xcode}>');" title="<{$smarty.const._CENTER}>" aria-label="Center Align"><span class="fa fa-align-center" aria-hidden="true"></span></button>
-                    <button type="button" class="btn btn-default" onclick="appendCode('<{$images[i].rxcode}>');" title="<{$smarty.const._RIGHT}>" aria-label="Right Align"><span class="fa fa-align-right" aria-hidden="true"></span></button>
+                <td><button type="button" class="btn btn-default" onclick="appendCode('<{$images[i].lxcode}>');" title="<{$smarty.const._LEFT}>" aria-label="Left Align"><span class="fa-solid fa-align-left" aria-hidden="true"></span></button>
+                    <button type="button" class="btn btn-default" onclick="appendCode('<{$images[i].xcode}>');" title="<{$smarty.const._CENTER}>" aria-label="Center Align"><span class="fa-solid fa-align-center" aria-hidden="true"></span></button>
+                    <button type="button" class="btn btn-default" onclick="appendCode('<{$images[i].rxcode}>');" title="<{$smarty.const._RIGHT}>" aria-label="Right Align"><span class="fa-solid fa-align-right" aria-hidden="true"></span></button>
             </tr>
         <{/section}>
     </table>
@@ -81,7 +84,7 @@
     <div id="welcomenot"></div>
 <{/if}>
 
-<div id="pagenav"><{$pagenav}></div>
+<div id="pagenav"><{$pagenav|default:''}></div>
 
 <div id="footer">
     <input value="<{$lang_close}>" type="button" onclick="window.close();"/>

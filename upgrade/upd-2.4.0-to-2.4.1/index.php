@@ -15,8 +15,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.4.0
  * @author           Taiwen Jiang <phppp@users.sourceforge.net>
@@ -118,11 +118,11 @@ class Upgrade_241 extends XoopsUpgrade
     public function xoops_getPublicLicenceKey()
     {
         $xoops_key    = '';
-        $xoops_serdat = array();
-        $checksums    = array(1 => 'md5', 2 => 'sha1');
+        $xoops_serdat = [];
+        $checksums    = [1 => 'md5', 2 => 'sha1'];
 
         // Remember to upgrade versions string with each release there after.
-        $versions = array('XOOPS 2.4.0', 'XOOPS 2.4.1');
+        $versions = ['XOOPS 2.4.0', 'XOOPS 2.4.1'];
 
         error_reporting(E_ALL);
         foreach ($checksums as $funcid => $func) {
@@ -158,8 +158,8 @@ class Upgrade_241 extends XoopsUpgrade
      */
     public function xoops_buildLicenceKey()
     {
-        $xoops_serdat = array();
-        $checksums = array(1 => 'md5', 2 => 'sha1');
+        $xoops_serdat = [];
+        $checksums = [1 => 'md5', 2 => 'sha1'];
         $type      = mt_rand(1, 2);
         $func      = $checksums[$type];
         $xoops_key = '';
@@ -238,7 +238,7 @@ class Upgrade_241 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array('license');
+        $this->tasks = ['license'];
     }
 }
 

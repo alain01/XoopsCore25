@@ -14,14 +14,16 @@ use Xmf\Request;
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2021 XOOPS Project (https://xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          CAPTCHA
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Class XoopsCaptcha
@@ -34,8 +36,8 @@ class XoopsCaptcha
     public $path_config;
     public $path_plugin;
     public $name;
-    public $config  = array();
-    public $message = array(); // Logging error messages
+    public $config  = [];
+    public $message = []; // Logging error messages
 
     /**
      * construct
@@ -75,15 +77,15 @@ class XoopsCaptcha
      */
     public function loadConfig($methodname = null)
     {
-        $basic_config  = array();
-        $plugin_config = array();
+        $basic_config  = [];
+        $plugin_config = [];
         $filename      = empty($methodname) ? 'config.php' : 'config.' . $methodname . '.php';
         $distfilename  = empty($methodname) ? 'config.dist.php' : 'config.' . $methodname . '.dist.php';
         if (file_exists($file = $this->path_config . '/' . $filename)) {
             $basic_config = include $file;
         } elseif (file_exists($distfile = $this->path_basic . '/' . $distfilename)) {
             $basic_config = include $distfile;
-            if (false===copy($distfile, $file)) {
+            if (false === copy($distfile, $file)) {
                 trigger_error('Could not create captcha config file ' . $filename);
             }
         }
@@ -209,9 +211,9 @@ class XoopsCaptcha
     public function verify($skipMember = null, $name = null)
     {
         $sessionName = empty($name) ? $this->name : $name;
-        $skipMember  = ($skipMember === null) ? $_SESSION["{$sessionName}_skipmember"] : $skipMember;
-        $maxAttempts = $_SESSION["{$sessionName}_maxattempts"];
-        $attempt     = $_SESSION["{$sessionName}_attempt"];
+        $skipMember  = ($skipMember === null) && isset($_SESSION["{$sessionName}_skipmember"]) ? $_SESSION["{$sessionName}_skipmember"] : $skipMember;
+        $maxAttempts = $_SESSION["{$sessionName}_maxattempts"] ?? $this->config['maxattempts'];
+        $attempt     = $_SESSION["{$sessionName}_attempt"] ?? 0;
         $is_valid    = false;
         // Skip CAPTCHA verification if disabled
         if (!$this->isActive()) {
@@ -300,7 +302,7 @@ class XoopsCaptcha
 
         $maxAttempts                            = $this->config['maxattempts'];
         $_SESSION[$this->name . '_maxattempts'] = $maxAttempts;
-        $attempt                                = isset($_SESSION[$this->name . '_attempt']) ? $_SESSION[$this->name . '_attempt'] : 0;
+        $attempt                                = $_SESSION[$this->name . '_attempt'] ?? 0;
         $_SESSION[$this->name . '_attempt']     = $attempt;
 
         // Failure on too many attempts
@@ -336,7 +338,7 @@ class XoopsCaptcha
      */
     public function setCode($code = null)
     {
-        $code = ($code === null) ? $this->handler->getCode() : $code;
+        $code ??= $this->handler->getCode();
         if (!empty($code)) {
             $_SESSION[$this->name . '_code'] = $code;
 
@@ -363,7 +365,7 @@ class XoopsCaptcha
 /**
  * Abstract class for CAPTCHA method
  *
- * Currently there are two types of CAPTCHA forms, text and image
+ * Currently, there are two types of CAPTCHA forms, text and image
  * The default mode is "text", it can be changed in the priority:
  * 1 If mode is set through XoopsFormCaptcha::setConfig("mode", $mode), take it
  * 2 Elseif mode is set though captcha/config.php, take it
@@ -413,7 +415,7 @@ class XoopsCaptchaMethod
      */
     public function getCode()
     {
-        return (string)$this->code;
+        return (string) $this->code;
     }
 
     /**
@@ -421,9 +423,7 @@ class XoopsCaptchaMethod
      *
      * @return void
      */
-    public function render()
-    {
-    }
+    public function render() {}
 
     /**
      * @return string

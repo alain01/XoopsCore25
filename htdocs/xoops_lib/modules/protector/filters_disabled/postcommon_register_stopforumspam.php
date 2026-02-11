@@ -32,13 +32,13 @@ class Protector_postcommon_register_stopforumspam extends ProtectorFilterAbstrac
             return true;
         }
 
-        $report = array();
-        $report['email'] = isset($_POST['email']) ? $_POST['email'] : null;
+        $report = [];
+        $report['email'] = $_POST['email'] ?? null;
         $report['ip'] = $_SERVER['REMOTE_ADDR'];
-        $report['uname'] = isset($_POST['uname']) ? $_POST['uname'] : null;
+        $report['uname'] = $_POST['uname'] ?? null;
         $result = $this->protector->stopForumSpamLookup($report['email'], $report['ip'], $report['uname']);
         if (false === $result || isset($result['http_code'])) {
-            // the look up failed at the http level, log it for now?
+            // the lookup failed at the http level, log it for now?
             $report['result'] = $result;
             $this->protector->message = json_encode($report);
             $this->protector->output_log('SFS-UNKNOWN');

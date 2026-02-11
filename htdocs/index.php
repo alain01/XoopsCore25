@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.0.0
@@ -17,7 +17,7 @@
  * @author              Skalpa Keo <skalpa@xoops.org>
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-/* @var  XoopsUser $xoopsUser */
+/** @var  XoopsUser $xoopsUser */
 
 if (file_exists(__DIR__ . '/mainfile.php')) {
     include __DIR__ . '/mainfile.php';
@@ -38,7 +38,7 @@ if (isset($xoopsConfig['startpage']) && $xoopsConfig['startpage'] != '' && $xoop
     define('XOOPS_STARTPAGE_REDIRECTED', 1);
 
     global $xoopsModuleConfig;
-    /* @var XoopsModuleHandler $module_handler */
+    /** @var XoopsModuleHandler $module_handler */
     $module_handler = xoops_getHandler('module');
     $xoopsModule    = $module_handler->getByDirname($xoopsConfig['startpage']);
     if (!$xoopsModule || !$xoopsModule->getVar('isactive')) {
@@ -47,7 +47,7 @@ if (isset($xoopsConfig['startpage']) && $xoopsConfig['startpage'] != '' && $xoop
         include_once $GLOBALS['xoops']->path('footer.php');
         exit();
     }
-    /* @var  XoopsGroupPermHandler $moduleperm_handler */
+    /** @var  XoopsGroupPermHandler $moduleperm_handler */
     $moduleperm_handler = xoops_getHandler('groupperm');
     if ($xoopsUser) {
         if (!$moduleperm_handler->checkRight('module_read', $xoopsModule->getVar('mid'), $xoopsUser->getGroups())) {
@@ -64,7 +64,7 @@ if (isset($xoopsConfig['startpage']) && $xoopsConfig['startpage'] != '' && $xoop
     }
 
     chdir('modules/' . $xoopsConfig['startpage'] . '/');
-    xoops_loadLanguage('main', $xoopsModule->getVar('dirname', 'n'));
+    xoops_loadLanguage('main', (string)$xoopsModule->getVar('dirname', 'n'));
     $parsed = parse_url(XOOPS_URL);
     $url    = isset($parsed['scheme']) ? $parsed['scheme'] . '://' : 'http://';
     if (isset($parsed['host'])) {
@@ -73,7 +73,11 @@ if (isset($xoopsConfig['startpage']) && $xoopsConfig['startpage'] != '' && $xoop
             $url .= ':' . $parsed['port'];
         }
     } else {
-        $url .= $_SERVER['HTTP_HOST'];
+        $host = parse_url(XOOPS_URL, PHP_URL_HOST);
+        if (!is_string($host)) {
+            $host = ''; // Or a safe default/fallback
+        }
+        $url .= $host;
     }
 
     $_SERVER['REQUEST_URI'] = substr(XOOPS_URL, strlen($url)) . '/modules/' . $xoopsConfig['startpage'] . '/index.php';

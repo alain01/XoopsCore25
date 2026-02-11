@@ -15,8 +15,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.3.0
  * @author           Skalpa Keo <skalpa@xoops.org>
@@ -35,7 +35,7 @@ if (!defined('XOOPS_ROOT_PATH')) {
  */
 function genPathCheckHtml($path, $valid)
 {
-    $myts = MyTextSanitizer::getInstance();
+    $myts = \MyTextSanitizer::getInstance();
     if ($valid) {
         switch ($path) {
             case 'lib':
@@ -61,13 +61,13 @@ function genPathCheckHtml($path, $valid)
     }
 }
 
-$vars =& $_SESSION['settings'];
-$ctrl = new PathStuffController();
-if ($res = $ctrl->execute()) {
+$vars = & $_SESSION['settings'];
+$pathController = new PathController();
+if ($res = $pathController->execute()) {
     return $res;
 }
 
-$myts = MyTextSanitizer::getInstance();
+$myts = \MyTextSanitizer::getInstance();
 
 ?>
 
@@ -78,23 +78,23 @@ $myts = MyTextSanitizer::getInstance();
         <label for="data"><?php echo XOOPS_DATA_PATH_LABEL; ?></label>
 
         <div class="xoform-help"><?php echo $myts->htmlSpecialChars(XOOPS_DATA_PATH_HELP, ENT_QUOTES, _UPGRADE_CHARSET, false); ?></div>
-        <span class="bold"><?php echo $ctrl->xoopsPath['data']; ?></span>
+        <span class="bold"><?php echo $pathController->xoopsPath['data']; ?></span>
 
-        <div><?php echo genPathCheckHtml('data', $ctrl->validPath['data']); ?></div>
-        <?php if ($ctrl->validPath['data'] && !empty($ctrl->permErrors['data'])) { ?>
+        <div><?php echo genPathCheckHtml('data', $pathController->validPath['data']); ?></div>
+        <?php if ($pathController->validPath['data'] && !empty($pathController->permErrors['data'])) { ?>
         <div id="dataperms" class="x2-note">
             <?php echo CHECKING_PERMISSIONS . '<br><p>' . ERR_NEED_WRITE_ACCESS . '</p>'; ?>
             <ul class="diags">
-                <?php foreach ($ctrl->permErrors['data'] as $path => $result) {
-    if ($result) {
-        echo '<li class="success">' . sprintf(IS_WRITABLE, $path) . '</li>';
-    } else {
-        echo '<li class="failure">' . sprintf(IS_NOT_WRITABLE, $path) . '</li>';
-    }
-} ?>
+                <?php foreach ($pathController->permErrors['data'] as $path => $result) {
+                    if ($result) {
+                        echo '<li class="success">' . sprintf(IS_WRITABLE, $path) . '</li>';
+                    } else {
+                        echo '<li class="failure">' . sprintf(IS_NOT_WRITABLE, $path) . '</li>';
+                    }
+                } ?>
             </ul>
             <?php
-} else { ?>
+        } else { ?>
                 <div id="dataperms" class="x2-note" style="display: none;"/>
             <?php } ?>
         </div>
@@ -102,8 +102,8 @@ $myts = MyTextSanitizer::getInstance();
         <label for="lib"><?php echo XOOPS_LIB_PATH_LABEL; ?></label>
 
         <div class="xoform-help"><?php echo $myts->htmlSpecialChars(XOOPS_LIB_PATH_HELP, ENT_QUOTES, _UPGRADE_CHARSET, false); ?></div>
-        <span class="bold"><?php echo $ctrl->xoopsPath['lib']; ?></span><br/>
-        <span><?php echo genPathCheckHtml('lib', $ctrl->validPath['lib']); ?></span>
+        <span class="bold"><?php echo $pathController->xoopsPath['lib']; ?></span><br/>
+        <span><?php echo genPathCheckHtml('lib', $pathController->validPath['lib']); ?></span>
 
     </fieldset>
     <input type="hidden" name="action" value="next"/>

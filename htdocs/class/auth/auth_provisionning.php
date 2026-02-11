@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          auth
  * @since               2.0
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  *
@@ -25,11 +27,19 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @description         Authentification provisionning class. This class is responsible to
  * provide synchronisation method to Xoops User Database
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsAuthProvisionning
 {
-    protected $_auth_instance;
+    protected ?XoopsAuth $_auth_instance;
+    protected string $ldap_provisionning;
+    protected string $ldap_provisionning_upd;
+    protected array $ldap_provisionning_group;
+    protected string $ldap_field_mapping;
+    protected string $default_TZ;
+    protected string $theme_set;
+    protected string $com_mode;
+    protected string $com_order;
 
     /**
      * XoopsAuthProvisionning::getInstance()
@@ -38,7 +48,7 @@ class XoopsAuthProvisionning
      *
      * @return \XoopsAuthProvisionning
      */
-    public static function getInstance(XoopsAuth $auth_instance = null)
+    public static function getInstance(?XoopsAuth $auth_instance = null)
     {
         static $provis_instance;
         if (!isset($provis_instance)) {
@@ -50,12 +60,12 @@ class XoopsAuthProvisionning
 
     /**
      * Authentication Service constructor
-     * @param XoopsAuth $auth_instance
+     * @param XoopsAuth|null $auth_instance
      */
-    public function __construct(XoopsAuth $auth_instance = null)
+    public function __construct(?XoopsAuth $auth_instance = null)
     {
         $this->_auth_instance = $auth_instance;
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler       = xoops_getHandler('config');
         $config               = $config_handler->getConfigsByCat(XOOPS_CONF_AUTH);
         foreach ($config as $key => $val) {
@@ -71,12 +81,12 @@ class XoopsAuthProvisionning
     /**
      * Return a Xoops User Object
      *
-     * @param $uname
-     * @return XoopsUser or false
+     * @param string $uname
+     * @return XoopsUser|false
      */
     public function getXoopsUser($uname)
     {
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         $criteria       = new Criteria('uname', $uname);
         $getuser        = $member_handler->getUsers($criteria);
@@ -90,10 +100,10 @@ class XoopsAuthProvisionning
     /**
      * Launch the synchronisation process
      *
-     * @param       $datas
-     * @param       $uname
-     * @param  null $pwd
-     * @return bool
+     * @param array  $datas
+     * @param string $uname
+     * @param string|null  $pwd
+     * @return XoopsUser|false
      */
     public function sync($datas, $uname, $pwd = null)
     {
@@ -101,8 +111,12 @@ class XoopsAuthProvisionning
         if (!$xoopsUser) { // Xoops User Database not exists
             if ($this->ldap_provisionning) {
                 $xoopsUser = $this->add($datas, $uname, $pwd);
-            } else {
+            } elseif ($this->_auth_instance) {
                 $this->_auth_instance->setErrors(0, sprintf(_AUTH_LDAP_XOOPS_USER_NOTFOUND, $uname));
+            } else {
+                // If no auth instance, we cannot set errors
+                // This is a fallback for legacy code
+                trigger_error(sprintf(_AUTH_LDAP_XOOPS_USER_NOTFOUND, $uname), E_USER_WARNING);
             }
         } else { // Xoops User Database exists
             if ($this->ldap_provisionning && $this->ldap_provisionning_upd) {
@@ -116,20 +130,24 @@ class XoopsAuthProvisionning
     /**
      * Add a new user to the system
      *
-     * @param       $datas
-     * @param       $uname
-     * @param  null $pwd
-     * @return bool
+     * @param array       $datas
+     * @param string      $uname
+     * @param string|null $pwd
+     * @return XoopsUser|false
      */
     public function add($datas, $uname, $pwd = null)
     {
-        $ret            = false;
-        /* @var XoopsMemberHandler $member_handler */
+        $ret = false;
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         // Create XOOPS Database User
         $newuser = $member_handler->createUser();
         $newuser->setVar('uname', $uname);
-        $newuser->setVar('pass', password_hash(stripslashes($pwd), PASSWORD_DEFAULT));
+        if ($pwd === null || trim($pwd) === '') {
+            redirect_header(XOOPS_URL . '/user.php', 5, 'Password cannot be empty.');
+        }
+        $passwordValue = trim($pwd);
+        $newuser->setVar('pass', password_hash(stripslashes($passwordValue), PASSWORD_DEFAULT));
         $newuser->setVar('rank', 0);
         $newuser->setVar('level', 1);
         $newuser->setVar('timezone_offset', $this->default_TZ);
@@ -140,7 +158,7 @@ class XoopsAuthProvisionning
         foreach ($tab_mapping as $mapping) {
             $fields = explode('=', trim($mapping));
             if ($fields[0] && $fields[1]) {
-                $newuser->setVar(trim($fields[0]), utf8_decode($datas[trim($fields[1])][0]));
+                $newuser->setVar(trim($fields[0]), xoops_utf8_decode($datas[trim($fields[1])][0]));
             }
         }
         if ($member_handler->insertUser($newuser)) {
@@ -160,23 +178,23 @@ class XoopsAuthProvisionning
     /**
      * Modify user information
      *
-     * @param       $xoopsUser
-     * @param       $datas
-     * @param       $uname
-     * @param  null $pwd
-     * @return bool
+     * @param XoopsUser   $xoopsUser
+     * @param array       $datas
+     * @param string      $uname
+     * @param string|null $pwd
+     * @return XoopsUser|false
      */
-    public function change(&$xoopsUser, $datas, $uname, $pwd = null)
+    public function change($xoopsUser, $datas, $uname, $pwd = null)
     {
-        $ret            = false;
-        /* @var XoopsMemberHandler $member_handler */
+        $ret = false;
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
-        $xoopsUser->setVar('pass', password_hash(stripcslashes($pwd), PASSWORD_DEFAULT));
+        $xoopsUser->setVar('pass', password_hash(stripcslashes((string)$pwd), PASSWORD_DEFAULT));
         $tab_mapping = explode('|', $this->ldap_field_mapping);
         foreach ($tab_mapping as $mapping) {
             $fields = explode('=', trim($mapping));
             if ($fields[0] && $fields[1]) {
-                $xoopsUser->setVar(trim($fields[0]), utf8_decode($datas[trim($fields[1])][0]));
+                $xoopsUser->setVar(trim($fields[0]), xoops_utf8_decode($datas[trim($fields[1])][0]));
             }
         }
         if ($member_handler->insertUser($xoopsUser)) {
@@ -193,35 +211,26 @@ class XoopsAuthProvisionning
      *
      * @return bool
      */
-    public function delete()
-    {
-    }
+    public function delete() {}
 
     /**
      * Suspend a user
      *
      * @return bool
      */
-    public function suspend()
-    {
-    }
+    public function suspend() {}
 
     /**
      * Restore a user
      *
      * @return bool
      */
-    public function restore()
-    {
-    }
+    public function restore() {}
 
     /**
      * Add a new user to the system
      *
      * @return bool
      */
-    public function resetpwd()
-    {
-    }
+    public function resetpwd() {}
 } // end class
-

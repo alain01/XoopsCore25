@@ -10,8 +10,8 @@
  */
 
 /**
- * @copyright    XOOPS Project http://xoops.org/
- * @license      GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    2000-2025 XOOPS Project (https://xoops.org)
+ * @license      GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package
  * @since
  * @author       XOOPS Development Team, Kazumi Ono (AKA onokazu)
@@ -33,7 +33,7 @@ class XoopsXmlRpcApi
     public $module;
 
     // map between xoops tags and blogger specific tags
-    public $xoopsTagMap = array();
+    public $xoopsTagMap = [];
 
     // user class object
     public $user;
@@ -75,7 +75,7 @@ class XoopsXmlRpcApi
         if (isset($this->user)) {
             return true;
         }
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         $this->user     = $member_handler->loginUser(addslashes($username), addslashes($password));
         if (!is_object($this->user)) {
@@ -83,7 +83,7 @@ class XoopsXmlRpcApi
 
             return false;
         }
-        /* @var  XoopsGroupPermHandler $moduleperm_handler */
+        /** @var  XoopsGroupPermHandler $moduleperm_handler */
         $moduleperm_handler = xoops_getHandler('groupperm');
         if (!$moduleperm_handler->checkRight('module_read', $this->module->getVar('mid'), $this->user->getGroups())) {
             unset($this->user);
@@ -114,18 +114,18 @@ class XoopsXmlRpcApi
     }
 
     /**
-     * @param null $post_id
-     * @param null $blog_id
+     * @param int|null $post_id
+     * @param int|null $blog_id
      *
      * @return array
      */
     public function &_getPostFields($post_id = null, $blog_id = null)
     {
-        $ret               = array();
-        $ret['title']      = array('required' => true, 'form_type' => 'textbox', 'value_type' => 'text');
-        $ret['hometext']   = array('required' => false, 'form_type' => 'textarea', 'data_type' => 'textarea');
-        $ret['moretext']   = array('required' => false, 'form_type' => 'textarea', 'data_type' => 'textarea');
-        $ret['categories'] = array('required' => false, 'form_type' => 'select_multi', 'data_type' => 'array');
+        $ret               = [];
+        $ret['title']      = ['required' => true, 'form_type' => 'textbox', 'value_type' => 'text'];
+        $ret['hometext']   = ['required' => false, 'form_type' => 'textarea', 'data_type' => 'textarea'];
+        $ret['moretext']   = ['required' => false, 'form_type' => 'textarea', 'data_type' => 'textarea'];
+        $ret['categories'] = ['required' => false, 'form_type' => 'select_multi', 'data_type' => 'array'];
 
         /*
         if (!isset($blog_id)) {
@@ -162,11 +162,7 @@ class XoopsXmlRpcApi
      */
     public function _getXoopsTagMap($xoopstag)
     {
-        if (isset($this->xoopsTagMap[$xoopstag])) {
-            return $this->xoopsTagMap[$xoopstag];
-        }
-
-        return $xoopstag;
+        return $this->xoopsTagMap[$xoopstag] ?? $xoopstag;
     }
 
     /**
@@ -179,7 +175,7 @@ class XoopsXmlRpcApi
     public function _getTagCdata(&$text, $tag, $remove = true)
     {
         $ret   = '';
-        $match = array();
+        $match = [];
         if (preg_match("/\<" . $tag . "\>(.*)\<\/" . $tag . "\>/is", $text, $match)) {
             if ($remove) {
                 $text = str_replace($match[0], '', $text);
@@ -197,12 +193,14 @@ class XoopsXmlRpcApi
      *
      * @return $this|XoopsApi
      */
-    public function &_getXoopsApi(&$params)
+    public function _getXoopsApi(&$params)
     {
         if (strtolower(get_class($this)) !== 'xoopsapi') {
             require_once(XOOPS_ROOT_PATH . '/class/xml/rpc/xoopsapi.php');
 
-            return new XoopsApi($params, $this->response, $this->module);
+            $xoopsApi = new XoopsApi($params, $this->response, $this->module);
+
+            return $xoopsApi;
         } else {
             return $this;
         }

@@ -15,21 +15,21 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.3.0
  * @author           Taiwen Jiang <phppp@users.sourceforge.net>
  */
 class XoopsUpgrade
 {
-    public $usedFiles      = array();
-    public $tasks          = array();
+    public $usedFiles      = [];
+    public $tasks          = [];
     public $languageFolder = null;
-    public $logs           = array();
+    public $logs           = [];
 
     /**
-     * @param null $dirname
+     * @param string|null $dirname
      */
     public function __construct($dirname = null)
     {
@@ -120,7 +120,7 @@ class XoopsUpgrade
             $sql .= " WHERE {$condition}";
         }
         $result = $db->query($sql);
-        if ($result) {
+        if ($db->isResultSet($result)) {
             $row = $db->fetchRow($result);
             if ($row) {
                 return $row[0];

@@ -9,12 +9,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.0.0
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_loadLanguage('user');
 
@@ -29,15 +31,16 @@ if ($uname == '' || $pass == '') {
     redirect_header(XOOPS_URL . '/user.php', 1, _US_INCORRECTLOGIN);
 }
 
-/* @var XoopsMemberHandler $member_handler */
+/** @var XoopsMemberHandler $member_handler */
 $member_handler = xoops_getHandler('member');
-$myts           = MyTextSanitizer::getInstance();
+$myts           = \MyTextSanitizer::getInstance();
 
 include_once $GLOBALS['xoops']->path('class/auth/authfactory.php');
 
 xoops_loadLanguage('auth');
-
-$xoopsAuth = XoopsAuthFactory::getAuthConnection($myts->addSlashes($uname));
+/** @var XoopsMySQLDatabase $xoopsDB */
+$xoopsDB = XoopsDatabaseFactory::getDatabaseConnection();
+$xoopsAuth = XoopsAuthFactory::getAuthConnection($xoopsDB->escape($uname));
 $user      = $xoopsAuth->authenticate($uname, $pass);
 
 if (false !== $user) {
@@ -59,9 +62,9 @@ if (false !== $user) {
     $user->setVar('last_login', time());
     if (!$member_handler->insertUser($user)) {
     }
-    // Regenrate a new session id and destroy old session
+    // Regenerate a new session id and destroy old session
     $GLOBALS['sess_handler']->regenerate_id(true);
-    $_SESSION                    = array();
+    $_SESSION                    = [];
     $_SESSION['xoopsUserId']     = $user->getVar('uid');
     $_SESSION['xoopsUserGroups'] = $user->getGroups();
     $user_theme                  = $user->getVar('theme');
@@ -73,18 +76,19 @@ if (false !== $user) {
     // Set cookie for rememberme
     if (!empty($GLOBALS['xoopsConfig']['usercookie'])) {
         if (!empty($rememberme)) {
-            $claims = array(
+            $claims = [
                 'uid' => $_SESSION['xoopsUserId'],
-            );
-            $rememberTime = 60*60*24*30;
+            ];
+            $rememberTime = 60 * 60 * 24 * 30;
             $token = \Xmf\Jwt\TokenFactory::build('rememberme', $claims, $rememberTime);
             xoops_setcookie(
                 $GLOBALS['xoopsConfig']['usercookie'],
                 $token,
                 time() + $rememberTime,
                 '/',
-                XOOPS_COOKIE_DOMAIN, XOOPS_PROT === 'https://',
-                true
+                XOOPS_COOKIE_DOMAIN,
+                XOOPS_PROT === 'https://',
+                true,
             );
         } else {
             xoops_setcookie($GLOBALS['xoopsConfig']['usercookie'], null, time() - 3600, '/', XOOPS_COOKIE_DOMAIN, 0, true);
@@ -102,9 +106,13 @@ if (false !== $user) {
                 $url .= ':' . $parsed['port'];
             }
         } else {
-            $url .= $_SERVER['HTTP_HOST'];
+            $host = parse_url(XOOPS_URL, PHP_URL_HOST);
+            if (!is_string($host)) {
+                $host = ''; // Or a safe default/fallback
+            }
+            $url .= $host;
         }
-        if (@$parsed['path']) {
+        if (isset($parsed['path']) && $parsed['path']) {
             if (strncmp($parsed['path'], $xoops_redirect, strlen($parsed['path']))) {
                 $url .= $parsed['path'];
             }

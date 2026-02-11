@@ -9,14 +9,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             pm
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-$path = dirname(dirname(dirname(__DIR__)));
+$path = dirname(__DIR__, 3);
 include_once $path . '/mainfile.php';
 include_once $path . '/include/cp_functions.php';
 require_once $path . '/include/cp_header.php';
@@ -40,7 +40,7 @@ $pathModuleAdmin = $xoopsModule->getInfo('dirmoduleadmin');
 include_once $GLOBALS['xoops']->path($pathModuleAdmin . '/moduleadmin.php');
 
 if ($xoopsUser) {
-    /* @var XoopsGroupPermHandler $moduleperm_handler */
+    /** @var XoopsGroupPermHandler $moduleperm_handler */
     $moduleperm_handler = xoops_getHandler('groupperm');
     if (!$moduleperm_handler->checkRight('module_admin', $xoopsModule->getVar('mid'), $xoopsUser->getGroups())) {
         redirect_header(XOOPS_URL, 1, _NOPERM);

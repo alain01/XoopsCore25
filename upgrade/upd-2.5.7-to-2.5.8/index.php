@@ -10,7 +10,7 @@ use Xmf\Key\FileStorage;
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license          GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.5.8
@@ -26,12 +26,12 @@ class Upgrade_258 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array(
+        $this->tasks = [
             'users_pass',
             'com_ip',
             'sess_ip',
             'online_ip',
-        );
+        ];
     }
 
     /**
@@ -55,12 +55,12 @@ class Upgrade_258 extends XoopsUpgrade
             . "WHERE TABLE_SCHEMA = '%s'AND TABLE_NAME = '%s' AND COLUMN_NAME = '%s'",
             $db->escape($dbname),
             $db->escape($table),
-            $db->escape($column)
+            $db->escape($column),
         );
 
         /** @var mysqli_result $result */
         $result = $db->query($sql);
-        if ($result) {
+        if ($db->isResultSet($result)) {
             $row = $db->fetchRow($result);
             if ($row) {
                 $columnLength = $row[0];

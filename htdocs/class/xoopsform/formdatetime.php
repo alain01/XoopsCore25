@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Date and time selection field
@@ -27,9 +29,9 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  */
 class XoopsFormDateTime extends XoopsFormElementTray
 {
-    const SHOW_BOTH = 1;
-    const SHOW_DATE = 0;
-    const SHOW_TIME = 2;
+    public const SHOW_BOTH = 1;
+    public const SHOW_DATE = 0;
+    public const SHOW_TIME = 2;
 
     /**
      * XoopsFormDateTime::XoopsFormDateTime()
@@ -60,20 +62,20 @@ class XoopsFormDateTime extends XoopsFormElementTray
                 $displayTime = true;
                 break;
         }
-        $value    = (int)$value;
+        $value    = (int) $value;
         $value    = ($value > 0) ? $value : time();
         $datetime = getdate($value);
         if ($displayDate) {
             $this->addElement(new XoopsFormTextDateSelect('', $name . '[date]', $size, $value));
         } else {
-            $value = !is_numeric($value) ? time() : (int)$value;
+            $value = !is_numeric($value) ? time() : (int) $value;
             $value = ($value == 0) ? time() : $value;
             $displayValue = date(_SHORTDATESTRING, $value);
             $this->addElement(new XoopsFormHidden($name . '[date]', $displayValue));
         }
 
         if ($displayTime) {
-            $timearray = array();
+            $timearray = [];
             for ($i = 0; $i < 24; ++$i) {
                 for ($j = 0; $j < 60; $j += 10) {
                     $key = ($i * 3600) + ($j * 60);

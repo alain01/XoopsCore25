@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -24,7 +24,7 @@ $_SERVER['REQUEST_URI'] = 'admin/permissions.php';
 
 xoops_cp_header();
 
-$op = isset($_REQUEST['op']) ? $_REQUEST['op'] : 'visibility';
+$op = $_REQUEST['op'] ?? 'visibility';
 
 $visibility_handler = xoops_getModuleHandler('visibility');
 $field_handler      = xoops_getModuleHandler('field');
@@ -64,7 +64,7 @@ $criteria->setOrder('DESC');
 
 $visibilities = $visibility_handler->getAllByFieldId($criteria);
 
-/* @var XoopsMemberHandler $member_handler */
+/** @var XoopsMemberHandler $member_handler */
 $member_handler = xoops_getHandler('member');
 $groups         = $member_handler->getGroupList();
 $groups[0]      = _PROFILE_AM_FIELDVISIBLETOALL;

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
@@ -17,7 +17,9 @@
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Abstract base class for forms
@@ -75,31 +77,31 @@ class XoopsForm
      *
      * @var array
      */
-    public $_elements = array();
+    public $_elements = [];
 
     /**
      * HTML classes for the <form> tag
      *
      * @var array
      */
-    public $_class = array();
-    
+    public $_class = [];
+
     /**
      * extra information for the <form> tag
      *
      * @var array
      */
-    public $_extra = array();
+    public $_extra = [];
 
     /**
      * required elements
      *
      * @var array
      */
-    public $_required = array();
+    public $_required = [];
 
     /**
-     * additional serialised object checksum (ERM Analysis - Requirement)
+     * additional serialized object checksum (ERM Analysis - Requirement)
      * @deprecated
      * @access private
      */
@@ -119,14 +121,14 @@ class XoopsForm
      * @param bool   $addtoken whether to add a security token to the form
      * @param string $summary
      */
-    public function __construct($title, $name, $action, $method = 'post', $addtoken = false, $summary = '')
+    public function __construct($title, $name, $action, $method = 'post', $addtoken = true, $summary = '')
     {
         $this->_title   = $title;
         $this->_name    = $name;
         $this->_action  = $action;
         $this->_method  = $method;
         $this->_summary = $summary;
-        if ($addtoken != false) {
+        if (false != $addtoken) {
             $this->addElement(new XoopsFormHiddenToken());
         }
     }
@@ -137,73 +139,65 @@ class XoopsForm
     public function XoopsForm()
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-        trigger_error("Should call parent::__construct in {$trace[0]['file']} line {$trace[0]['line']},");
+        trigger_error("Should call parent::__construct in {$trace[0]['file']} line {$trace[0]['line']},", E_USER_DEPRECATED);
         self::__construct();
     }
     /**
      * *#@+
-     * retrieves object serialisation/identification id (sha1 used)
+     * retrieves object serialization/identification id (sha1 used)
      *
-     * each object has serialisation<br>
+     * each object has serialization<br>
      * - legal requirement of enterprise relational management (ERM)
      *
      * @deprecated
      * @access public
-     * @param         $object
-     * @param  string $hashinfo
-     * @return string
+     * @param mixed  $object   The object or value to serialize
+     * @param string $hashinfo Hashing algorithm to use (default 'sha1')
+     * @return string         The serialization ID
      */
     public function getObjectID($object, $hashinfo = 'sha1')
     {
+        // Initialize $var
+        $var = [
+            'name' => '',
+            'value' => '',
+            'func' => '',
+        ];
+
+        // Check if $object is an object; if not, use $this
         if (!is_object($object)) {
             $object = $this;
         }
 
-        switch ($hashinfo) {
-            case 'md5':
+        // Switch hash method based on $hashinfo
+        $hashMethod = ('md5' === $hashinfo) ? 'md5' : 'sha1';
 
-                @$var['name'] = md5(get_class($object));
+        // Hash the class name
+        $var['name'] = $hashMethod(get_class($object));
 
-                foreach (get_object_vars($object) as $key => $value) {
-                    if ($key !== '_objid') {
-                        @$var['value'] = $this->getArrayID($value, $key, $var['value'], $hashinfo);
-                    }
-                }
-
-                foreach (get_class_methods($object) as $key => $value) {
-                    @$var['func'] = $this->getArrayID($value, $key, $var['func'], $hashinfo);
-                }
-
-                @$this->_objid = md5($var['name'] . ':' . $var['func'] . ':' . $var['value']);
-
-                return $this->_objid;
-                break;
-
-            default:
-
-                @$var['name'] = sha1(get_class($object));
-
-                foreach (get_object_vars($object) as $key => $value) {
-                    if ($key !== '_objid') {
-                        @$var['value'] = $this->getArrayID($value, $key, $var['value'], $hashinfo);
-                    }
-                }
-
-                foreach (get_class_methods($object) as $key => $value) {
-                    @$var['func'] = $this->getArrayID($value, $key, $var['func'], $hashinfo);
-                }
-
-                @$this->_objid = sha1($var['name'] . ':' . $var['func'] . ':' . $var['value']);
-
-                return $this->_objid;
-
+        // Hash the object variables
+        foreach (get_object_vars($object) as $key => $value) {
+            if ($key !== '_objid') {
+                $var['value'] = $this->getArrayID($value, $key, $var['value'], $hashinfo);
+            }
         }
+
+        // Hash the class methods
+        foreach (get_class_methods($object) as $key => $value) {
+            $var['func'] = $this->getArrayID($value, $key, $var['func'], $hashinfo);
+        }
+
+        // Generate the final hash
+        $this->_objid = $hashMethod(implode(':', $var));
+
+        return $this->_objid;
     }
 
+
     /**
-     * @param        $value
-     * @param        $key
-     * @param        $ret
+     * @param mixed  $value
+     * @param mixed  $key
+     * @param string $ret
      * @param string $hashinfo
      *
      * @return string
@@ -212,27 +206,31 @@ class XoopsForm
     {
         switch ($hashinfo) {
             case 'md5':
+                if (!isset($ret)) {
+                    $ret = '';
+                }
                 if (is_array($value)) {
                     foreach ($value as $keyb => $valueb) {
-                        @$ret = md5($ret . ':' . $this->getArrayID($valueb, $keyb, $ret, $hashinfo));
+                        $ret = md5($ret . ':' . $this->getArrayID($valueb, $keyb, $ret, $hashinfo));
                     }
                 } else {
-                    @$ret = md5($ret . ':' . $key . ':' . $value);
+                    $ret = md5($ret . ':' . $key . ':' . $value);
                 }
 
                 return $ret;
-                break;
             default:
+                if (!isset($ret)) {
+                    $ret = '';
+                }
                 if (is_array($value)) {
                     foreach ($value as $keyb => $valueb) {
-                        @$ret = sha1($ret . ':' . $this->getArrayID($valueb, $keyb, $ret, $hashinfo));
+                        $ret = sha1($ret . ':' . $this->getArrayID($valueb, $keyb, $ret, $hashinfo));
                     }
                 } else {
-                    @$ret = sha1($ret . ':' . $key . ':' . $value);
+                    $ret = sha1($ret . ':' . $key . ':' . $value);
                 }
 
                 return $ret;
-                break;
         }
     }
 
@@ -244,7 +242,7 @@ class XoopsForm
      */
     public function getSummary($encode = false)
     {
-        return $encode ? htmlspecialchars($this->_summary, ENT_QUOTES) : $this->_summary;
+        return $encode ? htmlspecialchars($this->_summary, ENT_QUOTES | ENT_HTML5) : $this->_summary;
     }
 
     /**
@@ -255,7 +253,7 @@ class XoopsForm
      */
     public function getTitle($encode = false)
     {
-        return $encode ? htmlspecialchars($this->_title, ENT_QUOTES) : $this->_title;
+        return $encode ? htmlspecialchars($this->_title, ENT_QUOTES | ENT_HTML5) : $this->_title;
     }
 
     /**
@@ -268,7 +266,7 @@ class XoopsForm
      */
     public function getName($encode = true)
     {
-        return $encode ? htmlspecialchars($this->_name, ENT_QUOTES) : $this->_name;
+        return $encode ? htmlspecialchars($this->_name, ENT_QUOTES | ENT_HTML5) : $this->_name;
     }
 
     /**
@@ -280,7 +278,7 @@ class XoopsForm
     public function getAction($encode = true)
     {
         // Convert &amp; to & for backward compatibility
-        return $encode ? htmlspecialchars(str_replace('&amp;', '&', $this->_action), ENT_QUOTES) : $this->_action;
+        return $encode ? htmlspecialchars(str_replace('&amp;', '&', $this->_action), ENT_QUOTES | ENT_HTML5) : $this->_action;
     }
 
     /**
@@ -333,7 +331,7 @@ class XoopsForm
         if (!$recurse) {
             return $this->_elements;
         } else {
-            $ret   = array();
+            $ret   = [];
             $count = count($this->_elements);
             for ($i = 0; $i < $count; ++$i) {
                 if (is_object($this->_elements[$i])) {
@@ -361,7 +359,7 @@ class XoopsForm
      */
     public function getElementNames()
     {
-        $ret      = array();
+        $ret      = [];
         $elements = &$this->getElements(true);
         $count    = count($elements);
         for ($i = 0; $i < $count; ++$i) {
@@ -379,7 +377,7 @@ class XoopsForm
      */
     public function &getElementByName($name)
     {
-        $elements =& $this->getElements(true);
+        $elements = & $this->getElements(true);
         $count    = count($elements);
         for ($i = 0; $i < $count; ++$i) {
             if ($name == $elements[$i]->getName(false)) {
@@ -412,7 +410,7 @@ class XoopsForm
      */
     public function setElementValues($values)
     {
-        if (is_array($values) && !empty($values)) {
+        if (!empty($values) && \is_array($values)) {
             // will not use getElementByName() for performance..
             $elements = &$this->getElements(true);
             $count    = count($elements);
@@ -453,11 +451,11 @@ class XoopsForm
         // will not use getElementByName() for performance..
         $elements = &$this->getElements(true);
         $count    = count($elements);
-        $values   = array();
+        $values   = [];
         for ($i = 0; $i < $count; ++$i) {
             $name = $elements[$i]->getName(false);
             if ($name && method_exists($elements[$i], 'getValue')) {
-                $values[$name] = &$elements[$i]->getValue($encode);
+                $values[$name] = $elements[$i]->getValue($encode);
             }
         }
 
@@ -476,7 +474,7 @@ class XoopsForm
             $this->_class[] = $class;
         }
     }
-    
+
     /**
      * set the extra attributes for the <form> tag
      *
@@ -506,19 +504,19 @@ class XoopsForm
      *
      * @return string "class" attribute value
      */
-    public function &getClass()
+    public function getClass()
     {
         if (empty($this->_class)) {
             return false;
         }
-        $classes = array();
+        $classes = [];
         foreach ($this->_class as $class) {
-            $classes[] = htmlspecialchars($class, ENT_QUOTES);
+            $classes[] = htmlspecialchars($class, ENT_QUOTES | ENT_HTML5);
         }
 
         return implode(' ', $classes);
     }
-    
+
     /**
      * get the extra attributes for the <form> tag
      *
@@ -559,9 +557,7 @@ class XoopsForm
      * @param string $extra extra information for the break
      * @abstract
      */
-    public function insertBreak($extra = null)
-    {
-    }
+    public function insertBreak($extra = null) {}
 
     /**
      * returns renderered form
@@ -570,9 +566,7 @@ class XoopsForm
      *
      * @abstract
      */
-    public function render()
-    {
-    }
+    public function render() {}
 
     /**
      * displays rendered form
@@ -614,7 +608,7 @@ class XoopsForm
         }
         $formname = $this->getName();
         $js .= "function xoopsFormValidate_{$formname}() { var myform = window.document.{$formname}; ";
-        $elements =& $this->getElements(true);
+        $elements = & $this->getElements(true);
         foreach ($elements as $elt) {
             if (method_exists($elt, 'renderValidationJS')) {
                 $js .= $elt->renderValidationJS();
@@ -637,10 +631,8 @@ class XoopsForm
     public function assign(XoopsTpl $tpl)
     {
         $i        = -1;
-        $elements = array();
-        if (count($this->getRequired()) > 0) {
-            $this->_elements[] = "<tr class='foot'><td colspan='2'>* = " . _REQUIRED . '</td></tr>';
-        }
+        $elements = [];
+        //  Removed hard-coded legacy pseudo-element - XoopsFormRenderer is now responsible for the legend
         foreach ($this->getElements() as $ele) {
             ++$i;
             if (is_string($ele)) {
@@ -660,15 +652,18 @@ class XoopsForm
             }
         }
         $js = $this->renderValidationJS();
-        $tpl->assign($this->getName(), array(
-            'title'      => $this->getTitle(),
-            'name'       => $this->getName(),
-            'action'     => $this->getAction(),
-            'method'     => $this->getMethod(),
-            'extra'      => 'onsubmit="return xoopsFormValidate_' . $this->getName() . '();"' . $this->getExtra(),
-            'javascript' => $js,
-            'elements'   => $elements,
-            'rendered'   => $this->render(),
-        ));
+        $tpl->assign(
+            $this->getName(),
+            [
+                'title'      => $this->getTitle(),
+                'name'       => $this->getName(),
+                'action'     => $this->getAction(),
+                'method'     => $this->getMethod(),
+                'extra'      => 'onsubmit="return xoopsFormValidate_' . $this->getName() . '();"' . $this->getExtra(),
+                'javascript' => $js,
+                'elements'   => $elements,
+                'rendered'   => $this->render(),
+            ],
+        );
     }
 }

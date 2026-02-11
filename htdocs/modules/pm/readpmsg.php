@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             pm
  * @since               2.3.0
@@ -17,12 +17,14 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-include_once dirname(dirname(__DIR__)) . '/mainfile.php';
+use Xmf\Request;
+
+include_once dirname(__DIR__, 2) . '/mainfile.php';
 
 if (!is_object($GLOBALS['xoopsUser'])) {
     redirect_header(XOOPS_URL, 3, _NOPERM);
 }
-$valid_op_requests = array('out', 'save', 'in');
+$valid_op_requests = ['out', 'save', 'in'];
 $_REQUEST['op']    = !empty($_REQUEST['op']) && in_array($_REQUEST['op'], $valid_op_requests) ? $_REQUEST['op'] : 'in';
 $msg_id            = empty($_REQUEST['msg_id']) ? 0 : (int)$_REQUEST['msg_id'];
 $pm_handler        = xoops_getModuleHandler('message');
@@ -90,11 +92,11 @@ if (is_object($pm) && !empty($_POST['action'])) {
                 break;
         }
     }
-    $res_message = isset($res_message) ? $res_message : ($res ? _PM_ACTION_DONE : _PM_ACTION_ERROR);
-    redirect_header('viewpmsg.php?op=' . htmlspecialchars($_REQUEST['op']), 2, $res_message);
+    $res_message ??= $res ? _PM_ACTION_DONE : _PM_ACTION_ERROR;
+    redirect_header('viewpmsg.php?op=' . htmlspecialchars($_REQUEST['op'], ENT_QUOTES | ENT_HTML5), 2, $res_message);
 }
-$start                        = !empty($_GET['start']) ? (int)$_GET['start'] : 0;
-$total_messages               = !empty($_GET['total_messages']) ? (int)$_GET['total_messages'] : 0;
+$start                        = Request::getInt('start', 0, 'GET');
+$total_messages               = Request::getInt('total_messages', 0, 'GET');
 $GLOBALS['xoopsOption']['template_main'] = 'pm_readpmsg.tpl';
 include $GLOBALS['xoops']->path('header.php');
 
@@ -122,7 +124,7 @@ if (!is_object($pm)) {
     $criteria->setStart($start);
     $criteria->setSort('msg_time');
     $criteria->setOrder('DESC');
-    list($pm) = $pm_handler->getObjects($criteria);
+    [$pm] = $pm_handler->getObjects($criteria);
 }
 
 include_once $GLOBALS['xoops']->path('class/xoopsformloader.php');
@@ -160,7 +162,7 @@ if (is_object($pm) && !empty($pm)) {
 
     $message              = $pm->getValues();
     $message['msg_time']  = formatTimestamp($pm->getVar('msg_time'));
-    $message['msg_image'] = htmlspecialchars($message['msg_image'], ENT_QUOTES);
+    $message['msg_image'] = htmlspecialchars((string)$message['msg_image'], ENT_QUOTES | ENT_HTML5);
 }
 $GLOBALS['xoopsTpl']->assign('message', $message);
 $GLOBALS['xoopsTpl']->assign('op', $_REQUEST['op']);

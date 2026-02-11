@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          model
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Object stats handler class.
@@ -33,7 +35,7 @@ class XoopsModelStats extends XoopsModelAbstract
      * @param  CriteriaElement|CriteriaCompo $criteria {@link CriteriaElement} to match
      * @return int|array    count of objects
      */
-    public function getCount(CriteriaElement $criteria = null)
+    public function getCount(?CriteriaElement $criteria = null)
     {
         $field   = '';
         $groupby = false;
@@ -44,21 +46,22 @@ class XoopsModelStats extends XoopsModelAbstract
             }
         }
         $sql = "SELECT {$field} COUNT(*) FROM `{$this->handler->table}`";
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
             $sql .= $criteria->getGroupby();
         }
         $result = $this->handler->db->query($sql);
-        if (!$result) {
+        if (!$this->handler->db->isResultSet($result)) {
             return 0;
         }
         if ($groupby == false) {
-            list($count) = $this->handler->db->fetchRow($result);
+            [$count] = $this->handler->db->fetchRow($result);
 
             return (int) $count;
         } else {
-            $ret = array();
-            while (false !== (list($id, $count) = $this->handler->db->fetchRow($result))) {
+            $ret = [];
+            while (false !== ($row = $this->handler->db->fetchRow($result))) {
+                [$id, $count] = $row;
                 $ret[$id] = (int) $count;
             }
 
@@ -72,14 +75,14 @@ class XoopsModelStats extends XoopsModelAbstract
      * @param  CriteriaElement|CriteriaCompo  $criteria {@link CriteriaElement} to match
      * @return array  of counts
      */
-    public function getCounts(CriteriaElement $criteria = null)
+    public function getCounts(?CriteriaElement $criteria = null)
     {
-        $ret         = array();
+        $ret         = [];
         $sql_where   = '';
         $limit       = null;
         $start       = null;
         $groupby_key = $this->handler->keyName;
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql_where = $criteria->renderWhere();
             $limit     = $criteria->getLimit();
             $start     = $criteria->getStart();
@@ -88,10 +91,12 @@ class XoopsModelStats extends XoopsModelAbstract
             }
         }
         $sql = "SELECT {$groupby_key}, COUNT(*) AS count" . " FROM `{$this->handler->table}`" . " {$sql_where}" . " GROUP BY {$groupby_key}";
-        if (!$result = $this->handler->db->query($sql, $limit, $start)) {
+        $result = $this->handler->db->query($sql, $limit, $start);
+        if (!$this->handler->db->isResultSet($result)) {
             return $ret;
         }
-        while (false !== (list($id, $count) = $this->handler->db->fetchRow($result))) {
+        while (false !== ($row = $this->handler->db->fetchRow($result))) {
+            [$id, $count] = $row;
             $ret[$id] = (int) $count;
         }
 

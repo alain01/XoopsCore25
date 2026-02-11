@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * XOOPS Image Sets Image
@@ -26,6 +28,12 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  */
 class XoopsImagesetimg extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $imgsetimg_id;
+    public $imgsetimg_file;
+    public $imgsetimg_body;
+    public $imgsetimg_imgset;
+
     /**
      * Constructor
      */
@@ -121,7 +129,7 @@ class XoopsImagesetimgHandler extends XoopsObjectHandler
      * @param int $id ID
      *
      * @internal param bool $getbinary
-     * @return XoopsImageSetImg {@link XoopsImageSetImg}, FALSE on fail
+     * @return XoopsImageSetImg|false {@link XoopsImageSetImg}, false on fail
      */
     public function get($id)
     {
@@ -129,7 +137,8 @@ class XoopsImagesetimgHandler extends XoopsObjectHandler
         $id        = (int)$id;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('imgsetimg') . ' WHERE imgsetimg_id=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return $imgsetimg;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -167,11 +176,11 @@ class XoopsImagesetimgHandler extends XoopsObjectHandler
         }
         if ($imgsetimg->isNew()) {
             $imgsetimg_id = $this->db->genId('imgsetimg_imgsetimg_id_seq');
-            $sql          = sprintf('INSERT INTO %s (imgsetimg_id, imgsetimg_file, imgsetimg_body, imgsetimg_imgset) VALUES (%u, %s, %s, %s)', $this->db->prefix('imgsetimg'), $imgsetimg_id, $this->db->quoteString($imgsetimg_file), $this->db->quoteString($imgsetimg_body), $this->db->quoteString($imgsetimg_imgset));
+            $sql          = sprintf('INSERT INTO %s (imgsetimg_id, imgsetimg_file, imgsetimg_body, imgsetimg_imgset) VALUES (%u, %s, %s, %s)', $this->db->prefix('imgsetimg'), $imgsetimg_id, $this->db->quote($imgsetimg_file), $this->db->quote($imgsetimg_body), $this->db->quote($imgsetimg_imgset));
         } else {
-            $sql = sprintf('UPDATE %s SET imgsetimg_file = %s, imgsetimg_body = %s, imgsetimg_imgset = %s WHERE imgsetimg_id = %u', $this->db->prefix('imgsetimg'), $this->db->quoteString($imgsetimg_file), $this->db->quoteString($imgsetimg_body), $this->db->quoteString($imgsetimg_imgset), $imgsetimg_id);
+            $sql = sprintf('UPDATE %s SET imgsetimg_file = %s, imgsetimg_body = %s, imgsetimg_imgset = %s WHERE imgsetimg_id = %u', $this->db->prefix('imgsetimg'), $this->db->quote($imgsetimg_file), $this->db->quote($imgsetimg_body), $this->db->quote($imgsetimg_imgset), $imgsetimg_id);
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($imgsetimg_id)) {
@@ -197,7 +206,7 @@ class XoopsImagesetimgHandler extends XoopsObjectHandler
         }
 
         $sql = sprintf('DELETE FROM %s WHERE imgsetimg_id = %u', $this->db->prefix('imgsetimg'), $imgsetimg->getVar('imgsetimg_id'));
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -212,21 +221,23 @@ class XoopsImagesetimgHandler extends XoopsObjectHandler
      * @internal param bool $getbinary
      * @return array Array of {@link XoopsImageSetImg} objects
      */
-    public function getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT DISTINCT i.* FROM ' . $this->db->prefix('imgsetimg') . ' i LEFT JOIN ' . $this->db->prefix('imgset_tplset_link') . ' l ON l.imgset_id=i.imgsetimg_imgset LEFT JOIN ' . $this->db->prefix('imgset') . ' s ON s.imgset_id=l.imgset_id';
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
             $sql .= ' ORDER BY imgsetimg_id ' . $criteria->getOrder();
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $imgsetimg = new XoopsImagesetimg();
             $imgsetimg->assignVars($myrow);
@@ -247,18 +258,19 @@ class XoopsImagesetimgHandler extends XoopsObjectHandler
      * @param  CriteriaElement|CriteriaCompo $criteria {@link CriteriaElement}
      * @return int
      **/
-    public function getCount(CriteriaElement $criteria = null)
+    public function getCount(?CriteriaElement $criteria = null)
     {
         $sql = 'SELECT COUNT(i.imgsetimg_id) FROM ' . $this->db->prefix('imgsetimg') . ' i LEFT JOIN ' . $this->db->prefix('imgset_tplset_link') . ' l ON l.imgset_id=i.imgsetimg_imgset';
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere() . ' GROUP BY i.imgsetimg_id';
         }
-        if (!$result = $this->db->query($sql)) {
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
             return 0;
         }
-        list($count) = $this->db->fetchRow($result);
+        [$count] = $this->db->fetchRow($result);
 
-        return $count;
+        return (int)$count;
     }
 
     /**

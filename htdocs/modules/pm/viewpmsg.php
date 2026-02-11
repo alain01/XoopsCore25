@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2020 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             pm
  * @since               2.3.0
@@ -19,7 +19,7 @@
 
 use Xmf\Request;
 
-include_once dirname(dirname(__DIR__)) . '/mainfile.php';
+include_once dirname(__DIR__, 2) . '/mainfile.php';
 
 if (!is_object($GLOBALS['xoopsUser'])) {
     redirect_header(XOOPS_URL, 3, _NOPERM);
@@ -28,24 +28,30 @@ $xoopsConfig['module_cache']  = 0; //disable caching since the URL will be the s
 $GLOBALS['xoopsOption']['template_main'] = 'pm_viewpmsg.tpl';
 include $GLOBALS['xoops']->path('header.php');
 
-$valid_op_requests = array('out', 'save', 'in');
+$valid_op_requests = ['out', 'save', 'in'];
 $op = Request::getWord('op', 'in', 'request');
 if (!in_array($op, $valid_op_requests)) {
     $op = 'in';
 }
 
 $start = Request::getInt('start', 0);
+/** @var \PmMessageHandler $pm_handler */
 $pm_handler = xoops_getModuleHandler('message');
 
 if (isset($_POST['delete_messages']) && (isset($_POST['msg_id']) || isset($_POST['msg_ids']))) {
     if (!$GLOBALS['xoopsSecurity']->check()) {
         $GLOBALS['xoopsTpl']->assign('errormsg', implode('<br>', $GLOBALS['xoopsSecurity']->getErrors()));
     } elseif (empty($_REQUEST['ok'])) {
-        xoops_confirm(array(
-                          'ok'              => 1,
-                          'delete_messages' => 1,
-                          'op'              => $op,
-                          'msg_ids'         => json_encode(array_map('intval', $_POST['msg_id']))), $_SERVER['REQUEST_URI'], _PM_SURE_TO_DELETE);
+        xoops_confirm(
+            [
+                'ok'              => 1,
+                'delete_messages' => 1,
+                'op'              => $op,
+                'msg_ids'         => json_encode(array_map('intval', $_POST['msg_id'])),
+            ],
+            $_SERVER['REQUEST_URI'],
+            _PM_SURE_TO_DELETE,
+        );
         include $GLOBALS['xoops']->path('footer.php');
         exit();
     } else {
@@ -54,7 +60,7 @@ if (isset($_POST['delete_messages']) && (isset($_POST['msg_id']) || isset($_POST
             $clean_msg_id = array_map('intval', $clean_msg_id);
         }
         $size = count($clean_msg_id);
-        $msg  =& $clean_msg_id;
+        $msg  = & $clean_msg_id;
         for ($i = 0; $i < $size; ++$i) {
             $pm = $pm_handler->get($msg[$i]);
             if ($pm->getVar('to_userid') == $GLOBALS['xoopsUser']->getVar('uid')) {
@@ -111,7 +117,7 @@ if (isset($_REQUEST['empty_messages'])) {
     if (!$GLOBALS['xoopsSecurity']->check()) {
         $GLOBALS['xoopsTpl']->assign('errormsg', implode('<br>', $GLOBALS['xoopsSecurity']->getErrors()));
     } elseif (empty($_REQUEST['ok'])) {
-        xoops_confirm(array('ok' => 1, 'empty_messages' => 1, 'op' => $op), $_SERVER['REQUEST_URI'], _PM_RUSUREEMPTY);
+        xoops_confirm(['ok' => 1, 'empty_messages' => 1, 'op' => $op], $_SERVER['REQUEST_URI'], _PM_RUSUREEMPTY);
         include $GLOBALS['xoops']->path('footer.php');
         exit();
     } else {
@@ -192,7 +198,7 @@ $GLOBALS['xoopsTpl']->assign('op', $op);
 
 if ($total_messages > $GLOBALS['xoopsModuleConfig']['perpage']) {
     include_once $GLOBALS['xoops']->path('class/pagenav.php');
-    $nav = new XoopsPageNav($total_messages, $GLOBALS['xoopsModuleConfig']['perpage'], $start, 'start', 'op=' . htmlspecialchars($op));
+    $nav = new XoopsPageNav($total_messages, $GLOBALS['xoopsModuleConfig']['perpage'], $start, 'start', 'op=' . htmlspecialchars($op, ENT_QUOTES | ENT_HTML5));
     $GLOBALS['xoopsTpl']->assign('pagenav', $nav->renderNav(4));
 }
 
@@ -206,12 +212,12 @@ if (count($pm_arr) > 0) {
             $uids[] = $pm_arr[$i]['from_userid'];
         }
     }
-    /* @var XoopsMemberHandler $member_handler */
+    /** @var XoopsMemberHandler $member_handler */
     $member_handler = xoops_getHandler('member');
     $senders        = $member_handler->getUserList(new Criteria('uid', '(' . implode(', ', array_unique($uids)) . ')', 'IN'));
     foreach (array_keys($pm_arr) as $i) {
         $message              = $pm_arr[$i];
-        $message['msg_image'] = htmlspecialchars($message['msg_image'], ENT_QUOTES);
+        $message['msg_image'] = htmlspecialchars((string) $message['msg_image'], ENT_QUOTES | ENT_HTML5);
         $message['msg_time']  = formatTimestamp($message['msg_time']);
         if ($op === 'out') {
             $message['postername'] = $senders[$pm_arr[$i]['to_userid']];

@@ -14,8 +14,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          installer
  * @since            2.3.0
  * @author           Haruki Setoyama  <haruki@planewave.org>
@@ -25,7 +25,7 @@
  * @author           DuGris (aka L. JEN) <dugris@frxoops.org>
  **/
 
-require_once './include/common.inc.php';
+require_once __DIR__ . '/include/common.inc.php';
 defined('XOOPS_INSTALL') || die('XOOPS Installation wizard die');
 
 $pageHasForm = false;
@@ -33,8 +33,8 @@ $pageHasHelp = false;
 
 $vars =& $_SESSION['settings'];
 
-include_once '../mainfile.php';
-include_once './class/dbmanager.php';
+require_once __DIR__ . '/../mainfile.php';
+require_once __DIR__ . '/class/dbmanager.php';
 $dbm = new Db_manager();
 
 if (!$dbm->isConnectable()) {
@@ -43,10 +43,10 @@ if (!$dbm->isConnectable()) {
 }
 
 if ($dbm->tableExists('users')) {
-    $content = '<div class="alert alert-info"><span class="fa fa-info-circle text-info"></span> ' . XOOPS_TABLES_FOUND . '</div>';
+    $content = '<div class="alert alert-info"><span class="fa-solid fa-circle-info text-info"></span> ' . XOOPS_TABLES_FOUND . '</div>';
 } else {
     $result  = $dbm->queryFromFile('./sql/' . XOOPS_DB_TYPE . '.structure.sql');
-    $content = '<div class="alert alert-success"><span class="fa fa-check text-success"></span> ' . XOOPS_TABLES_CREATED
+    $content = '<div class="alert alert-success"><span class="fa-solid fa-check text-success"></span> ' . XOOPS_TABLES_CREATED
         . '</div><div class="well">' . $dbm->report() . '</div>';
 }
-include './include/install_tpl.php';
+include __DIR__ . '/include/install_tpl.php';

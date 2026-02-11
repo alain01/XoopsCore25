@@ -12,10 +12,10 @@
  *
  * Based on :
  *
- *       http://www.zend.com/codex.php?id=535&single=1
+ *       https://www.zend.com/codex.php?id=535&single=1
  *       By Eric Mueller <eric@themepark.com>
  *
- *       http://www.zend.com/codex.php?id=470&single=1
+ *       https://www.zend.com/codex.php?id=470&single=1
  *       by Denis125 <webmaster@atlant.ru>
  *
  *       a patch from Peter Listiak <mlady@users.sourceforge.net> for last modified
@@ -35,14 +35,14 @@ class Zipfile
      *
      * @var array $datasec
      */
-    public $datasec = array();
+    public $datasec = [];
 
     /**
      * Central directory
      *
      * @var array $ctrl_dir
      */
-    public $ctrl_dir = array();
+    public $ctrl_dir = [];
 
     /**
      * End of central directory record

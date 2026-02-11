@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @since               2.0.0
  */
@@ -26,11 +26,11 @@ include_once $GLOBALS['xoops']->path('class/template.php');
 $tpl                 = new XoopsTpl();
 $tpl->caching        = 2;
 $tpl->cache_lifetime = 3600;
-if (!$tpl->is_cached('db:system_rss.tpl')) {
+if (!$tpl->isCached('db:system_rss.tpl')) {
     xoops_load('XoopsLocal');
-    $tpl->assign('channel_title', XoopsLocal::convert_encoding(htmlspecialchars($xoopsConfig['sitename'], ENT_QUOTES)));
+    $tpl->assign('channel_title', XoopsLocal::convert_encoding(htmlspecialchars($xoopsConfig['sitename'], ENT_QUOTES | ENT_HTML5)));
     $tpl->assign('channel_link', XOOPS_URL . '/');
-    $tpl->assign('channel_desc', XoopsLocal::convert_encoding(htmlspecialchars($xoopsConfig['slogan'], ENT_QUOTES)));
+    $tpl->assign('channel_desc', XoopsLocal::convert_encoding(htmlspecialchars($xoopsConfig['slogan'], ENT_QUOTES | ENT_HTML5)));
     $tpl->assign('channel_lastbuild', formatTimestamp(time(), 'rss'));
     $tpl->assign('channel_webmaster', checkEmail($xoopsConfig['adminmail'], true));
     $tpl->assign('channel_editor', checkEmail($xoopsConfig['adminmail'], true));
@@ -55,14 +55,18 @@ if (!$tpl->is_cached('db:system_rss.tpl')) {
         include $fileinc;
         $sarray = NewsStory::getAllPublished(10, 0, true);
     }
-    if (!empty($sarray) && is_array($sarray)) {
+    if (!empty($sarray) && \is_array($sarray)) {
         foreach ($sarray as $story) {
-            $tpl->append('items', array(
-                'title'       => XoopsLocal::convert_encoding(htmlspecialchars($story->title(), ENT_QUOTES)),
-                'link'        => XOOPS_URL . '/modules/news/article.php?storyid=' . $story->storyid(),
-                'guid'        => XOOPS_URL . '/modules/news/article.php?storyid=' . $story->storyid(),
-                'pubdate'     => formatTimestamp($story->published(), 'rss'),
-                'description' => XoopsLocal::convert_encoding(htmlspecialchars($story->hometext(), ENT_QUOTES))));
+            $tpl->append(
+                'items',
+                [
+                    'title'       => XoopsLocal::convert_encoding(htmlspecialchars($story->title(), ENT_QUOTES | ENT_HTML5)),
+                    'link'        => XOOPS_URL . '/modules/news/article.php?storyid=' . $story->storyid(),
+                    'guid'        => XOOPS_URL . '/modules/news/article.php?storyid=' . $story->storyid(),
+                    'pubdate'     => formatTimestamp($story->published(), 'rss'),
+                    'description' => XoopsLocal::convert_encoding(htmlspecialchars($story->hometext(), ENT_QUOTES | ENT_HTML5)),
+                ],
+            );
         }
     }
 }

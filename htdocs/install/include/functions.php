@@ -3,8 +3,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2021 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          installer
  * @since            2.3.0
  * @author           Haruki Setoyama  <haruki@planewave.org>
@@ -18,10 +18,10 @@
 
 /**
  * call htmlspecialchars with standard arguments
- * @param $value string
+ * @param string $value
  * @return string
  */
-function installerHtmlSpecialChars($value)
+function installerHtmlSpecialChars($value = '')
 {
     return htmlspecialchars($value, ENT_QUOTES, _INSTALL_CHARSET, true);
 }
@@ -29,15 +29,15 @@ function installerHtmlSpecialChars($value)
 function install_acceptUser($hash = '')
 {
     $GLOBALS['xoopsUser'] = null;
-    $assertClaims = array(
+    $assertClaims = [
         'sub' => 'xoopsinstall',
-    );
+    ];
     $claims = \Xmf\Jwt\TokenReader::fromCookie('install', 'xo_install_user', $assertClaims);
     if (false === $claims || empty($claims->uname)) {
         return false;
     }
     $uname = $claims->uname;
-    /* @var XoopsMemberHandler $memberHandler */
+    /** @var XoopsMemberHandler $memberHandler */
     $memberHandler = xoops_getHandler('member');
     $users = $memberHandler->getUsers(new Criteria('uname', $uname));
     $user = array_pop($users);
@@ -69,9 +69,9 @@ function install_finalize($installer_modified)
 }
 
 /**
- * @param        $name
- * @param        $value
- * @param        $label
+ * @param string $name
+ * @param string $value
+ * @param string $label
  * @param string $help
  */
 function xoFormField($name, $value, $label, $help = '')
@@ -149,7 +149,7 @@ function xoFormSelect($name, $value, $label, $options, $help = '', $extra='')
  */
 function getDirList($dirname)
 {
-    $dirlist = array();
+    $dirlist = [];
     if ($handle = opendir($dirname)) {
         while ($file = readdir($handle)) {
             if ($file[0] !== '.' && is_dir($dirname . $file)) {
@@ -175,8 +175,8 @@ function xoDiag($status = -1, $str = '')
     if ($status == -1) {
         $GLOBALS['error'] = true;
     }
-    $classes = array(-1 => 'fa fa-fw fa-ban text-danger', 0 => 'fa fa-fw fa-square-o text-warning', 1 => 'fa fa-fw fa-check text-success');
-    $strings = array(-1 => FAILED, 0 => WARNING, 1 => SUCCESS);
+    $classes = [-1 => 'fa-solid fa-ban text-danger', 0 => 'fa-solid fa-square text-warning', 1 => 'fa-solid fa-check text-success'];
+    $strings = [-1 => FAILED, 0 => WARNING, 1 => SUCCESS];
     if (empty($str)) {
         $str = $strings[$status];
     }
@@ -231,7 +231,7 @@ function xoDiagIfWritable($path)
  */
 function xoPhpVersion()
 {
-    if (version_compare(phpversion(), '5.3.9', '>=')) {
+    if (version_compare(phpversion(), '5.6.0', '>=')) {
         return xoDiag(1, phpversion());
     } else {
         return xoDiag(-1, phpversion());
@@ -259,7 +259,7 @@ function genPathCheckHtml($path, $valid)
                 break;
         }
 
-        return '<span class="pathmessage"><span class="fa fa-fw fa-check text-success"></span> ' . $msg . '</span>';
+        return '<span class="pathmessage"><span class="fa-solid fa-check text-success"></span> ' . $msg . '</span>';
     } else {
         switch ($path) {
             case 'root':
@@ -273,7 +273,7 @@ function genPathCheckHtml($path, $valid)
                 break;
         }
         $GLOBALS['error'] = true;
-        return '<div class="alert alert-danger"><span class="fa fa-fw fa-ban text-danger"></span> ' . $msg . '</div>';
+        return '<div class="alert alert-danger"><span class="fa-solid fa-ban text-danger"></span> ' . $msg . '</div>';
     }
 }
 
@@ -284,7 +284,7 @@ function genPathCheckHtml($path, $valid)
  */
 function getDbCharsets($link)
 {
-    static $charsets = array();
+    static $charsets = [];
     if ($charsets) {
         return $charsets;
     }
@@ -306,7 +306,7 @@ function getDbCharsets($link)
  */
 function getDbCollations($link, $charset)
 {
-    static $collations = array();
+    static $collations = [];
     if (!empty($collations[$charset])) {
         return $collations[$charset];
     }
@@ -327,7 +327,7 @@ function getDbCollations($link, $charset)
  *
  * @return null|string
  */
-function validateDbCharset($link, &$charset, &$collation)
+function validateDbCharset($link, $charset, &$collation)
 {
     $error = null;
 
@@ -367,10 +367,10 @@ function xoFormFieldCollation($name, $value, $label, $help, $link, $charset)
         return '';
     }
 
-    $options           = array();
+    $options           = [];
     foreach ($collations as $key => $isDefault) {
         if ($isDefault) {  // 'Yes' or ''
-            $options = array($key => $key . ' (Default)') + $options;
+            $options = [$key => $key . ' (Default)'] + $options;
         } else {
             $options[$key] = $key;
         }
@@ -429,17 +429,55 @@ function xoFormFieldCharset($name, $value, $label, $help, $link)
  */
 function xoPutLicenseKey($system_key, $licensefile, $license_file_dist = 'license.dist.php')
 {
-    //chmod($licensefile, 0777);
+    // If file exists, ensure it's writable first
+    if (file_exists($licensefile)) {
+        if (!is_writable($licensefile)) {
+            // Try to make it writable
+            if (!chmod($licensefile, 0666)) {
+                return 'Error: Unable to make license file writable';
+            }
+        }
+    } else {
+        // Check if directory is writable
+        $dir = dirname($licensefile);
+        if (!is_writable($dir)) {
+            return 'Error: Directory is not writable';
+        }
+    }
+
+    // Open file with error checking
     $fver     = fopen($licensefile, 'w');
+    if ($fver === false) {
+        return 'Error: Unable to open license file for writing';
+    }
+
+    // Read distribution file with error checking
+    if (!is_readable($license_file_dist)) {
+        fclose($fver);
+        return 'Error: Distribution license file is not readable';
+    }
+
     $fver_buf = file($license_file_dist);
+    if ($fver_buf === false) {
+        fclose($fver);
+        return 'Error: Unable to read distribution license file';
+    }
+
+
+    // Write the contents
     foreach ($fver_buf as $line => $value) {
         $ret = $value;
         if (strpos($value, 'XOOPS_LICENSE_KEY') > 0) {
-            $ret = 'define(\'XOOPS_LICENSE_KEY\', \'' . $system_key . "');";
+            $ret = 'define(\'XOOPS_LICENSE_KEY\', \'' . $system_key . "');\n";
         }
-        fwrite($fver, $ret, strlen($ret));
+        if (fwrite($fver, $ret) === false) {
+            fclose($fver);
+            return 'Error: Failed to write to license file';
+        }
     }
     fclose($fver);
+
+    // Set final permissions
     chmod($licensefile, 0444);
 
     return sprintf(WRITTEN_LICENSE, XOOPS_LICENSE_CODE, $system_key);
@@ -448,12 +486,13 @@ function xoPutLicenseKey($system_key, $licensefile, $license_file_dist = 'licens
 /**
  * *#@+
  * Xoops Build Licence System Key
+ * @throws \Random\RandomException
  */
 function xoBuildLicenceKey()
 {
-    $xoops_serdat = array();
-    $checksums = array(1 => 'md5', 2 => 'sha1');
-    $type      = mt_rand(1, 2);
+    $xoops_serdat = [];
+    $checksums = [1 => 'md5', 2 => 'sha1'];
+    $type      = random_int(1, 2);
     $func      = $checksums[$type];
 
     error_reporting(0);
@@ -487,7 +526,7 @@ function xoBuildLicenceKey()
         $xoops_key .= $data;
     }
     while (strlen($xoops_key) > 40) {
-        $lpos      = mt_rand(18, strlen($xoops_key));
+        $lpos      = random_int(18, strlen($xoops_key));
         $xoops_key = substr($xoops_key, 0, $lpos) . substr($xoops_key, $lpos + 1, strlen($xoops_key) - ($lpos + 1));
     }
 

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             xoopsform
  * @since               2.3.0
@@ -19,12 +19,12 @@
 include_once dirname(__DIR__) . '/mainfile.php';
 
 $xoopsLogger->activated = false;
-$myts                   = MyTextSanitizer::getInstance();
+$myts                   = \MyTextSanitizer::getInstance();
 
 XoopsLoad::load('XoopsRequest');
 $content = rawurldecode(XoopsRequest::getText('text', '', 'POST'));
 
-if (!$GLOBALS['xoopsSecurity']->validateToken(@$_POST['token'], false)) {
+if (!$GLOBALS['xoopsSecurity']->validateToken(XoopsRequest::getString('token', '', 'POST'), false)) {
     $content = 'Direct access is not allowed!!!';
 }
 $html    = empty($_POST['html']) ? 0 : 1;

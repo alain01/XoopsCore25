@@ -4,7 +4,7 @@
  *
  * For backward compatibility
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @since               1.00
@@ -21,7 +21,7 @@ if (class_exists('ArtObject')) {
  * Art Object
  *
  * @author              D.J. (phppp)
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             module::article
  *
  * @deprecated ArtObject is deprecated since XOOPS 2.5.8 and will be removed in the next major release
@@ -41,7 +41,8 @@ class ArtObject extends XoopsObject
     public function __construct()
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-        trigger_error("ArtObject is deprecated, instantiated from {$trace[0]['file']} line {$trace[0]['line']},");
+        $GLOBALS['xoopsLogger']->addDeprecated('Class ' . self::class . " is deprecated, instantiated from {$trace[0]['file']} line {$trace[0]['line']}");
+
     }
 }
 
@@ -50,7 +51,7 @@ class ArtObject extends XoopsObject
  * @package             module::article
  *
  * @author              D.J. (phppp)
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  * @deprecated ArtObjectHandler is deprecated since XOOPS 2.5.8 and will be removed in the next major release
  */
@@ -71,7 +72,7 @@ class ArtObjectHandler extends XoopsPersistableObjectHandler
     public function __construct(XoopsMySQLDatabase $db, $table = '', $className = '', $keyName = '', $identifierName = '')
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-        trigger_error("ArtObjectHandler is deprecated, instantiated from {$trace[0]['file']} line {$trace[0]['line']},");
+        $GLOBALS['xoopsLogger']->addDeprecated('Class ' . self::class . " is deprecated, instantiated from {$trace[0]['file']} line {$trace[0]['line']}");
         $this->db = $db;
         parent::__construct($db, $table, $className, $keyName, $identifierName);
     }
@@ -79,7 +80,7 @@ class ArtObjectHandler extends XoopsPersistableObjectHandler
     /**
      * get MySQL server version
      *
-     * @param null|XoopsDatabase|mysqli $conn
+     * @param XoopsDatabase|mysqli|null $conn
      *
      * @return string
      */

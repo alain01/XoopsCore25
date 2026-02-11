@@ -9,19 +9,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             system
  */
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 include_once $GLOBALS['xoops']->path('/kernel/avatar.php');
 
 /**
  * System Avatar
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  */
 class SystemAvatar extends XoopsAvatar
@@ -42,10 +44,10 @@ class SystemAvatar extends XoopsAvatar
         if ($this->isNew()) {
             $blank_img = 'blank.gif';
         } else {
-            $blank_img = str_replace('avatars/', '', $this->getVar('avatar_file', 'e'));
+            $blank_img = str_replace('avatars/', '', (string) $this->getVar('avatar_file', 'e'));
         }
         // Get User Config
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler  = xoops_getHandler('config');
         $xoopsConfigUser = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
         // New and edit form
@@ -61,9 +63,9 @@ class SystemAvatar extends XoopsAvatar
         $imgtray_img->setDescription($maxpixel . $maxsize);
         $imageselect_img = new XoopsFormSelect(sprintf(_AM_SYSTEM_AVATAR_USE_FILE, XOOPS_UPLOAD_PATH . '/avatars/'), 'avatar_file', $blank_img);
         $image_array_img = XoopsLists::getImgListAsArray(XOOPS_UPLOAD_PATH . '/avatars');
-        $imageselect_img->addOption("$blank_img", $blank_img);
+        $imageselect_img->addOption((string)$blank_img, $blank_img);
         foreach ($image_array_img as $image_img) {
-            $imageselect_img->addOption("$image_img", $image_img);
+            $imageselect_img->addOption((string)$image_img, $image_img);
         }
         $imageselect_img->setExtra("onchange='showImgSelected(\"xo-avatar-img\", \"avatar_file\", \"avatars\", \"\", \"" . XOOPS_UPLOAD_URL . "\")'");
         $imgtray_img->addElement($imageselect_img, false);
@@ -91,17 +93,19 @@ class SystemAvatar extends XoopsAvatar
 }
 
 /**
- * System avatar handler class. (Singelton)
+ * System avatar handler class. (Singleton)
  *
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS block class objects.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  * @subpackage          avatar
  */
 class SystemAvatarHandler extends XoopsAvatarHandler
 {
+
+    public string $className = '';
     /**
      * @param $db
      */
@@ -131,7 +135,7 @@ class SystemAvatarHandler extends XoopsAvatarHandler
      * Egt Object
      *
      * @param  int $id
-     * @return object
+     * @return object|false
      */
     public function get($id)
     {
@@ -139,7 +143,8 @@ class SystemAvatarHandler extends XoopsAvatarHandler
         $id     = (int)$id;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('avatar') . ' WHERE avatar_id=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return false;
             }
             $numrows = $this->db->getRowsNum($result);

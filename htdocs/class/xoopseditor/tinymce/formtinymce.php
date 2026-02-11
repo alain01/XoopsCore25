@@ -12,8 +12,8 @@
 /**
  *  TinyMCE adapter for XOOPS
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license             GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license             GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          editor
  * @since               2.3.0
@@ -27,6 +27,7 @@ xoops_load('XoopsEditor');
  */
 class XoopsFormTinymce extends XoopsEditor
 {
+    public $config;
     public $language;
     public $width  = '100%';
     public $height = '500px';
@@ -50,8 +51,8 @@ class XoopsFormTinymce extends XoopsEditor
         $this->configs['elements']    = $this->getName();
         $this->configs['language']    = $this->getLanguage();
         $this->configs['rootpath']    = $this->rootPath;
-        $this->configs['area_width']  = isset($this->configs['width']) ? $this->configs['width'] : $this->width;
-        $this->configs['area_height'] = isset($this->configs['height']) ? $this->configs['height'] : $this->height;
+        $this->configs['area_width']  = $this->configs['width'] ?? $this->width;
+        $this->configs['area_height'] = $this->configs['height'] ?? $this->height;
         $this->configs['fonts']       = $this->getFonts();
 
         require_once __DIR__ . '/tinymce.php';
@@ -114,7 +115,7 @@ class XoopsFormTinymce extends XoopsEditor
             $this->config['fonts'] = constant('_XOOPS_EDITOR_TINYMCE_FONTS');
         }
 
-        return @$this->config['fonts'];
+        return $this->config['fonts'] ?? null;
     }
 
     /**

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          class
@@ -22,7 +22,9 @@
  * XOOPS preload implemented in XOOPS is different from methods defined in this class, thus module developers are advised to be careful if you use current preload methods
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 XoopsLoad::load('XoopsLists');
 XoopsLoad::load('XoopsCache');
@@ -30,7 +32,7 @@ XoopsLoad::load('XoopsCache');
 /**
  * Class for handling events
  *
- * @copyright       (c) 2000-2020 XOOPS Project (https://xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          class
@@ -41,12 +43,12 @@ class XoopsPreload
     /**
      * @var array $_preloads array containing information about the event observers
      */
-    public $_preloads = array();
+    public $_preloads = [];
 
     /**
      * @var array $_events array containing the events that are being observed
      */
-    public $_events = array();
+    public $_events = [];
 
     /**
      * Constructor
@@ -118,7 +120,7 @@ class XoopsPreload
             foreach ($class_methods as $method) {
                 if (strpos($method, 'event') === 0) {
                     $event_name                   = strtolower(str_replace('event', '', $method));
-                    $event                        = array('class_name' => $class_name, 'method' => $method);
+                    $event                        = ['class_name' => $class_name, 'method' => $method];
                     $this->_events[$event_name][] = $event;
                 }
             }
@@ -133,12 +135,12 @@ class XoopsPreload
      *
      * @return void
      */
-    public function triggerEvent($event_name, $args = array())
+    public function triggerEvent($event_name, $args = [])
     {
         $event_name = strtolower(str_replace('.', '', $event_name));
         if (isset($this->_events[$event_name])) {
             foreach ($this->_events[$event_name] as $event) {
-                call_user_func(array($event['class_name'], $event['method']), $args);
+                call_user_func([$event['class_name'], $event['method']], $args);
             }
         }
     }
@@ -149,7 +151,7 @@ class XoopsPreload
  *
  * Class which is extended by any preload item.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          class
@@ -160,7 +162,5 @@ class XoopsPreloadItem
     /**
      * XoopsPreloadItem constructor.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 }

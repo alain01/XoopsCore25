@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2017 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('XOOPS root path not defined');
+}
 
 xoops_load('XoopsFormElement');
 
@@ -27,14 +29,14 @@ xoops_load('XoopsFormElement');
  * @subpackage          form
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 
 /**
  * A button
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  *
  * @package             kernel
  * @subpackage          form
@@ -79,7 +81,7 @@ class XoopsFormButton extends XoopsFormElement
      */
     public function getValue($encode = false)
     {
-        return $encode ? htmlspecialchars($this->_value, ENT_QUOTES) : $this->_value;
+        return $encode ? htmlspecialchars($this->_value, ENT_QUOTES | ENT_HTML5) : $this->_value;
     }
 
     /**
@@ -101,7 +103,7 @@ class XoopsFormButton extends XoopsFormElement
      */
     public function getType()
     {
-        return in_array(strtolower($this->_type), array('button', 'submit', 'reset')) ? $this->_type : 'button';
+        return in_array(strtolower($this->_type), ['button', 'submit', 'reset']) ? $this->_type : 'button';
     }
 
     /**

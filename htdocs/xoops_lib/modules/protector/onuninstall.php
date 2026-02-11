@@ -22,43 +22,44 @@ if (!function_exists('protector_onuninstall_base')) {
      */
     function protector_onuninstall_base($module, $mydirname)
     {
-        // transations on module uninstall
+        /** @var XoopsModule $module */
+        // translations on module uninstall
 
         global $ret; // TODO :-D
 
-        // for Cube 2.1
-        if (defined('XOOPS_CUBE_LEGACY')) {
-            $root =& XCube_Root::getSingleton();
-            $root->mDelegateManager->add('Legacy.Admin.Event.ModuleUninstall.' . ucfirst($mydirname) . '.Success', 'protector_message_append_onuninstall');
-            $ret = array();
-        } else {
-            if (!is_array($ret)) {
-                $ret = array();
-            }
-        }
 
+        /** @var XoopsMySQLDatabase $db */
         $db  = XoopsDatabaseFactory::getDatabaseConnection();
         $mid = $module->getVar('mid');
+
+        // Initialize $ret as array if not already an array
+        if (!isset($ret)) {
+            $ret = [];
+        } elseif (!is_array($ret)) {
+            // Convert to array if it's not one
+            $ret = [$ret];
+        }
 
         // TABLES (loading mysql.sql)
         $sql_file_path = __DIR__ . '/sql/mysql.sql';
         $prefix_mod    = $db->prefix() . '_' . $mydirname;
         if (file_exists($sql_file_path)) {
-            $ret[]     = 'SQL file found at <b>' . htmlspecialchars($sql_file_path) . '</b>.<br  /> Deleting tables...<br>';
+            $ret[]     = 'SQL file found at <b>' . htmlspecialchars($sql_file_path, ENT_QUOTES | ENT_HTML5) . '</b>.<br  /> Deleting tables...<br>';
             $sql_lines = file($sql_file_path);
             foreach ($sql_lines as $sql_line) {
                 if (preg_match('/^CREATE TABLE \`?([a-zA-Z0-9_-]+)\`? /i', $sql_line, $regs)) {
                     $sql = 'DROP TABLE ' . addslashes($prefix_mod . '_' . $regs[1]);
                     if (!$db->query($sql)) {
-                        $ret[] = '<span style="color:#ff0000;">ERROR: Could not drop table <b>' . htmlspecialchars($prefix_mod . '_' . $regs[1]) . '<b>.</span><br>';
+                        $ret[] = '<span style="color:#ff0000;">ERROR: Could not drop table <b>' . htmlspecialchars($prefix_mod . '_' . $regs[1], ENT_QUOTES | ENT_HTML5) . '<b>.</span><br>';
                     } else {
-                        $ret[] = 'Table <b>' . htmlspecialchars($prefix_mod . '_' . $regs[1]) . '</b> dropped.<br>';
+                        $ret[] = 'Table <b>' . htmlspecialchars($prefix_mod . '_' . $regs[1], ENT_QUOTES | ENT_HTML5) . '</b> dropped.<br>';
                     }
                 }
             }
         }
 
         // TEMPLATES (Not necessary because modulesadmin removes all templates)
+        /** @var XoopsTplfileHandler $tplfile_handler */
         /* $tplfile_handler = xoops_getHandler( 'tplfile' ) ;
         $templates =& $tplfile_handler->find( null , 'module' , $mid ) ;
         $tcount = count( $templates ) ;
@@ -81,9 +82,9 @@ if (!function_exists('protector_onuninstall_base')) {
      * @param $module_obj
      * @param $log
      */
-    function protector_message_append_onuninstall(&$module_obj, &$log)
+    function protector_message_append_onuninstall(&$module_obj, $log)
     {
-        if (is_array(@$GLOBALS['ret'])) {
+        if (isset($GLOBALS['ret']) && is_array($GLOBALS['ret'])) {
             foreach ($GLOBALS['ret'] as $message) {
                 $log->add(strip_tags($message));
             }

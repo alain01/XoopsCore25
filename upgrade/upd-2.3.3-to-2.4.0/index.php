@@ -15,8 +15,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.4.0
  * @author           Taiwen Jiang <phppp@users.sourceforge.net>
@@ -86,8 +86,8 @@ class Upgrade_240 extends XoopsUpgrade
      */
     public function xoops_buildLicenceKey()
     {
-        $xoops_serdat = array();
-        $checksums = array(1 => 'md5', 2 => 'sha1');
+        $xoops_serdat = [];
+        $checksums = [1 => 'md5', 2 => 'sha1'];
         $type      = mt_rand(1, 2);
         $func      = $checksums[$type];
 
@@ -170,18 +170,19 @@ class Upgrade_240 extends XoopsUpgrade
      */
     public function check_keys()
     {
-        $tables['modules']       = array('isactive', 'weight', 'hascomments');
-        $tables['users']         = array('level');
-        $tables['online']        = array('online_updated', 'online_uid');
-        $tables['config']        = array('conf_order');
-        $tables['xoopscomments'] = array('com_status');
+        $tables['modules']       = ['isactive', 'weight', 'hascomments'];
+        $tables['users']         = ['level'];
+        $tables['online']        = ['online_updated', 'online_uid'];
+        $tables['config']        = ['conf_order'];
+        $tables['xoopscomments'] = ['com_status'];
 
         foreach ($tables as $table => $keys) {
             $sql = 'SHOW KEYS FROM `' . $GLOBALS['xoopsDB']->prefix($table) . '`';
-            if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+            $result = $GLOBALS['xoopsDB']->queryF($sql);
+            if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
                 continue;
             }
-            $existing_keys = array();
+            $existing_keys = [];
             while (false !== ($row = $GLOBALS['xoopsDB']->fetchArray($result))) {
                 $existing_keys[] = $row['Key_name'];
             }
@@ -201,25 +202,26 @@ class Upgrade_240 extends XoopsUpgrade
      */
     public function apply_keys()
     {
-        $tables['modules']       = array('isactive', 'weight', 'hascomments');
-        $tables['users']         = array('level');
-        $tables['online']        = array('online_updated', 'online_uid');
-        $tables['config']        = array('conf_order');
-        $tables['xoopscomments'] = array('com_status');
+        $tables['modules']       = ['isactive', 'weight', 'hascomments'];
+        $tables['users']         = ['level'];
+        $tables['online']        = ['online_updated', 'online_uid'];
+        $tables['config']        = ['conf_order'];
+        $tables['xoopscomments'] = ['com_status'];
 
         foreach ($tables as $table => $keys) {
             $sql = 'SHOW KEYS FROM `' . $GLOBALS['xoopsDB']->prefix($table) . '`';
-            if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+            $result = $GLOBALS['xoopsDB']->queryF($sql);
+            if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
                 continue;
             }
-            $existing_keys = array();
+            $existing_keys = [];
             while (false !== ($row = $GLOBALS['xoopsDB']->fetchArray($result))) {
                 $existing_keys[] = $row['Key_name'];
             }
             foreach ($keys as $key) {
                 if (!in_array($key, $existing_keys)) {
                     $sql = 'ALTER TABLE `' . $GLOBALS['xoopsDB']->prefix($table) . "` ADD INDEX `{$key}` (`{$key}`)";
-                    if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+                    if (!$result = $GLOBALS['xoopsDB']->exec($sql)) {
                         return false;
                     }
                 }
@@ -232,7 +234,7 @@ class Upgrade_240 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array('keys', 'version');
+        $this->tasks = ['keys', 'version'];
     }
 }
 

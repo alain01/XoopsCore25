@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @todo                For PHP 5 compliant
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Class XoopsLoad
@@ -38,7 +40,7 @@ class XoopsLoad
         static $deprecated;
 
         if (!isset($deprecated)) {
-            $deprecated = array(
+            $deprecated = [
                 'uploader'    => 'xoopsmediauploader',
                 'utility'     => 'xoopsutility',
                 'captcha'     => 'xoopscaptcha',
@@ -46,14 +48,15 @@ class XoopsLoad
                 'file'        => 'xoopsfile',
                 'model'       => 'xoopsmodelfactory',
                 'calendar'    => 'xoopscalendar',
-                'userutility' => 'xoopsuserutility');
+                'userutility' => 'xoopsuserutility',
+            ];
         }
         $name = strtolower($name);
-        if (in_array($type, array('core', 'class')) && array_key_exists($name, $deprecated)) {
+        if (in_array($type, ['core', 'class']) && array_key_exists($name, $deprecated)) {
             if (isset($GLOBALS['xoopsLogger'])) {
                 $GLOBALS['xoopsLogger']->addDeprecated("xoops_load('{$name}') is deprecated, use xoops_load('{$deprecated[$name]}')");
             } else {
-                trigger_error("xoops_load('{$name}') is deprecated, use xoops_load('{$deprecated[$name]}')", E_USER_WARNING);
+                trigger_error("xoops_load('{$name}') is deprecated, use xoops_load('{$deprecated[$name]}')", E_USER_DEPRECATED);
             }
             $name = $deprecated[$name];
         }
@@ -104,7 +107,7 @@ class XoopsLoad
         if (isset($configs[$name])) {
             require_once $configs[$name];
             if (class_exists($name) && method_exists($name, '__autoload')) {
-                call_user_func(array($name, '__autoload'));
+                call_user_func([$name, '__autoload']);
             }
 
             return true;
@@ -173,7 +176,7 @@ class XoopsLoad
      */
     public static function loadCoreConfig()
     {
-        return $configs = array(
+        return $configs = [
             'xoopsuserutility'           => XOOPS_ROOT_PATH . '/class/userutility.php',
             'xoopsmediauploader'         => XOOPS_ROOT_PATH . '/class/uploader.php',
             'xoopsutility'               => XOOPS_ROOT_PATH . '/class/utility/xoopsutility.php',
@@ -229,13 +232,13 @@ class XoopsLoad
             'xoopsformrenderer'          => XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRenderer.php',
             'xoopsformrendererinterface' => XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererInterface.php',
             'xoopsformrendererlegacy'    => XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererLegacy.php',
-            'xoopsformrendererbootstrap3'=> XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererBootstrap3.php',
-            'xoopsformrendererbootstrap4'=> XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererBootstrap4.php',
-            'xoopsformrendererbootstrap5'=> XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererBootstrap5.php',
+            'xoopsformrendererbootstrap3' => XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererBootstrap3.php',
+            'xoopsformrendererbootstrap4' => XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererBootstrap4.php',
+            'xoopsformrendererbootstrap5' => XOOPS_ROOT_PATH . '/class/xoopsform/renderer/XoopsFormRendererBootstrap5.php',
             'xoopsfilterinput'           => XOOPS_ROOT_PATH . '/class/xoopsfilterinput.php',
             'xoopsrequest'               => XOOPS_ROOT_PATH . '/class/xoopsrequest.php',
             'xoopshttpget'               => XOOPS_ROOT_PATH . '/class/xoopshttpget.php',
-        );
+        ];
     }
 
     /**
@@ -273,4 +276,4 @@ class XoopsLoad
 /**
  * XMF libraries
  */
-include_once XOOPS_ROOT_PATH . '/class/libraries/vendor/autoload.php';
+include_once XOOPS_TRUST_PATH . '/vendor/autoload.php';

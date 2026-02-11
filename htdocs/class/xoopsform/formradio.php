@@ -10,7 +10,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright    (c) 2000-2017 XOOPS Project (www.xoops.org)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license          GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          kernel
  * @since            2.0
@@ -28,7 +28,7 @@ class XoopsFormRadio extends XoopsFormElement
      * @var array
      * @access private
      */
-    public $_options = array();
+    public $_options = [];
 
     /**
      * Pre-selected value
@@ -50,7 +50,7 @@ class XoopsFormRadio extends XoopsFormElement
     public $columns;
 
     /**
-     * HTML to seperate the elements
+     * HTML to separate the elements
      *
      * @var string
      * @access private
@@ -60,9 +60,9 @@ class XoopsFormRadio extends XoopsFormElement
     /**
      * Constructor
      *
-     * @param string $caption Caption
-     * @param string $name    "name" attribute
-     * @param string $value   Pre-selected value
+     * @param string      $caption Caption
+     * @param string      $name    "name" attribute
+     * @param string|null $value   Pre-selected value
      * @param string $delimeter
      */
     public function __construct($caption, $name, $value = null, $delimeter = '&nbsp;')
@@ -83,7 +83,7 @@ class XoopsFormRadio extends XoopsFormElement
      */
     public function getValue($encode = false)
     {
-        return ($encode && $this->_value !== null) ? htmlspecialchars($this->_value, ENT_QUOTES) : $this->_value;
+        return ($encode && $this->_value !== null) ? htmlspecialchars($this->_value, ENT_QUOTES | ENT_HTML5) : $this->_value;
     }
 
     /**
@@ -137,9 +137,9 @@ class XoopsFormRadio extends XoopsFormElement
         if (!$encode) {
             return $this->_options;
         }
-        $value = array();
+        $value = [];
         foreach ($this->_options as $val => $name) {
-            $value[$encode ? htmlspecialchars($val, ENT_QUOTES) : $val] = ($encode > 1) ? htmlspecialchars($name, ENT_QUOTES) : $name;
+            $value[$encode ? htmlspecialchars($val, ENT_QUOTES | ENT_HTML5) : $val] = ($encode > 1) ? htmlspecialchars($name, ENT_QUOTES | ENT_HTML5) : $name;
         }
 
         return $value;
@@ -153,7 +153,7 @@ class XoopsFormRadio extends XoopsFormElement
      */
     public function getDelimeter($encode = false)
     {
-        return $encode ? htmlspecialchars(str_replace('&nbsp;', ' ', $this->_delimeter)) : $this->_delimeter;
+        return $encode ? htmlspecialchars(str_replace('&nbsp;', ' ', $this->_delimeter), ENT_QUOTES | ENT_HTML5) : $this->_delimeter;
     }
 
     /**

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          logger
@@ -17,7 +17,9 @@
  * @deprecated
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * this file is for backward compatibility only
@@ -29,4 +31,4 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * Load the new XoopsLogger class
  **/
 include_once $GLOBALS['xoops']->path('class/logger/render.php');
-trigger_error('Instance of ' . __FILE__ . ' file is deprecated, check in class/logger/render.php');
+trigger_error('Instance of ' . __FILE__ . ' file is deprecated, check in class/logger/render.php', E_USER_DEPRECATED);

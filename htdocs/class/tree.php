@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (http://www.myweb.ne.jp/, http://jp.xoops.org/)
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * A tree structures with {@link XoopsObject}s as nodes
@@ -33,7 +35,7 @@ class XoopsObjectTree
     protected $parentId;
     protected $myId;
     protected $rootId;
-    protected $tree = array();
+    protected $tree = [];
     protected $objects;
 
     /**
@@ -42,9 +44,9 @@ class XoopsObjectTree
      * @param array  $objectArr Array of {@link XoopsObject}s
      * @param string $myId      field name of object ID
      * @param string $parentId  field name of parent object ID
-     * @param string $rootId    field name of root object ID
+     * @param string|null $rootId    field name of root object ID
      */
-    public function __construct(&$objectArr, $myId, $parentId, $rootId = null)
+    public function __construct($objectArr, $myId, $parentId, ?string $rootId = null)
     {
         $this->objects = $objectArr;
         $this->myId     = $myId;
@@ -103,7 +105,7 @@ class XoopsObjectTree
      */
     public function getFirstChild($key)
     {
-        $ret = array();
+        $ret = [];
         if (isset($this->tree[$key]['child'])) {
             foreach ($this->tree[$key]['child'] as $childKey) {
                 $ret[$childKey] = $this->tree[$childKey]['obj'];
@@ -120,7 +122,7 @@ class XoopsObjectTree
      * @param  array  $ret (Empty when called from client) Array of children from previous recursions.
      * @return array  Array of child nodes.
      */
-    public function getAllChild($key, $ret = array())
+    public function getAllChild($key, $ret = [])
     {
         if (isset($this->tree[$key]['child'])) {
             foreach ($this->tree[$key]['child'] as $childKey) {
@@ -144,7 +146,7 @@ class XoopsObjectTree
      * @param  int    $upLevel (empty when called from outside) level of recursion
      * @return array  Array of parent nodes.
      */
-    public function getAllParent($key, $ret = array(), $upLevel = 1)
+    public function getAllParent($key, $ret = [], $upLevel = 1)
     {
         if (isset($this->tree[$key]['parent']) && isset($this->tree[$this->tree[$key]['parent']]['obj'])) {
             $ret[$upLevel] = $this->tree[$this->tree[$key]['parent']]['obj'];
@@ -214,7 +216,8 @@ class XoopsObjectTree
         $extra = ''
     ) {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-        trigger_error("makeSelBox() is deprecated since 2.5.9, please use makeSelectElement(), accessed from {$trace[0]['file']} line {$trace[0]['line']},");
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . " is deprecated since 2.5.9, please use makeSelectElement(), called from {$trace[0]['file']} line {$trace[0]['line']}");
+
         $ret = '<select name="' . $name . '" id="' . $name . '" ' . $extra . '>';
         if (false !== (bool)$addEmptyOption) {
             $ret .= '<option value="0"></option>';
@@ -296,7 +299,7 @@ class XoopsObjectTree
      * when code was modernized. This will keep them running for now.
      *
      * @param string $name unknown variable name requested
-     *                      currently only '_tree' is supported
+     *                      currently, only '_tree' is supported
      *
      * @return mixed value
      */
@@ -304,13 +307,12 @@ class XoopsObjectTree
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
         if ($name === '_tree') {
-            trigger_error("XoopsObjectTree::\$_tree is deprecated, accessed from {$trace[0]['file']} line {$trace[0]['line']},");
+            $GLOBALS['xoopsLogger']->addDeprecated("XoopsObjectTree::\$_tree is deprecated, accessed from {$trace[0]['file']} line {$trace[0]['line']}");
             return $this->tree;
         }
-        trigger_error(
-            'Undefined property: XoopsObjectTree::$' . $name .
-            " in {$trace[0]['file']} line {$trace[0]['line']}, ",
-            E_USER_NOTICE);
+        $message = 'Undefined property: XoopsObjectTree::$' . $name . " in {$trace[0]['file']} line {$trace[0]['line']}";
+        $GLOBALS['xoopsLogger']->addExtra(static::class, $message);
+
         return null;
     }
 }

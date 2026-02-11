@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Deprecated functions
@@ -23,6 +25,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @param  string $module
  * @param  string $default
  * @return bool
+ * @deprecated
  */
 
 // Backward compatibility for 2.2*
@@ -37,6 +40,7 @@ function xoops_load_lang_file($name, $module = '', $default = 'english')
  * @param int $docheck
  *
  * @return mixed
+ * @deprecated
  */
 function xoops_refcheck($docheck = 1)
 {
@@ -49,6 +53,7 @@ function xoops_refcheck($docheck = 1)
  * @param $userid
  *
  * @return string
+ * @deprecated
  */
 function xoops_getLinkedUnameFromId($userid)
 {
@@ -58,18 +63,20 @@ function xoops_getLinkedUnameFromId($userid)
     return XoopsUserUtility::getUnameFromId($userid, false, true);
 }
 
-/*
+/**
  * Function to display banners in all pages
- */
+* @deprecated
+*/
 function showbanner()
 {
     $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . '() is deprecated, use xoops_getbanner instead');
     echo xoops_getbanner();
 }
 
-/*
+/**
  * This function is deprecated. Do not use!
- */
+ * @deprecated
+*/
 function getTheme()
 {
     $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . "() is deprecated, use \$xoopsConfig['theme_set'] directly");
@@ -85,6 +92,7 @@ function getTheme()
  * @param string $theme
  *
  * @return string
+ * @deprecated
  */
 function getcss($theme = '')
 {
@@ -95,6 +103,7 @@ function getcss($theme = '')
 
 /**
  * @return XoopsMailer|XoopsMailerLocal
+ * @deprecated
  */
 function getMailer()
 {
@@ -104,9 +113,10 @@ function getMailer()
     return $mailer;
 }
 
-/*
+/**
  * Functions to display dhtml loading image box
- */
+ * @deprecated
+*/
 function OpenWaitBox()
 {
     $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . '() is deprecated');
@@ -152,6 +162,10 @@ function OpenWaitBox()
     </script>";
 }
 
+/**
+ * @return void
+ * @deprecated
+ */
 function CloseWaitBox()
 {
     $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . '() is deprecated');

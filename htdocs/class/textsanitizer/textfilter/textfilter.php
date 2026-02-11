@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          textsanitizer
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Filter out possible malicious text
@@ -29,13 +31,13 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
 class MytsTextfilter extends MyTextSanitizerExtension
 {
     /**
-     * @param      $ts
+     * @param MyTextSanitizer $myts
      * @param      $text
      * @param bool $force
      *
      * @return mixed
      */
-    public function load($ts, $text, $force = false)
+    public function load($myts, $text, $force = false)
     {
         global $xoopsUser, $xoopsConfig, $xoopsUserIsAdmin;
         if (empty($force) && $xoopsUserIsAdmin) {
@@ -43,7 +45,7 @@ class MytsTextfilter extends MyTextSanitizerExtension
         }
         // Built-in filters for XSS scripts
         // To be improved
-        $text = $ts->filterXss($text);
+        $text = $myts->filterXss($text);
 
         if (xoops_load('purifier', 'framework')) {
             $text = XoopsPurifier::purify($text);
@@ -51,9 +53,9 @@ class MytsTextfilter extends MyTextSanitizerExtension
             return $text;
         }
 
-        $tags    = array();
-        $search  = array();
-        $replace = array();
+        $tags    = [];
+        $search  = [];
+        $replace = [];
         $config  = parent::loadConfig(__DIR__);
         if (!empty($config['patterns'])) {
             foreach ($config['patterns'] as $pattern) {

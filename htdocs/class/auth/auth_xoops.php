@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          auth
@@ -17,7 +17,9 @@
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  *
@@ -25,7 +27,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @subpackage          auth
  * @description         Authentification class for Native XOOPS
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsAuthXoops extends XoopsAuth
 {
@@ -33,7 +35,7 @@ class XoopsAuthXoops extends XoopsAuth
      * Authentication Service constructor
      * @param XoopsDatabase $dao
      */
-    public function __construct(XoopsDatabase $dao = null)
+    public function __construct(?XoopsDatabase $dao = null)
     {
         $this->_dao        = $dao;
         $this->auth_method = 'xoops';
@@ -43,12 +45,12 @@ class XoopsAuthXoops extends XoopsAuth
      * Authenticate user
      *
      * @param  string $uname
-     * @param  string $pwd
-     * @return bool
+     * @param  string|null $pwd
+     * @return XoopsUser|bool
      */
     public function authenticate($uname, $pwd = null)
     {
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         $user           = $member_handler->loginUser($uname, $pwd);
         if ($user == false) {

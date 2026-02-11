@@ -10,14 +10,16 @@
  */
 
 /**
- * @copyright    XOOPS Project http://xoops.org/
- * @license      GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    2000-2025 XOOPS Project (https://xoops.org)
+ * @license      GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package
  * @since
  * @author       XOOPS Development Team, Kazumi Ono (AKA onokazu)
  */
 
-defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('XOOPS root path not defined');
+}
 require_once XOOPS_ROOT_PATH . '/class/xml/rpc/xmlrpcapi.php';
 
 /**
@@ -47,8 +49,8 @@ class MetaWeblogApi extends XoopsXmlRpcApi
             if (!$fields =& $this->_getPostFields(null, $this->params[0])) {
                 $this->response->add(new XoopsXmlRpcFault(106));
             } else {
-                $missing = array();
-                $post    = array();
+                $missing = [];
+                $post    = [];
                 foreach ($fields as $tag => $detail) {
                     $maptag = $this->_getXoopsTagMap($tag);
                     if (!isset($this->params[3][$maptag])) {
@@ -72,7 +74,7 @@ class MetaWeblogApi extends XoopsXmlRpcApi
                     }
                     $this->response->add(new XoopsXmlRpcFault(109, $msg));
                 } else {
-                    $newparams    = array();
+                    $newparams    = [];
                     $newparams[0] = $this->params[0];
                     $newparams[1] = $this->params[1];
                     $newparams[2] = $this->params[2];
@@ -81,7 +83,7 @@ class MetaWeblogApi extends XoopsXmlRpcApi
                         unset($value);
                     }
                     $newparams[3]['xoops_text'] = $this->params[3]['description'];
-                    if (isset($this->params[3]['categories']) && is_array($this->params[3]['categories'])) {
+                    if (isset($this->params[3]['categories']) && \is_array($this->params[3]['categories'])) {
                         foreach ($this->params[3]['categories'] as $k => $v) {
                             $newparams[3]['categories'][$k] = $v;
                         }
@@ -102,8 +104,8 @@ class MetaWeblogApi extends XoopsXmlRpcApi
         } else {
             if (!$fields =& $this->_getPostFields($this->params[0])) {
             } else {
-                $missing = array();
-                $post    = array();
+                $missing = [];
+                $post    = [];
                 foreach ($fields as $tag => $detail) {
                     $maptag = $this->_getXoopsTagMap($tag);
                     if (!isset($this->params[3][$maptag])) {
@@ -126,7 +128,7 @@ class MetaWeblogApi extends XoopsXmlRpcApi
                     }
                     $this->response->add(new XoopsXmlRpcFault(109, $msg));
                 } else {
-                    $newparams    = array();
+                    $newparams    = [];
                     $newparams[0] = $this->params[0];
                     $newparams[1] = $this->params[1];
                     $newparams[2] = $this->params[2];
@@ -134,7 +136,7 @@ class MetaWeblogApi extends XoopsXmlRpcApi
                         $newparams[3][$key] =& $value;
                         unset($value);
                     }
-                    if (isset($this->params[3]['categories']) && is_array($this->params[3]['categories'])) {
+                    if (isset($this->params[3]['categories']) && \is_array($this->params[3]['categories'])) {
                         foreach ($this->params[3]['categories'] as $k => $v) {
                             $newparams[3]['categories'][$k] = $v;
                         }

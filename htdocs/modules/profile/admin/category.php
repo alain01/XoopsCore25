@@ -10,7 +10,7 @@
  */
 
 /**
- * @copyright      {@link http://xoops.org/ XOOPS Project}
+ * @copyright      {@link https://xoops.org/ XOOPS Project}
  * @license        {@link https://www.gnu.org/licenses/gpl-2.0.html GNU GPL 2 or later}
  * @package
  * @since
@@ -26,9 +26,9 @@ $indexAdmin->addItemButton(_ADD . ' ' . _PROFILE_AM_CATEGORY, 'category.php?op=n
 echo $indexAdmin->addNavigation(basename(__FILE__));
 echo $indexAdmin->renderButton('right', '');
 
-$op = isset($_REQUEST['op']) ? $_REQUEST['op'] : (isset($_REQUEST['id']) ? 'edit' : 'list');
+$op = $_REQUEST['op'] ?? (isset($_REQUEST['id']) ? 'edit' : 'list');
 
-/* @var ProfileCategoryHandler $handler */
+/** @var ProfileCategoryHandler $handler */
 $handler = xoops_getModuleHandler('category');
 switch ($op) {
     default:
@@ -71,7 +71,7 @@ switch ($op) {
         }
         include_once dirname(__DIR__) . '/include/forms.php';
         echo $obj->getHtmlErrors();
-        /* @var  XoopsThemeForm $form */
+        /** @var  XoopsThemeForm $form */
         $form = $obj->getForm();
         $form->display();
         break;
@@ -88,10 +88,15 @@ switch ($op) {
                 echo $obj->getHtmlErrors();
             }
         } else {
-            xoops_confirm(array(
-                              'ok' => 1,
-                              'id' => $_REQUEST['id'],
-                              'op' => 'delete'), $_SERVER['REQUEST_URI'], sprintf(_PROFILE_AM_RUSUREDEL, $obj->getVar('cat_title')));
+            xoops_confirm(
+                [
+                    'ok' => 1,
+                    'id' => $_REQUEST['id'],
+                    'op' => 'delete',
+                ],
+                $_SERVER['REQUEST_URI'],
+                sprintf(_PROFILE_AM_RUSUREDEL, $obj->getVar('cat_title')),
+            );
         }
         break;
 }

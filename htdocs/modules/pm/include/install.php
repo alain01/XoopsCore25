@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             pm
  * @since               2.3.0
@@ -25,9 +25,11 @@ function xoops_module_install_pm(XoopsModule $module)
 
     // Check pm table version
     $sql = 'SHOW COLUMNS FROM ' . $xoopsDB->prefix('priv_msgs');
-    if (!$result = $xoopsDB->queryF($sql)) {
+    $result = $xoopsDB->queryF($sql);
+    if (!$xoopsDB->isResultSet($result)) {
         return false;
     }
+
     // Migrate from existent pm module
     if (($rows = $xoopsDB->getRowsNum($result)) == 12) {
         return true;

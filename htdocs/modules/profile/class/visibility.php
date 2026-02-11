@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -17,13 +17,19 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-// defined('XOOPS_ROOT_PATH') || exit("XOOPS root path not defined");
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * Class ProfileVisibility
  */
 class ProfileVisibility extends XoopsObject
 {
+    public $field_id;
+    public $user_group;
+    public $profile_group;
+
     /**
      *
      */
@@ -41,7 +47,7 @@ class ProfileVisibility extends XoopsObject
 class ProfileVisibilityHandler extends XoopsPersistableObjectHandler
 {
     /**
-     * @param null|XoopsDatabase $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct(XoopsDatabase $db)
     {
@@ -61,9 +67,11 @@ class ProfileVisibilityHandler extends XoopsPersistableObjectHandler
         $profile_groups[] = $user_groups[] = 0;
         $sql  = "SELECT field_id FROM {$this->table} WHERE profile_group IN (" . implode(',', $profile_groups) . ')';
         $sql .= ' AND user_group IN (' . implode(',', $user_groups) . ')';
-        $field_ids = array();
-        if ($result = $this->db->query($sql)) {
-            while (false !== (list($field_id) = $this->db->fetchRow($result))) {
+        $field_ids = [];
+        $result = $this->db->query($sql);
+        if ($this->db->isResultSet($result)) {
+            while (false !== ($row = $this->db->fetchRow($result))) {
+                [$field_id] = $row;
                 $field_ids[] = $field_id;
             }
         }
@@ -78,13 +86,13 @@ class ProfileVisibilityHandler extends XoopsPersistableObjectHandler
      *
      * @return array of row arrays, indexed by field_id
      */
-    public function getAllByFieldId(CriteriaElement $criteria = null)
+    public function getAllByFieldId(?CriteriaElement $criteria = null)
     {
         $rawRows = parent::getAll($criteria, null, false, false);
 
-        usort($rawRows, array($this, 'visibilitySort'));
+        usort($rawRows, [$this, 'visibilitySort']);
 
-        $rows = array();
+        $rows = [];
         foreach ($rawRows as $rawRow) {
             $rows[$rawRow['field_id']][] = $rawRow;
         }

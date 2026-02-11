@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          cache
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Memcache storage engine for cache
@@ -24,7 +26,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
+ * CakePHP(tm) :  Rapid Development Framework <https://www.cakephp.org/>
  * Copyright 2005-2008, Cake Software Foundation, Inc.
  *                                 1785 E. Sahara Avenue, Suite 490-204
  *                                 Las Vegas, Nevada 89104
@@ -34,13 +36,13 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  *
  * @filesource
  * @copyright  Copyright 2005-2008, Cake Software Foundation, Inc.
- * @link       http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @link       https://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
  * @package    cake
  * @subpackage cake.cake.libs.cache
  * @since      CakePHP(tm) v 1.2.0.4933
  * @modifiedby $LastChangedBy$
  * @lastmodified $Date$
- * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @license    https://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
 /**
@@ -67,7 +69,7 @@ class XoopsCacheMemcache extends XoopsCacheEngine
      * @var array
      * @access public
      */
-    public $settings = array();
+    public $settings = [];
 
     /**
      * Initialize the Cache Engine
@@ -80,33 +82,32 @@ class XoopsCacheMemcache extends XoopsCacheEngine
      * @return boolean True if the engine has been successfully initialized, false if not
      * @access   public
      */
-    public function init($settings = array())
+    public function init($settings = [])
     {
         if (!class_exists('Memcache')) {
             return false;
         }
         parent::init($settings);
-        $defaults       = array(
-            'servers'  => array(
-                '127.0.0.1'),
-            'compress' => false);
+        $defaults       = [
+            'servers'  => [
+                '127.0.0.1',
+            ],
+            'compress' => false,
+        ];
         $this->settings = array_merge($defaults, $this->settings);
 
         if (!$this->settings['compress']) {
             $this->settings['compress'] = MEMCACHE_COMPRESSED;
         }
         if (!is_array($this->settings['servers'])) {
-            $this->settings['servers'] = array($this->settings['servers']);
+            $this->settings['servers'] = [$this->settings['servers']];
         }
         $this->memcache = null;
         $this->memcache = new Memcache();
         foreach ($this->settings['servers'] as $server) {
             $parts = explode(':', $server);
             $host  = $parts[0];
-            $port  = 11211;
-            if (isset($parts[1])) {
-                $port = $parts[1];
-            }
+            $port  = $parts[1] ?? 11211;
             if ($this->memcache->addServer($host, $port)) {
                 return true;
             }

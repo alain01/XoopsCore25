@@ -1,12 +1,12 @@
 <?php
 /**
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license         GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license         GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * _LANGCODE    en
  * _CHARSET     UTF-8
  */
 // Navigation
-define('_AM_SYSTEM_MODULES_ADMIN', 'This Module Admin');
+define('_AM_SYSTEM_MODULES_ADMIN', 'XOOPS Module Administration');
 define('_AM_SYSTEM_MODULES_LIST', 'Module List');
 define('_AM_SYSTEM_MODULES_TOINSTALL', 'Install module');
 define('_AM_SYSTEM_MODULES_VALIDATE', 'Validate changes');
@@ -154,7 +154,7 @@ define('_AM_SYSTEM_MODULES_TABLE_DROPPED_ERROR', 'ERROR: Could not drop table %s
 define('_AM_SYSTEM_MODULES_TABLE_DROPPED_FAILDED', 'ERROR: Not allowed to drop table %s !');
 // Tips
 define('_AM_SYSTEM_MODULES_TIPS', '<ul>
-<li>If you install a new module, remember to setup module preferences, blocks and users permissions!</li>
+<li>If you install a new module, remember to set up module preferences, blocks and users permissions!</li>
 <li>For hide module into Main Menu block, set order to 0</li>
 <li>Delete unused module files from your server to avoid security issues and keep your website safe.</li>
 <li>To change order of modules (which will be reflected in the Menu), you just need to drag and drop the modules to the desired placement.</li>
@@ -166,3 +166,5 @@ define('_AM_SYSTEM_MODULES_CONFIRM_TIPS', '<ul>
 define('_AM_SYSTEM_MODULES_INSTALL_TESTDATA', 'Add Test Data');
 // 2.5.8
 define('_AM_SYSTEM_MODULES_INSTALL_MORE', 'Install more modules');
+// 2.5.11
+define('_AM_SYSTEM_MODULES_INSTALL_THISMODULE', 'This Module Admin');

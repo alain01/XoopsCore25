@@ -9,23 +9,31 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * a group of users
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @author              Kazumi Ono <onokazu@xoops.org>
  * @package             kernel
  */
 class XoopsGroup extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $groupid;
+    public $name;
+    public $description;
+    public $group_type;
+
     /**
      * constructor
      */
@@ -95,7 +103,7 @@ class XoopsGroup extends XoopsObject
  * of XOOPS group class objects.
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             kernel
  * @subpackage          member
  */
@@ -136,7 +144,7 @@ class XoopsGroupHandler extends XoopsObjectHandler
      * retrieve a specific group
      *
      * @param  int $id ID of the group to get
-     * @return XoopsGroup XoopsGroup reference to the group object, FALSE if failed
+     * @return XoopsGroup|false XoopsGroup reference to the group object, false if failed
      */
     public function get($id)
     {
@@ -144,7 +152,8 @@ class XoopsGroupHandler extends XoopsObjectHandler
         $group = false;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('groups') . ' WHERE groupid=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return $group;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -181,11 +190,11 @@ class XoopsGroupHandler extends XoopsObjectHandler
         }
         if ($group->isNew()) {
             $groupid = $this->db->genId('group_groupid_seq');
-            $sql     = sprintf('INSERT INTO %s (groupid, name, description, group_type) VALUES (%u, %s, %s, %s)', $this->db->prefix('groups'), $groupid, $this->db->quoteString($name), $this->db->quoteString($description), $this->db->quoteString($group_type));
+            $sql     = sprintf('INSERT INTO %s (groupid, name, description, group_type) VALUES (%u, %s, %s, %s)', $this->db->prefix('groups'), $groupid, $this->db->quote($name), $this->db->quote($description), $this->db->quote($group_type));
         } else {
-            $sql = sprintf('UPDATE %s SET name = %s, description = %s, group_type = %s WHERE groupid = %u', $this->db->prefix('groups'), $this->db->quoteString($name), $this->db->quoteString($description), $this->db->quoteString($group_type), $groupid);
+            $sql = sprintf('UPDATE %s SET name = %s, description = %s, group_type = %s WHERE groupid = %u', $this->db->prefix('groups'), $this->db->quote($name), $this->db->quote($description), $this->db->quote($group_type), $groupid);
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($groupid)) {
@@ -210,7 +219,7 @@ class XoopsGroupHandler extends XoopsObjectHandler
             return false;
         }
         $sql = sprintf('DELETE FROM %s WHERE groupid = %u', $this->db->prefix('groups'), $group->getVar('groupid'));
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -224,20 +233,21 @@ class XoopsGroupHandler extends XoopsObjectHandler
      * @param  bool            $id_as_key should the groups' IDs be used as keys for the associative array?
      * @return mixed           Array of groups
      */
-    public function getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT * FROM ' . $this->db->prefix('groups');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
+         if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $group = new XoopsGroup();
             $group->assignVars($myrow);
@@ -257,11 +267,16 @@ class XoopsGroupHandler extends XoopsObjectHandler
  * membership of a user in a group
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             kernel
  */
 class XoopsMembership extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $linkid;
+    public $groupid;
+    public $uid;
+
     /**
      * constructor
      */
@@ -281,7 +296,7 @@ class XoopsMembership extends XoopsObject
  * of XOOPS group membership class objects.
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             kernel
  */
 class XoopsMembershipHandler extends XoopsObjectHandler
@@ -328,7 +343,8 @@ class XoopsMembershipHandler extends XoopsObjectHandler
         $mship = false;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('groups_users_link') . ' WHERE linkid=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return $mship;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -369,7 +385,7 @@ class XoopsMembershipHandler extends XoopsObjectHandler
         } else {
             $sql = sprintf('UPDATE %s SET groupid = %u, uid = %u WHERE linkid = %u', $this->db->prefix('groups_users_link'), $groupid, $uid, $linkid);
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($linkid)) {
@@ -395,7 +411,7 @@ class XoopsMembershipHandler extends XoopsObjectHandler
         }
 
         $sql = sprintf('DELETE FROM %s WHERE linkid = %u', $this->db->prefix('groups_users_link'), $mship->getVar('linkid'));
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -409,20 +425,21 @@ class XoopsMembershipHandler extends XoopsObjectHandler
      * @param  bool            $id_as_key should the ID be used as the array's key?
      * @return array           array of references
      */
-    public function getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT * FROM ' . $this->db->prefix('groups_users_link');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $mship = new XoopsMembership();
             $mship->assignVars($myrow);
@@ -443,19 +460,19 @@ class XoopsMembershipHandler extends XoopsObjectHandler
      * @param  CriteriaElement|CriteriaCompo $criteria {@link CriteriaElement} conditions to meet
      * @return int
      */
-    public function getCount(CriteriaElement $criteria = null)
+    public function getCount(?CriteriaElement $criteria = null)
     {
         $sql = 'SELECT COUNT(*) FROM ' . $this->db->prefix('groups_users_link');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
         }
         $result = $this->db->query($sql);
         if (!$result) {
             return 0;
         }
-        list($count) = $this->db->fetchRow($result);
+        [$count] = $this->db->fetchRow($result);
 
-        return $count;
+        return (int)$count;
     }
 
     /**
@@ -464,13 +481,14 @@ class XoopsMembershipHandler extends XoopsObjectHandler
      * @param  CriteriaElement|CriteriaCompo $criteria {@link CriteriaElement} with conditions to meet
      * @return bool
      */
-    public function deleteAll(CriteriaElement $criteria = null)
+    public function deleteAll(?CriteriaElement $criteria = null)
     {
         $sql = 'DELETE FROM ' . $this->db->prefix('groups_users_link');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
         }
-        if (!$result = $this->db->query($sql)) {
+        $result = $this->db->query($sql);
+        if (!$result) {
             return false;
         }
 
@@ -488,12 +506,13 @@ class XoopsMembershipHandler extends XoopsObjectHandler
      */
     public function getGroupsByUser($uid)
     {
-        $ret    = array();
+        $ret    = [];
         $sql    = 'SELECT groupid FROM ' . $this->db->prefix('groups_users_link') . ' WHERE uid=' . (int)$uid;
         $result = $this->db->query($sql);
-        if (!$result) {
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $ret[] = $myrow['groupid'];
         }
@@ -513,12 +532,13 @@ class XoopsMembershipHandler extends XoopsObjectHandler
      */
     public function getUsersByGroup($groupid, $limit = 0, $start = 0)
     {
-        $ret    = array();
+        $ret    = [];
         $sql    = 'SELECT uid FROM ' . $this->db->prefix('groups_users_link') . ' WHERE groupid=' . (int)$groupid;
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
+        if (!$this->db->isResultSet($result)) {
             return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $ret[] = $myrow['uid'];
         }

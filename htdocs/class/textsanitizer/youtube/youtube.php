@@ -10,7 +10,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2021 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          textsanitizer
@@ -26,13 +26,13 @@ class MytsYoutube extends MyTextSanitizerExtension
      */
     public function encode($textarea_id)
     {
-        $config = parent::loadConfig(__DIR__);
+        //        $config = parent::loadConfig(__DIR__);
         $code = "<button type='button' class='btn btn-default btn-sm' onclick='xoopsCodeYoutube(\"{$textarea_id}\",\""
-            . htmlspecialchars(_XOOPS_FORM_ENTERYOUTUBEURL, ENT_QUOTES) . "\",\""
-            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERHEIGHT, ENT_QUOTES) . "\",\""
-            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES)
+            . htmlspecialchars(_XOOPS_FORM_ENTERYOUTUBEURL, ENT_QUOTES | ENT_HTML5) . "\",\""
+            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERHEIGHT, ENT_QUOTES | ENT_HTML5) . "\",\""
+            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES | ENT_HTML5)
             . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALTYOUTUBE
-            . "'><span class='fa fa-fw fa-youtube' aria-hidden='true'></span></button>";
+            . "'><span class='fa-brands fa-youtube' aria-hidden='true'></span></button>";
         $javascript = <<<EOH
             function xoopsCodeYoutube(id, enterYouTubePhrase, enterYouTubeHeightPhrase, enterYouTubeWidthPhrase)
             {
@@ -56,7 +56,7 @@ class MytsYoutube extends MyTextSanitizerExtension
             }
 EOH;
 
-        return array($code, $javascript);
+        return [$code, $javascript];
     }
 
     /**
@@ -70,17 +70,12 @@ EOH;
     }
 
     /**
-     * @param $ts
+     * @param MyTextSanitizer $myts
      */
-    public function load($ts)
+    public function load(MyTextSanitizer $myts)
     {
-        //        $ts->patterns[] = "/\[youtube=(['\"]?)([^\"']*),([^\"']*)\\1]([^\"]*)\[\/youtube\]/esU";
-        //        $ts->replacements[] = __CLASS__ . "::decode( '\\4', '\\2', '\\3' )";
-
-        //mb------------------------------
-        $ts->callbackPatterns[] = "/\[youtube=(['\"]?)([^\"']*),([^\"']*)\\1]([^\"]*)\[\/youtube\]/sU";
-        $ts->callbacks[]        = __CLASS__ . '::myCallback';
-        //mb------------------------------
+        $myts->callbackPatterns[] = "/\[youtube=(['\"]?)([^\"']*),([^\"']*)\\1]([^\"]*)\[\/youtube\]/sU";
+        $myts->callbacks[]        = self::class . '::myCallback';
     }
 
     /**
@@ -92,16 +87,16 @@ EOH;
      */
     public static function decode($url, $width, $height)
     {
-        // modernized responsive youtube handling suggested by XOOPS user xd9527 -- thanks!
-        // http://xoops.org/modules/newbb/viewtopic.php?post_id=359913
+        // modernized responsive YouTube handling suggested by XOOPS user xd9527 -- thanks!
+        // https://xoops.org/modules/newbb/viewtopic.php?post_id=359913
 
         // match known youtube urls
-        // from: http://stackoverflow.com/questions/2936467/parse-youtube-video-id-using-preg-match/6382259#6382259
+        // from: https://stackoverflow.com/questions/2936467/parse-youtube-video-id-using-preg-match/6382259#6382259
         $youtubeRegex = '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)'
-            .'([^"&?/ ]{11})%i';
+            . '([^"&?/ ]{11})%i';
 
         if (preg_match($youtubeRegex, $url, $match)) {
-            $videoId = $match[1]; // extract just the video id from a url
+            $videoId = $match[1]; // extract just the video id from a URL
         } elseif (preg_match('%^[^"&?/ ]{11}$%', $url)) {
             $videoId = $url; // have a bare video id
         } else {
@@ -122,7 +117,7 @@ EOH;
                 break;
         }
 
-        $aspectRatio = $width/$height; // 16x9 = 1.777777778, 4x3 = 1.333333333
+        $aspectRatio = $width / $height; // 16x9 = 1.777777778, 4x3 = 1.333333333
         $responsiveAspect = ($aspectRatio < 1.4) ? 'embed-responsive-4by3' : 'embed-responsive-16by9';
         if ($width < 17 && $height < 10) {
             $scale = (int) 450 / $width;

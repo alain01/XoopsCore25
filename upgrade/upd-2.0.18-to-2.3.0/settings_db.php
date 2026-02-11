@@ -15,8 +15,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          upgrader
  * @since            2.3.0
  * @author           Skalpa Keo <skalpa@xoops.org>
@@ -34,11 +34,13 @@ $vars =& $_SESSION['settings'];
  */
 function getDbCharsets()
 {
-    $charsets = array();
+    $charsets = [];
 
-    $charsets['utf8'] = array();
+    $charsets['utf8'] = [];
     $ut8_available    = false;
-    if ($result = $GLOBALS['xoopsDB']->queryF('SHOW CHARSET')) {
+    $sql              = 'SHOW CHARSET';
+    $result = $GLOBALS['xoopsDB']->queryF($sql);
+    if ($GLOBALS['xoopsDB']->isResultSet($result)) {
         while (false !== ($row = $GLOBALS['xoopsDB']->fetchArray($result))) {
             $charsets[$row['Charset']]['desc'] = $row['Description'];
             if ($row['Charset'] === 'utf8') {
@@ -46,6 +48,7 @@ function getDbCharsets()
             }
         }
     }
+
     if (!$ut8_available) {
         unset($charsets['utf8']);
     }
@@ -58,10 +61,12 @@ function getDbCharsets()
  */
 function getDbCollations()
 {
-    $collations = array();
+    $collations = [];
     $charsets   = getDbCharsets();
 
-    if ($result = $GLOBALS['xoopsDB']->queryF('SHOW COLLATION')) {
+    $sql    = 'SHOW COLLATION';
+    $result = $GLOBALS['xoopsDB']->queryF($sql);
+    if ($GLOBALS['xoopsDB']->isResultSet($result)) {
         while (false !== ($row = $GLOBALS['xoopsDB']->fetchArray($result))) {
             $charsets[$row['Charset']]['collation'][] = $row['Collation'];
         }
@@ -82,7 +87,7 @@ function xoFormFieldCollation($name, $value, $label, $help = '')
 {
     $collations = getDbCollations();
 
-    $myts  = MyTextSanitizer::getInstance();
+    $myts  = \MyTextSanitizer::getInstance();
     $label = $myts->htmlSpecialChars($label, ENT_QUOTES, _UPGRADE_CHARSET, false);
     $name  = $myts->htmlSpecialChars($name, ENT_QUOTES, _UPGRADE_CHARSET, false);
     $value = $myts->htmlSpecialChars($value, ENT_QUOTES);
@@ -109,9 +114,9 @@ function xoFormFieldCollation($name, $value, $label, $help = '')
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && @$_POST['task'] === 'db') {
-    $params = array('DB_COLLATION');
+    $params = ['DB_COLLATION'];
     foreach ($params as $name) {
-        $vars[$name] = isset($_POST[$name]) ? $_POST[$name] : '';
+        $vars[$name] = $_POST[$name] ?? '';
     }
 
     return $vars;

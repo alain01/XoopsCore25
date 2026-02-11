@@ -9,19 +9,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Return a list of file Mimetypes
  *
  * This should really be replaced with a more accurate way of determining the actually mimetype
  */
-return array(
+return [
     'hqx'   => 'application/mac-binhex40',
     'doc'   => 'application/msword',
     'dot'   => 'application/msword',
@@ -58,13 +60,13 @@ return array(
     'phtml' => 'application/x-httpd-php',
     'js'    => 'application/x-javascript',
     'sh'    => 'application/x-sh',
-    'swf'   => 'application/x-shockwave-flash',
+//    'swf'   => 'application/x-shockwave-flash',
     'sit'   => 'application/x-stuffit',
     'tar'   => 'application/x-tar',
     'tcl'   => 'application/x-tcl',
     'xhtml' => 'application/xhtml+xml',
     'xht'   => 'application/xhtml+xml',
-//    'xhtml' => 'application/xml',
+    //    'xhtml' => 'application/xml',
     'ent'   => 'application/xml-external-parsed-entity',
     'dtd'   => 'application/xml-dtd',
     'mod'   => 'application/xml-dtd',
@@ -102,6 +104,7 @@ return array(
     'ppm'   => 'image/x-portable-pixmap',
     'xbm'   => 'image/x-xbitmap',
     'xpm'   => 'image/x-xpixmap',
+    'webp'  => 'image/webp',
     'ics'   => 'text/calendar',
     'ifb'   => 'text/calendar',
     'csv'   => 'text/csv',
@@ -114,7 +117,7 @@ return array(
     'rtf'   => 'text/rtf',
     'sgml'  => 'text/x-sgml',
     'sgm'   => 'text/x-sgml',
-    'tsv'   => 'text/tab-seperated-values',
+    'tsv'   => 'text/tab-separated-values',
     'wml'   => 'text/vnd.wap.wml',
     'wmls'  => 'text/vnd.wap.wmlscript',
     'xsl'   => 'text/xml',
@@ -145,4 +148,5 @@ return array(
     'xlsb'  => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
     'xlsm'  => 'application/vnd.ms-excel.sheet.macroEnabled.12',
     'xlsx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'xps'   => 'application/vnd.ms-xpsdocument');
+    'xps'   => 'application/vnd.ms-xpsdocument',
+];

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.0.0
@@ -32,7 +32,7 @@ $parser   = new XoopsXmlRpcParser(rawurlencode($http_raw_post_data));
 if (!$parser->parse()) {
     $response->add(new XoopsXmlRpcFault(102));
 } else {
-    /* @var XoopsModuleHandler $module_handler */
+    /** @var XoopsModuleHandler $module_handler */
     $module_handler = xoops_getHandler('module');
     $module         = $module_handler->getByDirname('news');
     if (!is_object($module)) {
@@ -65,7 +65,7 @@ if (!$parser->parse()) {
         }
     }
 }
-$payload =& $response->render();
+$payload = $response->render();
 header('Server: XOOPS XML-RPC Server');
 header('Content-type: text/xml');
 header('Content-Length: ' . strlen($payload));

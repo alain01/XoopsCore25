@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
  * @since               2.0.0
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Abstract base class for form elements
@@ -33,7 +35,7 @@ class XoopsFormElement
      *
      * @var array ()
      */
-    public $customValidationCode = array();
+    public $customValidationCode = [];
 
     /**
      * *#@+
@@ -66,7 +68,7 @@ class XoopsFormElement
      *
      * @var array
      */
-    public $_class = array();
+    public $_class = [];
 
     /**
      * hidden?
@@ -80,7 +82,7 @@ class XoopsFormElement
      *
      * @var array
      */
-    public $_extra = array();
+    public $_extra = [];
 
     /**
      * required field?
@@ -104,7 +106,7 @@ class XoopsFormElement
      * CAtzwolf: Modified for No Colspan
      *
      * Lets a developer have only one column in a form element rather than two.
-     * Example of usgage: Allows text editors to span 2 columns rathe than pushed into one column
+     * Example of usage: Allows text editors to span 2 columns rather than pushed into one column
      *
      * @deprecated  PLEASE AVOID USING THIS METHOD
      *
@@ -156,8 +158,8 @@ class XoopsFormElement
      */
     public function getName($encode = true)
     {
-        if (false !== (bool)$encode) {
-            return str_replace('&amp;', '&', htmlspecialchars($this->_name, ENT_QUOTES));
+        if (false !== (bool) $encode) {
+            return str_replace('&amp;', '&', htmlspecialchars((string) $this->_name, ENT_QUOTES | ENT_HTML5));
         }
 
         return $this->_name;
@@ -186,17 +188,17 @@ class XoopsFormElement
     /**
      * If the accesskey is found in the specified string, underlines it
      *
-     * @param  string $str String where to search the accesskey occurence
-     * @return string Enhanced string with the 1st occurence of accesskey underlined
+     * @param  string $str String where to search the accesskey occurrence
+     * @return string Enhanced string with the 1st occurrence of accesskey underlined
      */
     public function getAccessString($str)
     {
         $access = $this->getAccessKey();
         if (!empty($access) && (false !== ($pos = strpos($str, $access)))) {
-            return htmlspecialchars(substr($str, 0, $pos), ENT_QUOTES) . '<span style="text-decoration: underline;">' . htmlspecialchars(substr($str, $pos, 1), ENT_QUOTES) . '</span>' . htmlspecialchars(substr($str, $pos + 1), ENT_QUOTES);
+            return htmlspecialchars(substr($str, 0, $pos), ENT_QUOTES | ENT_HTML5) . '<span style="text-decoration: underline;">' . htmlspecialchars(substr($str, $pos, 1), ENT_QUOTES | ENT_HTML5) . '</span>' . htmlspecialchars(substr($str, $pos + 1), ENT_QUOTES | ENT_HTML5);
         }
 
-        return htmlspecialchars($str, ENT_QUOTES);
+        return htmlspecialchars($str, ENT_QUOTES | ENT_HTML5);
     }
 
     /**
@@ -222,9 +224,9 @@ class XoopsFormElement
         if (empty($this->_class)) {
             return false;
         }
-        $classes = array();
+        $classes = [];
         foreach ($this->_class as $class) {
-            $classes[] = htmlspecialchars($class, ENT_QUOTES);
+            $classes[] = htmlspecialchars($class, ENT_QUOTES | ENT_HTML5);
         }
 
         return implode(' ', $classes);
@@ -248,7 +250,7 @@ class XoopsFormElement
      */
     public function getCaption($encode = false)
     {
-        return $encode ? htmlspecialchars($this->_caption, ENT_QUOTES) : $this->_caption;
+        return $encode ? htmlspecialchars($this->_caption, ENT_QUOTES | ENT_HTML5) : $this->_caption;
     }
 
     /**
@@ -259,10 +261,13 @@ class XoopsFormElement
      */
     public function getTitle($encode = true)
     {
-        if (strlen($this->_description) > 0) {
-            return $encode ? htmlspecialchars(strip_tags($this->_caption . ' - ' . $this->_description), ENT_QUOTES) : strip_tags($this->_caption . ' - ' . $this->_description);
+        if(!isset($this->_caption)) {
+            $this->_caption = '';
+        }
+        if (strlen((string)$this->_description) > 0) {
+            return $encode ? htmlspecialchars(strip_tags($this->_caption . ' - ' . $this->_description), ENT_QUOTES | ENT_HTML5) : strip_tags($this->_caption . ' - ' . $this->_description);
         } else {
-            return $encode ? htmlspecialchars(strip_tags($this->_caption), ENT_QUOTES) : strip_tags($this->_caption);
+            return $encode ? htmlspecialchars(strip_tags($this->_caption), ENT_QUOTES | ENT_HTML5) : strip_tags($this->_caption);
         }
     }
 
@@ -273,7 +278,7 @@ class XoopsFormElement
      */
     public function setDescription($description)
     {
-        $this->_description = trim($description);
+        $this->_description = (isset($description) && !empty($description)) ? trim($description) : $description;
     }
 
     /**
@@ -284,7 +289,7 @@ class XoopsFormElement
      */
     public function getDescription($encode = false)
     {
-        return $encode ? htmlspecialchars($this->_description, ENT_QUOTES) : $this->_description;
+        return $encode ? htmlspecialchars($this->_description, ENT_QUOTES | ENT_HTML5) : $this->_description;
     }
 
     /**
@@ -328,7 +333,7 @@ class XoopsFormElement
     public function setExtra($extra, $replace = false)
     {
         if ($replace) {
-            $this->_extra = array(trim($extra));
+            $this->_extra = [trim($extra)];
         } else {
             $this->_extra[] = trim($extra);
         }
@@ -347,7 +352,7 @@ class XoopsFormElement
         if (!$encode) {
             return ' ' . implode(' ', $this->_extra);
         }
-        $value = array();
+        $value = [];
         foreach ($this->_extra as $val) {
             $value[] = str_replace('>', '&gt;', str_replace('<', '&lt;', $val));
         }
@@ -422,17 +427,15 @@ class XoopsFormElement
             // $eltname    = $this->getName();
             $eltcaption = $this->getCaption();
             $eltmsg     = empty($eltcaption) ? sprintf(_FORM_ENTER, $eltname) : sprintf(_FORM_ENTER, $eltcaption);
-            $eltmsg     = str_replace(array(':', '?', '%'), '', $eltmsg);
+            $eltmsg     = str_replace([':', '?', '%'], '', $eltmsg);
             $eltmsg     = str_replace('"', '\"', stripslashes($eltmsg));
             $eltmsg     = strip_tags($eltmsg);
             echo $this->getFormType();
             switch ($this->getFormType()) {
                 case 'checkbox':
                     return NWLINE . "if (!myform.{$eltname}.checked) { window.alert(\"{$eltmsg}\"); myform.{$eltname}.focus(); return false; }\n";
-                    break;
                 default:
                     return NWLINE . "if (myform.{$eltname}.value == \"\") { window.alert(\"{$eltmsg}\"); myform.{$eltname}.focus(); return false; }\n";
-                    break;
             } // switch
         }
 
@@ -446,7 +449,5 @@ class XoopsFormElement
      *
      * @abstract
      */
-    public function render()
-    {
-    }
+    public function render() {}
 }

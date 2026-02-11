@@ -15,8 +15,8 @@
  * @category  HttpGet
  * @package   Xoops
  * @author    Richard Griffith <richard@geekwright.com>
- * @copyright 2020 XOOPS Project (https://xoops.org)
- * @license   GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright 2000-2025 XOOPS Project (https://xoops.org)
+ * @license   GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  */
 class XoopsHttpGet
 {
@@ -29,7 +29,7 @@ class XoopsHttpGet
      *
      * @param string $url the url to process
      *
-     * @throws \RuntimeException if neither curl extension or stream wrappers (allow_url_fopen) is available
+     * @throws \RuntimeException if neither curl extension nor stream wrappers (allow_url_fopen) is available
      */
     public function __construct($url)
     {
@@ -65,13 +65,13 @@ class XoopsHttpGet
             $this->error = 'curl_init failed';
             return false;
         }
-        $options = array(
+        $options = [
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_MAXREDIRS      => 4,
-        );
+        ];
         curl_setopt_array($curlHandle, $options);
 
         $response = curl_exec($curlHandle);

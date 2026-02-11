@@ -10,22 +10,33 @@
 */
 
 /**
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license             GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license             GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Gregory Mage (AKA Mage)
  * @package             system
  */
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * System Banner Client
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  */
 class SystemBannerclient extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $cid;
+    public $name;
+    public $contact;
+    public $email;
+    public $login;
+    public $passwd;
+    public $extrainfo;
+
     /**
      *
      */
@@ -76,19 +87,19 @@ class SystemBannerclient extends XoopsObject
 }
 
 /**
- * System banner client handler class. (Singelton)
+ * System banner client handler class. (Singleton)
  *
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS block class objects.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  * @subpackage          banner
  */
 class SystemBannerclientHandler extends XoopsPersistableObjectHandler
 {
     /**
-     * @param null|object $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct($db)
     {

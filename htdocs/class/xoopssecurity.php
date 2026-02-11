@@ -1,4 +1,7 @@
 <?php
+
+use Xmf\IPAddress;
+
 /**
  * XOOPS security handler
  *
@@ -12,20 +15,22 @@
  * @author    Kazumi Ono <onokazu@xoops.org>
  * @author    Jan Pedersen <mithrandir@xoops.org>
  * @author    John Neill <catzwolf@xoops.org>
- * @copyright (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license   GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package   kernel
  * @since     2.0.0
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Class XoopsSecurity
  */
 class XoopsSecurity
 {
-    public $errors = array();
+    public $errors = [];
 
     /**
      * Check if there is a valid token in $_REQUEST[$name . '_REQUEST'] - can be expanded for more wide use, later (Mith)
@@ -59,13 +64,15 @@ class XoopsSecurity
         $token_id = md5(uniqid(mt_rand(), true));
         // save token data on the server
         if (!isset($_SESSION[$name . '_SESSION'])) {
-            $_SESSION[$name . '_SESSION'] = array();
+            $_SESSION[$name . '_SESSION'] = [];
         }
-        $token_data = array(
+        $token_data = [
             'id'     => $token_id,
-            'expire' => time() + (int)$timeout);
+            'expire' => time() + (int) $timeout,
+        ];
         $_SESSION[$name . '_SESSION'][] = $token_data;
-
+        // Force update of session in base
+//        session_write_close();
         return md5($token_id . $_SERVER['HTTP_USER_AGENT'] . XOOPS_DB_PREFIX);
     }
 
@@ -80,8 +87,13 @@ class XoopsSecurity
      */
     public function validateToken($token = false, $clearIfValid = true, $name = 'XOOPS_TOKEN')
     {
+        // Optional: Ensure a session is active, keep this as a safeguard, but it’s likely unnecessary
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
         global $xoopsLogger;
-        $token = ($token !== false) ? $token : (isset($_REQUEST[$name . '_REQUEST']) ? $_REQUEST[$name . '_REQUEST'] : '');
+        $token = ($token !== false) ? $token : ($_REQUEST[$name . '_REQUEST'] ?? '');
         if (empty($token) || empty($_SESSION[$name . '_SESSION'])) {
             $xoopsLogger->addExtra('Token Validation', 'No valid token found in request/session');
 
@@ -124,7 +136,7 @@ class XoopsSecurity
      */
     public function clearTokens($name = 'XOOPS_TOKEN')
     {
-        $_SESSION[$name . '_SESSION'] = array();
+        $_SESSION[$name . '_SESSION'] = [];
     }
 
     /**
@@ -149,8 +161,8 @@ class XoopsSecurity
     public function garbageCollection($name = 'XOOPS_TOKEN')
     {
         $sessionName = $name . '_SESSION';
-        if (!empty($_SESSION[$sessionName]) && is_array($_SESSION[$sessionName])) {
-            $_SESSION[$sessionName] = array_filter($_SESSION[$sessionName], array($this, 'filterToken'));
+        if (!empty($_SESSION[$sessionName]) && \is_array($_SESSION[$sessionName])) {
+            $_SESSION[$sessionName] = array_filter($_SESSION[$sessionName], [$this, 'filterToken']);
         }
     }
 
@@ -180,33 +192,35 @@ class XoopsSecurity
      **/
     public function checkSuperglobals()
     {
-        foreach (array(
-                     'GLOBALS',
-                     '_SESSION',
-                     'HTTP_SESSION_VARS',
-                     '_GET',
-                     'HTTP_GET_VARS',
-                     '_POST',
-                     'HTTP_POST_VARS',
-                     '_COOKIE',
-                     'HTTP_COOKIE_VARS',
-                     '_REQUEST',
-                     '_SERVER',
-                     'HTTP_SERVER_VARS',
-                     '_ENV',
-                     'HTTP_ENV_VARS',
-                     '_FILES',
-                     'HTTP_POST_FILES',
-                     'xoopsDB',
-                     'xoopsUser',
-                     'xoopsUserId',
-                     'xoopsUserGroups',
-                     'xoopsUserIsAdmin',
-                     'xoopsConfig',
-                     'xoopsOption',
-                     'xoopsModule',
-                     'xoopsModuleConfig',
-                     'xoopsRequestUri') as $bad_global) {
+        foreach (
+            [
+                'GLOBALS',
+                '_SESSION',
+                'HTTP_SESSION_VARS',
+                '_GET',
+                'HTTP_GET_VARS',
+                '_POST',
+                'HTTP_POST_VARS',
+                '_COOKIE',
+                'HTTP_COOKIE_VARS',
+                '_REQUEST',
+                '_SERVER',
+                'HTTP_SERVER_VARS',
+                '_ENV',
+                'HTTP_ENV_VARS',
+                '_FILES',
+                'HTTP_POST_FILES',
+                'xoopsDB',
+                'xoopsUser',
+                'xoopsUserId',
+                'xoopsUserGroups',
+                'xoopsUserIsAdmin',
+                'xoopsConfig',
+                'xoopsOption',
+                'xoopsModule',
+                'xoopsModuleConfig',
+                'xoopsRequestUri',
+            ] as $bad_global) {
             if (isset($_REQUEST[$bad_global])) {
                 header('Location: ' . XOOPS_URL . '/');
                 exit();
@@ -223,14 +237,16 @@ class XoopsSecurity
     public function checkBadips()
     {
         global $xoopsConfig;
-        if ($xoopsConfig['enable_badips'] == 1 && isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != '') {
+
+        $addr = IPAddress::fromRequest();
+        $ip = $addr->asReadable();
+        if ($xoopsConfig['enable_badips'] == 1 && $ip != '0.0.0.0') {
             foreach ($xoopsConfig['bad_ips'] as $bi) {
-                if (!empty($bi) && preg_match('/' . $bi . '/', $_SERVER['REMOTE_ADDR'])) {
+                if (!empty($bi) && preg_match('/' . $bi . '/', $ip)) {
                     exit();
                 }
             }
         }
-        unset($bi, $bad_ips, $xoopsConfig['badips']);
     }
 
     /**

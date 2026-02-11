@@ -1,9 +1,11 @@
 <?php
 //  Author: Trabis
-//  URL: http://www.xuups.com
+//  URL: https://xoops.org
 //  E-Mail: lusopoemas@gmail.com
 
-defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('XOOPS root path not defined');
+}
 
 /**
  * Class ProtectorRegistry
@@ -18,8 +20,8 @@ class ProtectorRegistry
      */
     protected function __construct()
     {
-        $this->_entries = array();
-        $this->_locks   = array();
+        $this->_entries = [];
+        $this->_locks   = [];
     }
 
     /**
@@ -118,7 +120,7 @@ class ProtectorRegistry
 
     public function unsetAll()
     {
-        $this->_entries = array();
-        $this->_locks   = array();
+        $this->_entries = [];
+        $this->_locks   = [];
     }
 }

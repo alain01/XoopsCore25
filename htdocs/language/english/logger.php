@@ -12,14 +12,16 @@
 /**
  *  Xoops Language
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          Xoops Logger Language
  * @since               2.4.0
  * @author              trabis <lusopoemas@gmail.com>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 // _LANGCODE: en
 // _CHARSET : UTF-8

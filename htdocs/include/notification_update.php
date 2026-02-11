@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          Xoop Notifications Select
@@ -17,7 +17,7 @@
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
 if (!defined('XOOPS_ROOT_PATH') || !is_object($xoopsModule)) {
-    die('Restricted access');
+    throw new \RuntimeException('Restricted access');
 }
 // RMV-NOTIFY
 
@@ -59,10 +59,10 @@ $user_id     = is_object($xoopsUser) ? $xoopsUser->getVar('uid') : 0;
 
 // FIXME: right now I just ignore database errors (e.g. if already
 //  subscribed)... deal with this more gracefully?
-/* @var  XoopsNotificationHandler $notification_handler */
+/** @var  XoopsNotificationHandler $notification_handler */
 $notification_handler = xoops_getHandler('notification');
 foreach ($update_list as $update_item) {
-    list($category, $item_id, $event) = preg_split('/,/', $update_item['params']);
+    [$category, $item_id, $event] = preg_split('/,/', $update_item['params']);
     $status = !empty($update_item['status']) ? 1 : 0;
     if (!$status) {
         $notification_handler->unsubscribe($category, $item_id, $event, $module_id, $user_id);
@@ -78,9 +78,9 @@ foreach ($update_list as $update_item) {
 // TODO: finish integration with comments... i.e. need calls to
 // notifyUsers at appropriate places... (need to figure out where
 // comment submit occurs and where comment approval occurs)...
-$redirect_args = array();
+$redirect_args = [];
 foreach ($update_list as $update_item) {
-    list($category, $item_id, $event) = preg_split('/,/', $update_item['params']);
+    [$category, $item_id, $event] = preg_split('/,/', $update_item['params']);
     $category_info =& notificationCategoryInfo($category);
     if (!empty($category_info['item_name'])) {
         $redirect_args[$category_info['item_name']] = $item_id;

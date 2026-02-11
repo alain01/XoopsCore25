@@ -12,8 +12,8 @@
 /*
  * Xoops Cpanel oxygen menu
  *
- * @copyright   (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license     GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright   (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license     GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package     system
  * @usbpackage  GUI
  * @since       2.4
@@ -27,7 +27,7 @@
 $groups = $GLOBALS['xoopsUser']->getGroups();
 $all_ok = false;
 if (!in_array(XOOPS_GROUP_ADMIN, $groups)) {
-    /* @var XoopsGroupPermHandler $sysperm_handler */
+    /** @var XoopsGroupPermHandler $sysperm_handler */
     $sysperm_handler = xoops_getHandler('groupperm');
     $ok_syscats      = $sysperm_handler->getItemIds('system_admin', $groups);
 } else {
@@ -47,8 +47,8 @@ foreach ($dirlist as $file) {
             if (xoops_getModuleOption('active_' . $file, 'system')) {
                 $category = isset($modversion['category']) ? (int)$modversion['category'] : 0;
                 if (false !== $all_ok || in_array($modversion['category'], $ok_syscats)) {
-                    $adminmenu[$index]['title'] = trim($modversion['name']);
-                    $adminmenu[$index]['desc']  = trim($modversion['description']);
+                    $adminmenu[$index]['title'] = trim((string) $modversion['name']);
+                    $adminmenu[$index]['desc']  = trim((string) $modversion['description']);
                     $adminmenu[$index]['link']  = 'admin.php?fct=' . $file;
                     $adminmenu[$index]['icon']  = 'icons/' . $modversion['image'];
                 }

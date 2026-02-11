@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2017 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
@@ -18,7 +18,9 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @author              Vinod <smartvinu@gmail.com>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * base class
@@ -41,8 +43,8 @@ class XoopsFormDhtmlTextArea extends XoopsFormTextArea
      *                                 <li>To use an editor pre-configured by {@link XoopsEditor}, e.g. 'fckeditor': <code>$options['editor'] = 'fckeditor';</code></li>
      *                                 <li>To use a custom editor, e.g. 'MyEditor' class located in "/modules/myeditor/myeditor.php": <code>$options['editor'] = array('MyEditor', XOOPS_ROOT_PATH . "/modules/myeditor/myeditor.php");</code></li>
      *                             </ul></li>
-     *                         <li><ul>For pre-configured settings, which will force to use a editor if no specific editor is set for call
-     *                                 <li><ul>Set up custom configs: in XOOPS_VAR_PATH . '/configs/xoopsconfig.php' set a editor as default, e.g.
+     *                         <li><ul>For pre-configured settings, which will force to use an editor if no specific editor is set for call
+     *                                 <li><ul>Set up custom configs: in XOOPS_VAR_PATH . '/configs/xoopsconfig.php' set an editor as default, e.g.
      *                                         <li>a pre-configured editor 'fckeditor': <code>return array('editor' => 'fckeditor');</code></li>
      *                                         <li>a custom editor 'MyEditor' class located in "/modules/myeditor/myeditor.php": <code>return array('editor' => array('MyEditor', XOOPS_ROOT_PATH . "/modules/myeditor/myeditor.php");</code></li>
      *                                     </ul></li>
@@ -51,7 +53,7 @@ class XoopsFormDhtmlTextArea extends XoopsFormTextArea
      *                             </ul></li>
      * </ul>
      */
-    public $htmlEditor = array();
+    public $htmlEditor = [];
 
     /**
      * Hidden text
@@ -76,7 +78,7 @@ class XoopsFormDhtmlTextArea extends XoopsFormTextArea
      * @param string $hiddentext Identifier for hidden Text
      * @param array  $options    Extra options
      */
-    public function __construct($caption, $name, $value = '', $rows = 5, $cols = 50, $hiddentext = 'xoopsHiddenText', $options = array())
+    public function __construct($caption, $name, $value = '', $rows = 5, $cols = 50, $hiddentext = 'xoopsHiddenText', $options = [])
     {
         global $xoopsConfig;
         static $inLoop = 0;
@@ -103,7 +105,7 @@ class XoopsFormDhtmlTextArea extends XoopsFormTextArea
             $options['name']  = $this->getName();
             $options['value'] = $this->getValue();
             if (!empty($options['editor'])) {
-                $this->htmlEditor = is_array($options['editor']) ? $options['editor'] : array($options['editor']);
+                $this->htmlEditor = is_array($options['editor']) ? $options['editor'] : [$options['editor']];
             }
 
             if (count($this->htmlEditor) == 1) {
@@ -114,7 +116,7 @@ class XoopsFormDhtmlTextArea extends XoopsFormTextArea
                     $this->htmlEditor = null;
                 }
             } else {
-                list($class, $path) = $this->htmlEditor;
+                [$class, $path] = $this->htmlEditor;
                 include_once XOOPS_ROOT_PATH . $path;
                 if (class_exists($class)) {
                     $this->htmlEditor = new $class($options);

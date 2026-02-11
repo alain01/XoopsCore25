@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2017 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          textsanitizer
@@ -17,7 +17,9 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @deprecated          since 2.5.9
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Class MytsMms
@@ -33,16 +35,16 @@ class MytsMms extends MyTextSanitizerExtension
     {
         $config     = parent::loadConfig(__DIR__);
         if ($config['enable_mms_entry'] === false) {
-            return array();
+            return [];
         }
         $code = "<button type='button' class='btn btn-default btn-sm' onclick='xoopsCodeMms(\"{$textarea_id}\",\""
-            . htmlspecialchars(_XOOPS_FORM_ENTERMMSURL, ENT_QUOTES) . "\",\""
-            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERHEIGHT, ENT_QUOTES) . "\",\""
-            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES)
+            . htmlspecialchars(_XOOPS_FORM_ENTERMMSURL, ENT_QUOTES | ENT_HTML5) . "\",\""
+            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERHEIGHT, ENT_QUOTES | ENT_HTML5) . "\",\""
+            . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES | ENT_HTML5)
             . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALTMMS
-            . "'><span class='fa fa-fw fa-server' aria-hidden='true'></span></button>";
+            . "'><span class='fa-solid fa-server' aria-hidden='true'></span></button>";
 
-        //$code       = "<img src='{$this->image_path}/mmssrc.gif' alt='" . _XOOPS_FORM_ALTMMS . "' title='" . _XOOPS_FORM_ALTMMS . "' '". "' onclick='xoopsCodeMms(\"{$textarea_id}\",\"" . htmlspecialchars(_XOOPS_FORM_ENTERMMSURL, ENT_QUOTES) . "\",\"" . htmlspecialchars(_XOOPS_FORM_ALT_ENTERHEIGHT, ENT_QUOTES) . "\",\"" . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES) . "\");'  onmouseover='style.cursor=\"hand\"'/>&nbsp;";
+        //$code       = "<img src='{$this->image_path}/mmssrc.gif' alt='" . _XOOPS_FORM_ALTMMS . "' title='" . _XOOPS_FORM_ALTMMS . "' '". "' onclick='xoopsCodeMms(\"{$textarea_id}\",\"" . htmlspecialchars(_XOOPS_FORM_ENTERMMSURL, ENT_QUOTES | ENT_HTML5) . "\",\"" . htmlspecialchars(_XOOPS_FORM_ALT_ENTERHEIGHT, ENT_QUOTES | ENT_HTML5) . "\",\"" . htmlspecialchars(_XOOPS_FORM_ALT_ENTERWIDTH, ENT_QUOTES | ENT_HTML5) . "\");'  onmouseover='style.cursor=\"hand\"'/>&nbsp;";
         $javascript = <<<EOH
             function xoopsCodeMms(id,enterMmsPhrase, enterMmsHeightPhrase, enterMmsWidthPhrase)
             {
@@ -64,19 +66,20 @@ class MytsMms extends MyTextSanitizerExtension
             }
 EOH;
 
-        return array(
+        return [
             $code,
-            $javascript);
+            $javascript,
+        ];
     }
 
     /**
-     * @param $ts
+     * @param MyTextSanitizer $myts
      *
      * @return bool
      */
-    public function load($ts)
+    public function load(MyTextSanitizer $myts)
     {
-        $ts->patterns[] = "/\[mms=(['\"]?)([^\"']*),([^\"']*)\\1]([^\"]*)\[\/mms\]/sU";
+        $myts->patterns[] = "/\[mms=(['\"]?)([^\"']*),([^\"']*)\\1]([^\"]*)\[\/mms\]/sU";
         $rp             = "<OBJECT id=videowindow1 height='\\3' width='\\2' classid='CLSID:6BF52A52-394A-11D3-B153-00C04F79FAA6'>";
         $rp .= "<PARAM NAME=\"URL\" VALUE=\"\\4\">";
         $rp .= "<PARAM NAME=\"rate\" VALUE=\"1\">";
@@ -104,7 +107,7 @@ EOH;
         $rp .= "<PARAM NAME=\"_cx\" VALUE=\"12700\">";
         $rp .= "<PARAM NAME=\"_cy\" VALUE=\"8731\">";
         $rp .= '</OBJECT>';
-        $ts->replacements[] = $rp;
+        $myts->replacements[] = $rp;
 
         return true;
     }

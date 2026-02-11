@@ -9,33 +9,35 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          Xoop Notifications Select
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 include_once $GLOBALS['xoops']->path('include/notification_constants.php');
 include_once $GLOBALS['xoops']->path('include/notification_functions.php');
 
-$xoops_notification         = array();
+$xoops_notification         = [];
 $xoops_notification['show'] = isset($xoopsModule) && is_object($xoopsUser) && notificationEnabled('inline') ? 1 : 0;
 if ($xoops_notification['show']) {
     xoops_loadLanguage('notification');
-    $categories  =& notificationSubscribableCategoryInfo();
+    $categories  = & notificationSubscribableCategoryInfo();
     $event_count = 0;
     if (!empty($categories)) {
-        /* @var  XoopsNotificationHandler $notification_handler */
+        /** @var  XoopsNotificationHandler $notification_handler */
         $notification_handler = xoops_getHandler('notification');
         foreach ($categories as $category) {
             $section['name']        = $category['name'];
             $section['title']       = $category['title'];
             $section['description'] = $category['description'];
             $section['itemid']      = $category['item_id'];
-            $section['events']      = array();
+            $section['events']      = [];
             $subscribed_events      = $notification_handler->getSubscribedEvents($category['name'], $category['item_id'], $xoopsModule->getVar('mid'), $xoopsUser->getVar('uid'));
             foreach (notificationEvents($category['name'], true) as $event) {
                 if (!empty($event['admin_only']) && !$xoopsUser->isAdmin($xoopsModule->getVar('mid'))) {
@@ -45,30 +47,34 @@ if ($xoops_notification['show']) {
                     continue;
                 }
                 $subscribed                        = in_array($event['name'], $subscribed_events) ? 1 : 0;
-                $section['events'][$event['name']] = array(
+                $section['events'][$event['name']] = [
                     'name'        => $event['name'],
                     'title'       => $event['title'],
                     'caption'     => $event['caption'],
                     'description' => $event['description'],
-                    'subscribed'  => $subscribed);
+                    'subscribed'  => $subscribed,
+                ];
                 ++$event_count;
             }
             $xoops_notification['categories'][$category['name']] = $section;
         }
         $xoops_notification['target_page']     = 'notification_update.php';
         $xoops_notification['redirect_script'] = xoops_getenv('PHP_SELF');
-        $xoopsTpl->assign(array(
-                              'lang_activenotifications'  => _NOT_ACTIVENOTIFICATIONS,
-                              'lang_notificationoptions'  => _NOT_NOTIFICATIONOPTIONS,
-                              'lang_updateoptions'        => _NOT_UPDATEOPTIONS,
-                              'lang_updatenow'            => _NOT_UPDATENOW,
-                              'lang_category'             => _NOT_CATEGORY,
-                              'lang_event'                => _NOT_EVENT,
-                              'lang_events'               => _NOT_EVENTS,
-                              'lang_checkall'             => _NOT_CHECKALL,
-                              'lang_notificationmethodis' => _NOT_NOTIFICATIONMETHODIS,
-                              'lang_change'               => _NOT_CHANGE,
-                              'editprofile_url'           => XOOPS_URL . '/edituser.php?uid=' . $xoopsUser->getVar('uid')));
+        $xoopsTpl->assign(
+            [
+                'lang_activenotifications'  => _NOT_ACTIVENOTIFICATIONS,
+                'lang_notificationoptions'  => _NOT_NOTIFICATIONOPTIONS,
+                'lang_updateoptions'        => _NOT_UPDATEOPTIONS,
+                'lang_updatenow'            => _NOT_UPDATENOW,
+                'lang_category'             => _NOT_CATEGORY,
+                'lang_event'                => _NOT_EVENT,
+                'lang_events'               => _NOT_EVENTS,
+                'lang_checkall'             => _NOT_CHECKALL,
+                'lang_notificationmethodis' => _NOT_NOTIFICATIONMETHODIS,
+                'lang_change'               => _NOT_CHANGE,
+                'editprofile_url'           => XOOPS_URL . '/edituser.php?uid=' . $xoopsUser->getVar('uid'),
+            ],
+        );
         switch ($xoopsUser->getVar('notify_method')) {
             case XOOPS_NOTIFICATION_METHOD_DISABLE:
                 $xoopsTpl->assign('user_method', _NOT_DISABLE);

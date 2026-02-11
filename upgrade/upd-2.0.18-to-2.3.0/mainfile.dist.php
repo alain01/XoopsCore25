@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  */
 
@@ -52,7 +52,7 @@ if (!defined('XOOPS_MAINFILE_INCLUDED')) {
             }
             $xoopsScriptPath = $xoopsScriptPath[0]['file'];
         } else {
-            $xoopsScriptPath = isset($_SERVER['PATH_TRANSLATED']) ? $_SERVER['PATH_TRANSLATED'] : $_SERVER['SCRIPT_FILENAME'];
+            $xoopsScriptPath = $_SERVER['PATH_TRANSLATED'] ?? $_SERVER['SCRIPT_FILENAME'];
         }
         if (DIRECTORY_SEPARATOR !== '/') {
             // IIS6 may double the \ chars

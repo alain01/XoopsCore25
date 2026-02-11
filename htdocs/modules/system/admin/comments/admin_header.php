@@ -10,22 +10,22 @@
  */
 
 /**
- * @copyright      {@link http://xoops.org/ XOOPS Project}
+ * @copyright      {@link https://xoops.org/ XOOPS Project}
  * @license        {@link https://www.gnu.org/licenses/gpl-2.0.html GNU GPL 2 or later}
  * @package
  * @since
  * @author         XOOPS Development Team
  */
 
-include dirname(dirname(dirname(dirname(__DIR__)))) . '/mainfile.php';
+include dirname(__DIR__, 4) . '/mainfile.php';
 include $GLOBALS['xoops']->path('/include/cp_functions.php');
 if (is_object($xoopsUser)) {
-    /* @var XoopsModuleHandler $module_handler */
+    /** @var XoopsModuleHandler $module_handler */
     $module_handler = xoops_getHandler('module');
     $xoopsModule    = $module_handler->getByDirname('system');
     if (!in_array(XOOPS_GROUP_ADMIN, $xoopsUser->getGroups())) {
         include_once $GLOBALS['xoops']->path('modules/system/constants.php');
-        /* @var XoopsGroupPermHandler $sysperm_handler */
+        /** @var XoopsGroupPermHandler $sysperm_handler */
         $sysperm_handler = xoops_getHandler('groupperm');
         if (!$sysperm_handler->checkRight('system_admin', XOOPS_SYSTEM_COMMENT, $xoopsUser->getGroups())) {
             redirect_header(XOOPS_URL . '/', 3, _NOPERM);

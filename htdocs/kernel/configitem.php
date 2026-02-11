@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**#@+
  * Config type
@@ -33,7 +35,7 @@ define('XOOPS_CONF_AUTH', 7);
  *
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsConfigItem extends XoopsObject
 {
@@ -43,7 +45,18 @@ class XoopsConfigItem extends XoopsObject
      * @var array
      * @access    private
      */
-    public $_confOptions = array();
+    public $_confOptions = [];
+    //PHP 8.2 Dynamic properties deprecated
+    public $conf_id;
+    public $conf_modid;
+    public $conf_catid;
+    public $conf_name;
+    public $conf_title;
+    public $conf_value;
+    public $conf_desc;
+    public $conf_formtype;
+    public $conf_valuetype;
+    public $conf_order;
 
     /**
      * Constructor
@@ -186,7 +199,7 @@ class XoopsConfigItem extends XoopsObject
             case 'array':
                 $value = @unserialize($this->getVar('conf_value', 'N'));
 
-                return $value ?: array();
+                return $value ?: [];
             case 'float':
                 $value = $this->getVar('conf_value', 'N');
 
@@ -211,12 +224,12 @@ class XoopsConfigItem extends XoopsObject
         switch ($this->getVar('conf_valuetype')) {
             case 'array':
                 if (!is_array($value)) {
-                    $value = explode('|', trim($value));
+                    $value = explode('|', trim((string)$value));
                 }
                 $this->setVar('conf_value', serialize($value), $force_slash);
                 break;
             case 'text':
-                $this->setVar('conf_value', trim($value), $force_slash);
+                $this->setVar('conf_value', trim((string)$value), $force_slash);
                 break;
             default:
                 $this->setVar('conf_value', $value, $force_slash);
@@ -260,7 +273,7 @@ class XoopsConfigItem extends XoopsObject
      **/
     public function clearConfOptions()
     {
-        $this->_confOptions = array();
+        $this->_confOptions = [];
     }
 }
 
@@ -271,7 +284,7 @@ class XoopsConfigItem extends XoopsObject
  * of XOOPS configuration class objects.
  *
  * @author              Kazumi Ono <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsConfigItemHandler extends XoopsObjectHandler
 {
@@ -296,7 +309,7 @@ class XoopsConfigItemHandler extends XoopsObjectHandler
      * Load a config from the database
      *
      * @param  int $id ID of the config
-     * @return XoopsConfigItem reference to the config, FALSE on fail
+     * @return XoopsConfigItem|false reference to the config, false on fail
      */
     public function get($id)
     {
@@ -304,7 +317,8 @@ class XoopsConfigItemHandler extends XoopsObjectHandler
         $id     = (int)$id;
         if ($id > 0) {
             $sql = 'SELECT * FROM ' . $this->db->prefix('config') . ' WHERE conf_id=' . $id;
-            if (!$result = $this->db->query($sql)) {
+            $result = $this->db->query($sql);
+            if (!$this->db->isResultSet($result)) {
                 return $config;
             }
             $numrows = $this->db->getRowsNum($result);
@@ -351,11 +365,11 @@ class XoopsConfigItemHandler extends XoopsObjectHandler
 
         if ($config->isNew()) {
             $conf_id = $this->db->genId('config_conf_id_seq');
-            $sql     = sprintf('INSERT INTO %s (conf_id, conf_modid, conf_catid, conf_name, conf_title, conf_value, conf_desc, conf_formtype, conf_valuetype, conf_order) VALUES (%u, %u, %u, %s, %s, %s, %s, %s, %s, %u)', $this->db->prefix('config'), $conf_id, $conf_modid, $conf_catid, $this->db->quoteString($conf_name), $this->db->quoteString($conf_title), $this->db->quoteString($conf_value), $this->db->quoteString($conf_desc), $this->db->quoteString($conf_formtype), $this->db->quoteString($conf_valuetype), $conf_order);
+            $sql     = sprintf('INSERT INTO %s (conf_id, conf_modid, conf_catid, conf_name, conf_title, conf_value, conf_desc, conf_formtype, conf_valuetype, conf_order) VALUES (%u, %u, %u, %s, %s, %s, %s, %s, %s, %u)', $this->db->prefix('config'), $conf_id, $conf_modid, $conf_catid, $this->db->quote($conf_name), $this->db->quote($conf_title), $this->db->quote($conf_value), $this->db->quote($conf_desc), $this->db->quote($conf_formtype), $this->db->quote($conf_valuetype), $conf_order);
         } else {
-            $sql = sprintf('UPDATE %s SET conf_modid = %u, conf_catid = %u, conf_name = %s, conf_title = %s, conf_value = %s, conf_desc = %s, conf_formtype = %s, conf_valuetype = %s, conf_order = %u WHERE conf_id = %u', $this->db->prefix('config'), $conf_modid, $conf_catid, $this->db->quoteString($conf_name), $this->db->quoteString($conf_title), $this->db->quoteString($conf_value), $this->db->quoteString($conf_desc), $this->db->quoteString($conf_formtype), $this->db->quoteString($conf_valuetype), $conf_order, $conf_id);
+            $sql = sprintf('UPDATE %s SET conf_modid = %u, conf_catid = %u, conf_name = %s, conf_title = %s, conf_value = %s, conf_desc = %s, conf_formtype = %s, conf_valuetype = %s, conf_order = %u WHERE conf_id = %u', $this->db->prefix('config'), $conf_modid, $conf_catid, $this->db->quote($conf_name), $this->db->quote($conf_title), $this->db->quote($conf_value), $this->db->quote($conf_desc), $this->db->quote($conf_formtype), $this->db->quote($conf_valuetype), $conf_order, $conf_id);
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
         if (empty($conf_id)) {
@@ -380,7 +394,7 @@ class XoopsConfigItemHandler extends XoopsObjectHandler
             return false;
         }
         $sql = sprintf('DELETE FROM %s WHERE conf_id = %u', $this->db->prefix('config'), $config->getVar('conf_id'));
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             return false;
         }
 
@@ -394,21 +408,22 @@ class XoopsConfigItemHandler extends XoopsObjectHandler
      * @param  bool            $id_as_key return the config's id as key?
      * @return array           Array of {@link XoopsConfigItem} objects
      */
-    public function getObjects(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getObjects(?CriteriaElement $criteria = null, $id_as_key = false)
     {
-        $ret   = array();
+        $ret   = [];
         $limit = $start = 0;
         $sql   = 'SELECT * FROM ' . $this->db->prefix('config');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
             $sql .= ' ORDER BY conf_order ASC';
             $limit = $criteria->getLimit();
             $start = $criteria->getStart();
         }
         $result = $this->db->query($sql, $limit, $start);
-        if (!$result) {
-            return false;
+        if (!$this->db->isResultSet($result)) {
+            return $ret;
         }
+        /** @var array $myrow */
         while (false !== ($myrow = $this->db->fetchArray($result))) {
             $config = new XoopsConfigItem();
             $config->assignVars($myrow);
@@ -429,18 +444,18 @@ class XoopsConfigItemHandler extends XoopsObjectHandler
      * @param  CriteriaElement|CriteriaCompo $criteria {@link CriteriaElement}
      * @return int             Count of configs matching $criteria
      */
-    public function getCount(CriteriaElement $criteria = null)
+    public function getCount(?CriteriaElement $criteria = null)
     {
         $sql   = 'SELECT * FROM ' . $this->db->prefix('config');
-        if (isset($criteria) && is_subclass_of($criteria, 'CriteriaElement')) {
+        if (isset($criteria) && \method_exists($criteria, 'renderWhere')) {
             $sql .= ' ' . $criteria->renderWhere();
         }
         $result = $this->db->query($sql);
-        if (!$result) {
-            return false;
+        if (!$this->db->isResultSet($result)) {
+            return 0;
         }
-        list($count) = $this->db->fetchRow($result);
+        [$count] = $this->db->fetchRow($result);
 
-        return $count;
+        return (int)$count;
     }
 }

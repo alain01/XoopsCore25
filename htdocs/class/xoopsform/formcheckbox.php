@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2017 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0
@@ -17,7 +17,9 @@
  * @author              Skalpa Keo <skalpa@xoops.org>
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_load('XoopsFormElement');
 
@@ -27,12 +29,12 @@ xoops_load('XoopsFormElement');
 class XoopsFormCheckBox extends XoopsFormElement
 {
     /**
-     * Availlable options
+     * Available options
      *
      * @var array
      * @access private
      */
-    public $_options = array();
+    public $_options = [];
 
     /**
      * pre-selected values in array
@@ -40,10 +42,10 @@ class XoopsFormCheckBox extends XoopsFormElement
      * @var array
      * @access private
      */
-    public $_value = array();
+    public $_value = [];
 
     /**
-     * HTML to seperate the elements
+     * HTML to separate the elements
      *
      * @var string
      * @access private
@@ -91,9 +93,9 @@ class XoopsFormCheckBox extends XoopsFormElement
         if (!$encode) {
             return $this->_value;
         }
-        $value = array();
+        $value = [];
         foreach ($this->_value as $val) {
-            $value[] = $val ? htmlspecialchars($val, ENT_QUOTES) : $val;
+            $value[] = $val ? htmlspecialchars($val, ENT_QUOTES | ENT_HTML5) : $val;
         }
 
         return $value;
@@ -107,7 +109,7 @@ class XoopsFormCheckBox extends XoopsFormElement
      */
     public function setValue($value)
     {
-        $this->_value = array();
+        $this->_value = [];
         if (is_array($value)) {
             foreach ($value as $v) {
                 $this->_value[] = $v;
@@ -157,9 +159,9 @@ class XoopsFormCheckBox extends XoopsFormElement
         if (!$encode) {
             return $this->_options;
         }
-        $value = array();
+        $value = [];
         foreach ($this->_options as $val => $name) {
-            $value[$encode ? htmlspecialchars($val, ENT_QUOTES) : $val] = ($encode > 1) ? htmlspecialchars($name, ENT_QUOTES) : $name;
+            $value[$encode ? htmlspecialchars($val, ENT_QUOTES | ENT_HTML5) : $val] = ($encode > 1) ? htmlspecialchars($name, ENT_QUOTES | ENT_HTML5) : $name;
         }
 
         return $value;
@@ -173,7 +175,7 @@ class XoopsFormCheckBox extends XoopsFormElement
      */
     public function getDelimeter($encode = false)
     {
-        return $encode ? htmlspecialchars(str_replace('&nbsp;', ' ', $this->_delimeter)) : $this->_delimeter;
+        return $encode ? htmlspecialchars(str_replace('&nbsp;', ' ', $this->_delimeter), ENT_QUOTES | ENT_HTML5) : $this->_delimeter;
     }
 
     /**

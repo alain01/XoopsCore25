@@ -9,21 +9,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          utility
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * XoopsUtility
  *
  * @package
  * @author              John
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @access              public
  */
 class XoopsUtility
@@ -31,9 +33,7 @@ class XoopsUtility
     /**
      * Constructor
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * XoopsUtility::recursive()
@@ -46,9 +46,14 @@ class XoopsUtility
     public static function recursive($handler, $data)
     {
         if (is_array($data)) {
-            $return = array_map(array(
-                                    'XoopsUtility',
-                                    'recursive'), $handler, $data);
+            $return = array_map(
+                [
+                    'XoopsUtility',
+                    'recursive',
+                ],
+                $handler,
+                $data,
+            );
 
             return $return;
         }
@@ -58,9 +63,13 @@ class XoopsUtility
         }
         // Method of a class
         if (is_array($handler)) {
-            return call_user_func(array(
-                                      $handler[0],
-                                      $handler[1]), $data);
+            return call_user_func(
+                [
+                    $handler[0],
+                    $handler[1],
+                ],
+                $data,
+            );
         }
 
         return $data;

@@ -1,8 +1,9 @@
 <?php
+
 //  ------------------------------------------------------------------------ //
 //                XOOPS - PHP Content Management System                      //
-//          Copyright (c) 2000-2016 XOOPS Project (www.xoops.org)            //
-//                         <http://xoops.org/>                               //
+//          Copyright (c) 2000-2025 XOOPS Project (https://xoops.org)            //
+//                         <https://xoops.org/>                               //
 //  ------------------------------------------------------------------------ //
 //  This program is free software; you can redistribute it and/or modify     //
 //  it under the terms of the GNU General Public License as published by     //
@@ -33,15 +34,15 @@ include_once XOOPS_ROOT_PATH . '/class/database/sqlutility.php';
 /**
  * database manager for XOOPS installer
  *
- * @copyright (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license   GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license   GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author    Haruki Setoyama  <haruki@planewave.org>
  **/
 class Db_manager
 {
-    public $s_tables = array();
-    public $f_tables = array();
-    public $db;
+    public array $s_tables = [];
+    public array $f_tables = [];
+    public object $db;
 
     /**
      * Db_manager constructor.
@@ -92,7 +93,7 @@ class Db_manager
      */
     public function queryFromFile($sql_file_path)
     {
-        $tables = array();
+        $tables = [];
 
         if (!file_exists($sql_file_path)) {
             return false;
@@ -101,14 +102,14 @@ class Db_manager
         SqlUtility::splitMySqlFile($pieces, $sql_query);
         $this->db->connect();
         foreach ($pieces as $piece) {
-            $piece = trim($piece);
+            $piece = trim((string) $piece);
             // [0] contains the prefixed query
             // [4] contains unprefixed table name
             $prefixed_query = SqlUtility::prefixQuery($piece, $this->db->prefix());
             if ($prefixed_query != false) {
                 $table = $this->db->prefix($prefixed_query[4]);
                 if ($prefixed_query[1] === 'CREATE TABLE') {
-                    if ($this->db->query($prefixed_query[0]) != false) {
+                    if ($this->db->exec($prefixed_query[0]) != false) {
                         if (!isset($this->s_tables['create'][$table])) {
                             $this->s_tables['create'][$table] = 1;
                         }
@@ -118,7 +119,7 @@ class Db_manager
                         }
                     }
                 } elseif ($prefixed_query[1] === 'INSERT INTO') {
-                    if ($this->db->query($prefixed_query[0]) != false) {
+                    if ($this->db->exec($prefixed_query[0]) != false) {
                         if (!isset($this->s_tables['insert'][$table])) {
                             $this->s_tables['insert'][$table] = 1;
                         } else {
@@ -132,7 +133,7 @@ class Db_manager
                         }
                     }
                 } elseif ($prefixed_query[1] === 'ALTER TABLE') {
-                    if ($this->db->query($prefixed_query[0]) != false) {
+                    if ($this->db->exec($prefixed_query[0]) != false) {
                         if (!isset($this->s_tables['alter'][$table])) {
                             $this->s_tables['alter'][$table] = 1;
                         }
@@ -142,7 +143,7 @@ class Db_manager
                         }
                     }
                 } elseif ($prefixed_query[1] === 'DROP TABLE') {
-                    if ($this->db->query('DROP TABLE ' . $table) != false) {
+                    if ($this->db->exec('DROP TABLE ' . $table) != false) {
                         if (!isset($this->s_tables['drop'][$table])) {
                             $this->s_tables['drop'][$table] = 1;
                         }
@@ -158,23 +159,25 @@ class Db_manager
         return true;
     }
 
-    public $successStrings = array(
+    public array $successStrings = [
         'create' => TABLE_CREATED,
         'insert' => ROWS_INSERTED,
         'alter'  => TABLE_ALTERED,
-        'drop'   => TABLE_DROPPED);
-    public $failureStrings = array(
+        'drop'   => TABLE_DROPPED,
+    ];
+    public array $failureStrings = [
         'create' => TABLE_NOT_CREATED,
         'insert' => ROWS_FAILED,
         'alter'  => TABLE_NOT_ALTERED,
-        'drop'   => TABLE_NOT_DROPPED);
+        'drop'   => TABLE_NOT_DROPPED,
+    ];
 
     /**
      * @return string
      */
     public function report()
     {
-        $commands = array('create', 'insert', 'alter', 'drop');
+        $commands = ['create', 'insert', 'alter', 'drop'];
         $content  = '<ul class="log">';
         foreach ($commands as $cmd) {
             if (!@empty($this->s_tables[$cmd])) {
@@ -246,7 +249,7 @@ class Db_manager
         $this->db->connect();
         $table = $this->db->prefix($table);
         $query = 'INSERT INTO ' . $table . ' ' . $query;
-        if (!$this->db->queryF($query)) {
+        if (!$this->db->exec($query)) {
             if (!isset($this->f_tables['insert'][$table])) {
                 $this->f_tables['insert'][$table] = 1;
             } else {
@@ -254,15 +257,15 @@ class Db_manager
             }
 
             return false;
-        } else {
-            if (!isset($this->s_tables['insert'][$table])) {
-                $this->s_tables['insert'][$table] = 1;
-            } else {
-                $this->s_tables['insert'][$table]++;
-            }
-
-            return $this->db->getInsertId();
         }
+        if (!isset($this->s_tables['insert'][$table])) {
+            $this->s_tables['insert'][$table] = 1;
+        } else {
+            $this->s_tables['insert'][$table]++;
+        }
+
+        return $this->db->getInsertId();
+
     }
 
     /**
@@ -280,10 +283,10 @@ class Db_manager
      */
     public function deleteTables($tables)
     {
-        $deleted = array();
+        $deleted = [];
         $this->db->connect();
         foreach ($tables as $key => $val) {
-            if (!$this->db->query('DROP TABLE ' . $this->db->prefix($key))) {
+            if (!$this->db->exec('DROP TABLE ' . $this->db->prefix($key))) {
                 $deleted[] = $ct;
             }
         }
@@ -298,7 +301,7 @@ class Db_manager
      */
     public function tableExists($table)
     {
-        $table = trim($table);
+        $table = trim((string) $table);
         $ret   = false;
         if ($table != '') {
             $this->db->connect();

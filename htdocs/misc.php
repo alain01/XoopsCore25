@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license         GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package         core
  * @since           2.0.0
@@ -26,7 +26,7 @@ $action = Request::getCmd('action', '');
 $type = Request::getCmd('type', '');
 
 if ($action !== 'showpopups') {
-    header("HTTP/1.0 404 Not Found");
+    header('HTTP/1.0 404 Not Found');
     exit();
 }
     xoops_header(false);
@@ -36,7 +36,7 @@ if ($action !== 'showpopups') {
         case 'smilies':
             $target = Request::getString('target', '');
             if ($target !== '' && preg_match('/^[0-9a-z_]*$/i', $target)) {
-                $variables = array();
+                $variables = [];
 $javaScript = <<<EOSMJS
 <script type="text/javascript">
 function doSmilie(addSmilie) {
@@ -55,20 +55,20 @@ EOSMJS;
                 $variables['lang_clicksmile'] = _MSC_CLICKASMILIE;
                 $variables['lang_close'] = _CLOSE;
                 $variables['upload_url'] = XOOPS_UPLOAD_URL .'/';
-                $myts = MyTextSanitizer::getInstance();
+                $myts = \MyTextSanitizer::getInstance();
                 if ($smiles = $myts->getSmileys(false)) {
                     $variables['smilies'] = $smiles;
                 } else {
-                    $variables['smilies'] = array();
+                    $variables['smilies'] = [];
                     trigger_error('Could not retrieve smilies from the database.', E_USER_NOTICE);
                 }
                 xoops_misc_popup_body('db:system_misc_smilies.tpl', $variables);
             }
             break;
         case 'avatars':
-            /* @var  XoopsAvatarHandler $avatarHandler */
+            /** @var  XoopsAvatarHandler $avatarHandler */
             $avatarHandler = xoops_getHandler('avatar');
-            $avatarsList = $avatarHandler->getList('S');
+            $avatarsList = $avatarHandler->getList('S', true);
 
             $upload_url = XOOPS_UPLOAD_URL . '/';
             $javaScript = <<<EOAVJS
@@ -218,11 +218,11 @@ EOAVJS;
             $start = Request::getInt('start', 0);
             $limit = 20; // how many to make available per page
 
-            /* @var XoopsModuleHandler $module_handler */
+            /** @var XoopsModuleHandler $module_handler */
             $module_handler = xoops_getHandler('module');
             $modules = $module_handler->getObjects(new Criteria('isactive', 1), true);
 
-            /* @var XoopsOnlineHandler $onlineHandler */
+            /** @var XoopsOnlineHandler $onlineHandler */
             $onlineHandler = xoops_getHandler('online');
             $onlineTotal = $onlineHandler->getCount();
             $criteria = new CriteriaCompo();
@@ -230,12 +230,12 @@ EOAVJS;
             $criteria->setLimit($limit);
             $onlines = $onlineHandler->getAll($criteria);
 
-            $onlineUserInfo = array();
+            $onlineUserInfo = [];
             foreach ($onlines as $online) {
-                $info = array();
+                $info = [];
                 if (0 == $online['online_uid']) {
                     $info['uid'] = $online['online_uid'];
-                    $info['uname'] = $xoopsConfig['anonymous'];;
+                $info['uname'] = $xoopsConfig['anonymous'];
                     $info['name'] = '';
                     $info['xoopsuser'] = false;
                     $info['avatar'] = 'avatars/blank.gif';
@@ -292,7 +292,7 @@ EOAVJS;
  * @param string         $template  smarty template to user
  * @param array          $variables array of variables to assign for template
  * @param bool           $closehead if true, close the head element and open the body
- * @param XoopsForm|null $xoopsForm optioal form
+ * @param XoopsForm|null $xoopsForm optional form
  * @return void  echos rendered template
  */
 function xoops_misc_popup_body($template, $variables, $closehead = true, $closebutton = true, $xoopsForm = null)
@@ -305,16 +305,18 @@ function xoops_misc_popup_body($template, $variables, $closehead = true, $closeb
     include_once XOOPS_ROOT_PATH . '/class/template.php';
     $headTpl = new \XoopsTpl();
     //$GLOBALS['xoopsHeadTpl'] = $headTpl;  // expose template for use by caller
-    $headTpl->assign(array(
-        'closeHead'      => (bool) $closehead,
-        'closeButton'    => (bool) $closebutton,
-        'themeUrl'       => $themeUrl,
-        'themePath'      => $themePath,
-        'xoops_langcode' => _LANGCODE,
-        'xoops_charset'  => _CHARSET,
-        'xoops_sitename' => $xoopsConfig['sitename'],
-        'xoops_url'      => XOOPS_URL,
-    ));
+    $headTpl->assign(
+        [
+            'closeHead'      => (bool) $closehead,
+            'closeButton'    => (bool) $closebutton,
+            'themeUrl'       => $themeUrl,
+            'themePath'      => $themePath,
+            'xoops_langcode' => _LANGCODE,
+            'xoops_charset'  => _CHARSET,
+            'xoops_sitename' => $xoopsConfig['sitename'],
+            'xoops_url'      => XOOPS_URL,
+        ],
+    );
 
     $headTpl->assign($variables);
     if ($xoopsForm instanceof XoopsForm) {

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -18,13 +18,14 @@
  */
 
 $xoopsOption['pagetype'] = 'user';
-include dirname(dirname(__DIR__)) . '/mainfile.php';
+include dirname(__DIR__, 2) . '/mainfile.php';
 $xoopsOption['xoops_module_header'] = '<link rel="stylesheet" type="text/css" href="assets/css/style.css" />';
 
-$xoBreadcrumbs   = array();
-$xoBreadcrumbs[] = array(
+$xoBreadcrumbs   = [];
+$xoBreadcrumbs[] = [
     'title' => $GLOBALS['xoopsModule']->getVar('name'),
-    'link' => XOOPS_URL . '/modules/' . $GLOBALS['xoopsModule']->getVar('dirname', 'n') . '/');
+    'link' => XOOPS_URL . '/modules/' . $GLOBALS['xoopsModule']->getVar('dirname', 'n') . '/',
+];
 
 //disable cache
 $GLOBALS['xoopsConfig']['module_cache'][$GLOBALS['xoopsModule']->getVar('mid')] = 0;

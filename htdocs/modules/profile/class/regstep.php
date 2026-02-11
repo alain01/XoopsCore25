@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
@@ -17,13 +17,21 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-// defined('XOOPS_ROOT_PATH') || exit("XOOPS root path not defined");
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 /**
  * Class ProfileRegstep
  */
 class ProfileRegstep extends XoopsObject
 {
+    public $step_id;
+    public $step_name;
+    public $step_desc;
+    public $step_order;
+    public $step_save;
+
     /**
      *
      */
@@ -43,7 +51,7 @@ class ProfileRegstep extends XoopsObject
 class ProfileRegstepHandler extends XoopsPersistableObjectHandler
 {
     /**
-     * @param null|object $db
+     * @param XoopsDatabase|null $db database connection
      */
     public function __construct($db)
     {
@@ -52,12 +60,12 @@ class ProfileRegstepHandler extends XoopsPersistableObjectHandler
 
     /**
      * Delete an object from the database
-     * @see XoopsPersistableObjectHandler
-     *
      * @param XoopsObject $obj
-     * @param bool           $force
+     * @param bool        $force
      *
      * @return bool
+     * @see XoopsPersistableObjectHandler
+     *
      */
     public function delete(XoopsObject $obj, $force = false)
     {

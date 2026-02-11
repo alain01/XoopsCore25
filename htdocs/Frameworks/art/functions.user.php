@@ -2,7 +2,7 @@
 /**
  * user/member handlers
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @since               1.00
@@ -18,10 +18,11 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_USER')):
      * @param bool $asString
      *
      * @return mixed
+     * @deprecated
      */
     function mod_getIP($asString = false)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated("Deprecated function '" . __FUNCTION__ . "', use XoopsUserUtility directly.");
+        $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . ' is deprecated, use XoopsUserUtility::getIP() instead');
 
         return XoopsUserUtility::getIP($asString);
     }
@@ -32,10 +33,11 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_USER')):
      * @param bool $linked
      *
      * @return array
+     * @deprecated
      */
     function &mod_getUnameFromIds($uid, $usereal = false, $linked = false)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated("Deprecated function '" . __FUNCTION__ . "', use XoopsUserUtility directly.");
+        $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . ' is deprecated, use XoopsUserUtility::getUnameFromIds() instead');
         $ids = XoopsUserUtility::getUnameFromIds($uid, $usereal, $linked);
 
         return $ids;
@@ -47,10 +49,11 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_USER')):
      * @param bool $linked
      *
      * @return string
+     * @deprecated
      */
     function mod_getUnameFromId($uid, $usereal = 0, $linked = false)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated("Deprecated function '" . __FUNCTION__ . "', user XoopsUserUtility directly.");
+        $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . ' is deprecated, use XoopsUserUtility::getUnameFromId() instead');
 
         return XoopsUserUtility::getUnameFromId($uid, $usereal, $linked);
     }

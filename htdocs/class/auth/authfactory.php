@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          auth
@@ -17,7 +17,9 @@
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  *
@@ -25,7 +27,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @subpackage          auth
  * @description         Authentification class factory
  * @author              Pierre-Eric MENUET <pemphp@free.fr>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsAuthFactory
 {
@@ -45,7 +47,7 @@ class XoopsAuthFactory
     {
         static $auth_instance;
         if (!isset($auth_instance)) {
-            /* @var XoopsConfigHandler $config_handler */
+            /** @var XoopsConfigHandler $config_handler */
             $config_handler = xoops_getHandler('config');
             $authConfig     = $config_handler->getConfigsByCat(XOOPS_CONF_AUTH);
 
@@ -56,7 +58,7 @@ class XoopsAuthFactory
             } else {
                 $xoops_auth_method = $authConfig['auth_method'];
             }
-            // Verify if uname allow to bypass LDAP auth
+            // Verify if uname allows to bypass LDAP auth
             if (in_array($uname, $authConfig['ldap_users_bypass'])) {
                 $xoops_auth_method = 'xoops';
             }

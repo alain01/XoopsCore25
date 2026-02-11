@@ -15,13 +15,15 @@
  * @package     class
  * @subpackage  CAPTCHA
  * @author      Grégory Mage
- * @copyright   2016-2021 XOOPS Project (http://xoops.org)
- * @license     GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
- * @link        http://xoops.org
+ * @copyright   2000-2025 XOOPS Project (https://xoops.org)
+ * @license     GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @link        https://xoops.org
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
-return $config = array(
+return $config = [
     'website_key' => 'YourWebsiteKey', //https://www.google.com/recaptcha/intro/index.html YourWebsiteKey
     'secret_key'  => 'YourSecretKey',  //https://www.google.com/recaptcha/intro/index.html YourSecretKey
-);
+];

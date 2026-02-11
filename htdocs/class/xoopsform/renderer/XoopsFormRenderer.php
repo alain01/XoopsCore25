@@ -14,13 +14,13 @@
  * @category  XoopsForm
  * @package   XoopsFormRenderer
  * @author    Richard Griffith <richard@geekwright.com>
- * @copyright 2017-2020 XOOPS Project (https://xoops.org)
- * @license   GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright 2000-2025 XOOPS Project (https://xoops.org)
+ * @license   GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @link      https://xoops.org
  */
 final class XoopsFormRenderer
 {
-    const NOT_PERMITTED = 'Not supported for Singleton';
+    public const NOT_PERMITTED = 'Not supported for Singleton';
 
     /**
      * @var XoopsFormRenderer The reference to *Singleton* instance of this class
@@ -50,9 +50,7 @@ final class XoopsFormRenderer
      * Protected constructor to prevent creating a new instance of the
      * *Singleton* via the `new` operator from outside of this class.
      */
-    protected function __construct()
-    {
-    }
+    protected function __construct() {}
 
     /**
      * Private clone method to prevent cloning of the instance of the

@@ -15,11 +15,13 @@
 /**
  *  Xoops Version
  *
- * @copyright       (c) 2000-2017 XOOPS Project (www.xoops.org)
- * @license             GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license             GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @deprecated
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 $licenseFile = (defined('XOOPS_VAR_PATH')) ? XOOPS_VAR_PATH . '/data/license.php' : '';
 

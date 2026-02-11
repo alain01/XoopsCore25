@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 require_once $GLOBALS['xoops']->path('kernel/configoption.php');
 require_once $GLOBALS['xoops']->path('kernel/configitem.php');
@@ -55,7 +57,7 @@ class XoopsConfigHandler
      * @var array
      * @access  private
      */
-    public $_cachedConfigs = array();
+    public $_cachedConfigs = [];
 
     /**
      * Constructor
@@ -167,7 +169,7 @@ class XoopsConfigHandler
      *
      * @return array Array of {@link XoopsConfigItem} objects
      */
-    public function getConfigs(CriteriaElement $criteria = null, $id_as_key = false, $with_options = false)
+    public function getConfigs(?CriteriaElement $criteria = null, $id_as_key = false, $with_options = false)
     {
         return $this->_cHandler->getObjects($criteria, $id_as_key);
     }
@@ -179,7 +181,7 @@ class XoopsConfigHandler
      *
      * @return int
      */
-    public function getConfigCount(CriteriaElement $criteria = null)
+    public function getConfigCount(?CriteriaElement $criteria = null)
     {
         return $this->_cHandler->getCount($criteria);
     }
@@ -198,7 +200,7 @@ class XoopsConfigHandler
         if (!empty($_cachedConfigs[$module][$category])) {
             return $_cachedConfigs[$module][$category];
         } else {
-            $ret      = array();
+            $ret      = [];
             $criteria = new CriteriaCompo(new Criteria('conf_modid', (int)$module));
             if (!empty($category)) {
                 $criteria->add(new Criteria('conf_catid', (int)$category));
@@ -249,7 +251,7 @@ class XoopsConfigHandler
      *
      * @return array Array of {@link XoopsConfigOption}s
      */
-    public function getConfigOptions(CriteriaElement $criteria = null, $id_as_key = false)
+    public function getConfigOptions(?CriteriaElement $criteria = null, $id_as_key = false)
     {
         return $this->_oHandler->getObjects($criteria, $id_as_key);
     }
@@ -261,7 +263,7 @@ class XoopsConfigHandler
      *
      * @return int Count of {@link XoopsConfigOption}s matching $criteria
      */
-    public function getConfigOptionsCount(CriteriaElement $criteria = null)
+    public function getConfigOptionsCount(?CriteriaElement $criteria = null)
     {
         return $this->_oHandler->getCount($criteria);
     }
@@ -285,7 +287,7 @@ class XoopsConfigHandler
             }
             $configs   = $this->_cHandler->getObjects($criteria);
             $confcount = count($configs);
-            $ret       = array();
+            $ret       = [];
             for ($i = 0; $i < $confcount; ++$i) {
                 $ret[$configs[$i]->getVar('conf_name')] = $configs[$i]->getConfValueForOutput();
             }
@@ -302,7 +304,7 @@ class XoopsConfigHandler
      */
     public function deleteConfigOption(&$criteria)
     {
-        trigger_error(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated', E_USER_WARNING);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return false;
     }

@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             profile
  * @since               2.3.0
  * @author              Jan Pedersen
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
+
+use Xmf\Request;
 
 $xoopsOption['pagetype'] = 'user';
 include __DIR__ . '/header.php';
@@ -35,16 +37,16 @@ if (!isset($_POST['submit'])) {
     $form->addElement(new XoopsFormButton('', 'submit', _SUBMIT, 'submit'));
     $form->assign($GLOBALS['xoopsTpl']);
 
-    $xoBreadcrumbs[] = array('title' => _PROFILE_MA_CHANGEPASSWORD);
+    $xoBreadcrumbs[] = ['title' => _PROFILE_MA_CHANGEPASSWORD];
 } else {
-    /* @var XoopsConfigHandler $config_handler */
+    /** @var XoopsConfigHandler $config_handler */
     $config_handler             = xoops_getHandler('config');
     $GLOBALS['xoopsConfigUser'] = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
-    $myts                       = MyTextSanitizer::getInstance();
-    $oldpass                    = @$myts->stripSlashesGPC(trim($_POST['oldpass']));
-    $password                   = @$myts->stripSlashesGPC(trim($_POST['newpass']));
-    $vpass                      = @$myts->stripSlashesGPC(trim($_POST['vpass']));
-    $errors                     = array();
+    $myts                       = \MyTextSanitizer::getInstance();
+    $oldpass                    = trim(Request::getString('oldpass', '', 'POST'));
+    $password                   = trim(Request::getString('newpass', '', 'POST'));
+    $vpass                      = trim(Request::getString('vpass', '', 'POST'));
+    $errors                     = [];
     if (!password_verify($oldpass, $GLOBALS['xoopsUser']->getVar('pass', 'n'))) {
         $errors[] = _PROFILE_MA_WRONGPASSWORD;
     }
@@ -60,7 +62,7 @@ if (!isset($_POST['submit'])) {
     } else {
         //update password
         $GLOBALS['xoopsUser']->setVar('pass', password_hash($password, PASSWORD_DEFAULT));
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
         $msg = _PROFILE_MA_ERRORDURINGSAVE;
         if ($member_handler->insertUser($GLOBALS['xoopsUser'])) {

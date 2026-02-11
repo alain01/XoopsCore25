@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2021 XOOPS Project (https://xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @since               2.0.0
@@ -22,23 +22,23 @@
  * Abstract class for extensions
  *
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
- * @copyright       (c) 2000-2021 XOOPS Project (https://xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class MyTextSanitizerExtension
 {
     public $instance;
-    public $ts;
+    public $myts;
     public $config;
     public $image_path;
 
     /**
      * Constructor
      *
-     * @param MyTextSanitizer $ts
+     * @param MyTextSanitizer $myts
      */
-    public function __construct(MyTextSanitizer $ts)
+    public function __construct(MyTextSanitizer $myts)
     {
-        $this->ts         = $ts;
+        $this->myts         = $myts;
         $this->image_path = XOOPS_URL . '/images/form';
     }
 
@@ -50,10 +50,10 @@ class MyTextSanitizerExtension
      */
     public static function loadConfig($path = null)
     {
-        $ts   = MyTextSanitizer::getInstance();
+        $myts   = \MyTextSanitizer::getInstance();
         $extensionName = (null === $path) ? '' : basename($path);
-        $pathDist = $ts->path_basic;
-        $pathConfig = $ts->path_config;
+        $pathDist = $myts->path_basic;
+        $pathConfig = $myts->path_config;
 
         if ('' !== $extensionName) {
             $configFileName = $pathConfig . '/config.' . $extensionName . '.php';
@@ -65,7 +65,7 @@ class MyTextSanitizerExtension
         if (!file_exists($configFileName)) {
             if (false === copy($distFileName, $configFileName)) {
                 trigger_error('Could not create textsanitizer config file ' . basename($configFileName));
-                return $a = array();
+                return $a = [];
             }
         }
         $configs = include $configFileName;
@@ -103,7 +103,7 @@ class MyTextSanitizerExtension
      */
     public function encode($textarea_id)
     {
-        return array();
+        return [[], []];
     }
 
     /**
@@ -131,7 +131,7 @@ class MyTextSanitizerExtension
  * @author        Kazumi Ono <onokazu@xoops.org>
  * @author        Taiwen Jiang <phppp@users.sourceforge.net>
  * @author        Goghs Cheng
- * @copyright (c) 2000-2021 XOOPS Project (https://xoops.org)
+ * @copyright (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class MyTextSanitizer
 {
@@ -139,7 +139,7 @@ class MyTextSanitizer
      *
      * @var array
      */
-    public $smileys = array();
+    public $smileys = [];
 
     /**
      */
@@ -150,13 +150,10 @@ class MyTextSanitizer
      * @var string holding reference to text
      */
     public $text         = '';
-    public $patterns     = array();
-    public $replacements = array();
-
-    //mb------------------------------
-    public $callbackPatterns = array();
-    public $callbacks        = array();
-    //mb------------------------------
+    public $patterns     = [];
+    public $replacements = [];
+    public $callbackPatterns = [];
+    public $callbacks        = [];
 
     public $path_basic;
     public $path_config;
@@ -199,9 +196,9 @@ class MyTextSanitizer
         $distFileName = $this->path_basic . '/config.dist.php';
 
         if (!file_exists($configFileName)) {
-            if (false===copy($distFileName, $configFileName)) {
+            if (false === copy($distFileName, $configFileName)) {
                 trigger_error('Could not create textsanitizer config file ' . basename($configFileName));
-                return array();
+                return [];
             }
         }
         return include $configFileName;
@@ -218,7 +215,7 @@ class MyTextSanitizer
     {
         if (is_array($config_custom)) {
             foreach ($config_custom as $key => $val) {
-                if (isset($config_default[$key]) && is_array($config_default[$key])) {
+                if (isset($config_default[$key]) && \is_array($config_default[$key])) {
                     $config_default[$key] = $this->mergeConfig($config_default[$key], $config_custom[$key]);
                 } else {
                     $config_default[$key] = $val;
@@ -254,10 +251,12 @@ class MyTextSanitizer
     public function getSmileys($isAll = true)
     {
         if (count($this->smileys) == 0) {
-            /* @var XoopsMySQLDatabase $xoopsDB */
+            /** @var XoopsMySQLDatabase $xoopsDB */
             $xoopsDB = XoopsDatabaseFactory::getDatabaseConnection();
-            if ($getsmiles = $xoopsDB->query('SELECT * FROM ' . $xoopsDB->prefix('smiles'))) {
-                while (false !== ($smiles = $xoopsDB->fetchArray($getsmiles))) {
+            $sql     = 'SELECT * FROM ' . $xoopsDB->prefix('smiles');
+            $result  = $xoopsDB->query($sql);
+            if ($xoopsDB->isResultSet($result)) {
+                while (false !== ($smiles = $xoopsDB->fetchArray($result))) {
                     $this->smileys[] = $smiles;
                 }
             }
@@ -266,7 +265,7 @@ class MyTextSanitizer
             return $this->smileys;
         }
 
-        $smileys = array();
+        $smileys = [];
         foreach ($this->smileys as $smile) {
             if (empty($smile['display'])) {
                 continue;
@@ -287,98 +286,417 @@ class MyTextSanitizer
     {
         $smileys = $this->getSmileys();
         foreach ($smileys as $smile) {
-            $message = str_replace($smile['code'], '<img class="imgsmile" src="' . XOOPS_UPLOAD_URL . '/' . htmlspecialchars($smile['smile_url']) . '" alt="" />', $message);
+            $message = str_replace($smile['code'], '<img class="imgsmile" src="' . XOOPS_UPLOAD_URL . '/' . htmlspecialchars($smile['smile_url'], ENT_QUOTES | ENT_HTML5) . '" alt="" />', $message);
         }
 
         return $message;
     }
 
     /**
-     * @param $match
+     * Callback to process email address match
+     *
+     * @param array $match array of matched elements
      *
      * @return string
      */
-    public function makeClickableCallback01($match)
+    protected function makeClickableCallbackEmailAddress0($match)
     {
-        return $match[1] . "<a href=\"$match[2]://$match[3]\" title=\"$match[2]://$match[3]\" rel=\"noopener external\">$match[2]://" . $this->truncate($match[3]) . '</a>';
-    }
-
-    /**
-     * @param $match
-     *
-     * @return string
-     */
-    public function makeClickableCallback02($match)
-    {
-        return $match[1] . "<a href=\"http://www.$match[2]$match[6]\" title=\"www.$match[2]$match[6]\" rel=\"noopener external\">" . $this->truncate('www.' . $match[2] . $match[6]) . '</a>';
-    }
-
-    /**
-     * @param $match
-     *
-     * @return string
-     */
-    public function makeClickableCallback03($match)
-    {
-        return $match[1] . "<a href=\"ftp://ftp.$match[2].$match[3]\" title=\"ftp.$match[2].$match[3]\" rel=\"external\">" . $this->truncate('ftp.' . $match[2] . $match[3]) . '</a>';
-    }
-
-    /**
-     * @param $match
-     *
-     * @return string
-     */
-    public function makeClickableCallback04($match)
-    {
-        return $match[1] . "<a href=\"mailto:$match[2]@$match[3]\" title=\"$match[2]@$match[3]\">" . $this->truncate($match[2] . '@' . $match[3]) . '</a>';
+        $email = $match[2];  // Extract the email address
+        return $match[1] . '<a href="mailto:' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</a>';
     }
 
     /**
      * Make links in the text clickable
+     * Presently handles email addresses and http, https, ftp, and sftp urls
+     * (Note: at this time, major browsers no longer directly handle ftp/sftp urls.)
      *
-     * @param  string $text
+     * @param string $text
      * @return string
      */
-    public function makeClickable(&$text)
+    public function makeClickable0($text)
     {
-        $text1 = $text;
+        // Decode HTML entities to ensure URLs are properly formatted
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
 
-        $valid_chars = "a-z0-9\/\-_+=.~!%@?#&;:$\|";
-        $end_chars   = "a-z0-9\/\-_+=~!%@?#&;:$\|";
+        // Convert email addresses into clickable mailto links
+        $pattern = "/(^|[\s\n]|<br\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
 
-        //        $patterns   = array();
-        //        $replacements   = array();
-        //
-        //        $patterns[]     = "/(^|[^]_a-z0-9-=\"'\/])([a-z]+?):\/\/([{$valid_chars}]+[{$end_chars}])/ei";
-        //        $replacements[] = "'\\1<a href=\"\\2://\\3\" title=\"\\2://\\3\" rel=\"external\">\\2://'.MyTextSanitizer::truncate( '\\3' ).'</a>'";
-        //
-        //
-        //        $patterns[]     = "/(^|[^]_a-z0-9-=\"'\/:\.])www\.((([a-zA-Z0-9\-]*\.){1,}){1}([a-zA-Z]{2,6}){1})((\/([a-zA-Z0-9\-\._\?\,\'\/\\+&%\$#\=~])*)*)/ei";
-        //        $replacements[] = "'\\1<a href=\"http://www.\\2\\6\" title=\"www.\\2\\6\" rel=\"external\">'.MyTextSanitizer::truncate( 'www.\\2\\6' ).'</a>'";
-        //
-        //        $patterns[]     = "/(^|[^]_a-z0-9-=\"'\/])ftp\.([a-z0-9\-]+)\.([{$valid_chars}]+[{$end_chars}])/ei";
-        //        $replacements[] = "'\\1<a href=\"ftp://ftp.\\2.\\3\" title=\"ftp.\\2.\\3\" rel=\"external\">'.MyTextSanitizer::truncate( 'ftp.\\2.\\3' ).'</a>'";
-        //
-        //        $patterns[]     = "/(^|[^]_a-z0-9-=\"'\/:\.])([-_a-z0-9\'+*$^&%=~!?{}]++(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*+)@((?:(?![-.])[-a-z0-9.]+(?<![-.])\.[a-z]{2,6}|\d{1,3}(?:\.\d{1,3}){3})(?::\d++)?)/ei";
-        //        $replacements[] = "'\\1<a href=\"mailto:\\2@\\3\" title=\"\\2@\\3\">'.MyTextSanitizer::truncate( '\\2@\\3' ).'</a>'";
-        //
-        //        $text = preg_replace($patterns, $replacements, $text);
-        //
-        //----------------------------------------------------------------------------------
+        // Convert URLs into clickable links
+        $pattern = "/(?:\s|^|[\(\[\{>])((https?:\/\/|s?ftp:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[1];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+                $relAttr = strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 ? 'external' : 'external noopener nofollow';
+                return $prefix . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            },
+            $text
+        );
 
-        $pattern = "/(^|[^]_a-z0-9-=\"'\/])([a-z]+?):\/\/([{$valid_chars}]+[{$end_chars}])/i";
-        $text1   = preg_replace_callback($pattern, 'self::makeClickableCallback01', $text1);
+        // Convert URLs within angular brackets into clickable links
+        $pattern = "/(<)(https?:\/\/[^\s>]+)(>)/i";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8');
+                return $matches[1] . '<a href="' . $url . '" target="_blank" rel="external noopener nofollow">' . $url . '</a>' . $matches[3];
+            },
+            $text
+        );
 
-        $pattern = "/(^|[^]_a-z0-9-=\"'\/:\.])www\.((([a-zA-Z0-9\-]*\.){1,}){1}([a-zA-Z]{2,6}){1})((\/([a-zA-Z0-9\-\._\?\,\'\/\\+&%\$#\=~])*)*)/i";
-        $text1   = preg_replace_callback($pattern, 'self::makeClickableCallback02', $text1);
+        // Ensure consistent handling of newlines by converting them to <br /> tags
+        $text = nl2br($text);
 
-        $pattern = "/(^|[^]_a-z0-9-=\"'\/])ftp\.([a-z0-9\-]+)\.([{$valid_chars}]+[{$end_chars}])/i";
-        $text1   = preg_replace_callback($pattern, 'self::makeClickableCallback03', $text1);
+        // Clean up extra newlines
+        $text = preg_replace('/(<br \/>|<br>)[\n\s]*/', '$1', $text);
 
-        $pattern = "/(^|[^]_a-z0-9-=\"'\/:\.])([-_a-z0-9\'+*$^&%=~!?{}]++(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*+)@((?:(?![-.])[-a-z0-9.]+(?<![-.])\.[a-z]{2,6}|\d{1,3}(?:\.\d{1,3}){3})(?::\d++)?)/i";
-        $text1   = preg_replace_callback($pattern, 'self::makeClickableCallback04', $text1);
+        return $text;
+    }
 
-        return $text1;
+
+    protected function makeClickableCallbackEmailAddress1($match)
+    {
+        $email = $match[2];  // Extract the email address
+        return $match[1] . '<a href="mailto:' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</a>';
+    }
+
+    public function makeClickable1($text)
+    {
+        // Decode HTML entities to ensure URLs are properly formatted
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Convert email addresses into clickable mailto links
+        $pattern = "/(^|[\s\n]|<br\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+        // Convert URLs into clickable links
+        $pattern = "/(?:\s|^|[\(\[\{>])((https?:\/\/|s?ftp:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[1];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+                $relAttr = strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 ? 'external' : 'external noopener nofollow';
+                return $prefix . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            },
+            $text
+        );
+
+        // Convert URLs within angular brackets into clickable links
+        $pattern = "/(<)(https?:\/\/[^\s>]+)(>)/i";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8');
+                return $matches[1] . '<a href="' . $url . '" target="_blank" rel="external noopener nofollow">' . $url . '</a>' . $matches[3];
+            },
+            $text
+        );
+
+        $text = preg_replace('/[\n\s]+/', ' ', $text);
+
+        return $text;
+    }
+
+    protected function makeClickableCallbackEmailAddress2($match)
+    {
+        $email = $match[2];  // Extract the email address
+        return $match[1] . '<a href="mailto:' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</a>';
+    }
+
+    public function makeClickable2($text)
+    {
+        // Decode HTML entities to ensure URLs are properly formatted
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Convert email addresses into clickable mailto links
+/*        $pattern = "/(^|[\s\n]|<br\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";*/
+//        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+
+        $pattern = "/(^|[\s\n]|<br\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+        // Convert URLs into clickable links
+        $pattern = "/(?:\s|^|[\(\[\{>])((https?:\/\/|s?ftp:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[1];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+                $relAttr = strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 ? 'external' : 'external noopener nofollow';
+                return $prefix . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            },
+            $text
+        );
+
+        // Convert URLs within angular brackets into clickable links
+        $pattern = "/(<)(https?:\/\/[^\s>]+)(>)/i";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8');
+                return $matches[1] . '<a href="' . $url . '" target="_blank" rel="external noopener nofollow">' . $url . '</a>' . $matches[3];
+            },
+            $text
+        );
+
+        return $text;
+    }
+
+
+    protected function makeClickableCallbackEmailAddress3($match)
+    {
+        $email = $match[2];  // Extract the email address
+        return $match[1] . '<a href="mailto:' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</a>';
+    }
+
+    /**
+     * Make links in the text clickable
+     * Presently handles email addresses and http, https, ftp, and sftp urls
+     * (Note: at this time, major browsers no longer directly handle ftp/sftp urls.)
+     *
+     * @param string $text
+     * @return string
+     */
+    public function makeClickable3($text)
+    {
+        // Decode HTML entities to ensure URLs are properly formatted
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Convert email addresses into clickable mailto links
+        $pattern = "/(^|[\s\n]|<br\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+        // Convert URLs into clickable links
+        $pattern = "/(?:\s|^|[\(\[\{>])((https?:\/\/|s?ftp:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[1];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+                $relAttr = strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 ? 'external' : 'external noopener nofollow';
+                return $prefix . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            },
+            $text
+        );
+
+        // Ensure consistent handling of newlines by converting them to <br /> tags
+//        $text = nl2br($text);
+
+        $text = preg_replace('/[\n\s]+/', ' ', $text);
+
+        return $text;
+    }
+
+
+
+    protected function makeClickableCallbackEmailAddress4($match)
+    {
+        $email = $match[2];  // Extract the email address
+        return $match[1] . '<a href="mailto:' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</a>';
+    }
+
+    /**
+     * Make links in the text clickable
+     * Presently handles email addresses and http, https, ftp, and sftp urls
+     * (Note: at this time, major browsers no longer directly handle ftp/sftp urls.)
+     *
+     * @param string $text
+     * @return string
+     */
+    public function makeClickable4($text)
+    {
+        // Decode HTML entities to ensure URLs are properly formatted
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Convert email addresses into clickable mailto links
+        $pattern = "/(^|[\s\n]|<br\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+        // Convert URLs into clickable links
+        $pattern = "/(?:\s|^|[\(\[\{>])((https?:\/\/|s?ftp:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[1];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+                $relAttr = strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 ? 'external' : 'external noopener nofollow';
+                return $prefix . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            },
+            $text
+        );
+
+        // Convert line breaks to <br> tags
+//        $text = str_replace("\n", "<br>", $text);
+        $text = preg_replace('/[\n\s]+/', ' ', $text);
+
+        return $text;
+    }
+
+    /**
+     * Callback to process email address match
+     *
+     * @param array $match array of matched elements
+     *
+     * @return string
+     */
+    protected function makeClickableCallbackEmailAddress($match)
+    {
+        $email = $match[2];  // Extract the email address
+        return $match[1] . '<a href="mailto:' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</a>';
+    }
+
+    /**
+     * Make links in the text clickable
+     * Presently handles email addresses and http, https, ftp, and sftp urls
+     * (Note: at this time, major browsers no longer directly handle ftp/sftp urls.)
+     *
+     * @param string $text
+     * @return string
+     */
+    public function makeClickable6($text)
+    {
+        // Decode HTML entities to ensure URLs are properly formatted
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Convert line breaks and multiple spaces to a single space
+        $text = preg_replace('/[\n\s]+/', ' ', $text);
+
+        // Convert email addresses into clickable mailto links
+        $pattern = "/(^|[\s\n]|<br\s*\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+        // Convert URLs into clickable links, allowing for angle brackets
+        $pattern = "/(?:\s|^|[\(\[\{>])(<)?((https?:\/\/|s?ftp:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[2];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                $openingBracket = $matches[1] ?? ''; // Check for the opening angle bracket
+
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+                $relAttr = strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 ? 'external' : 'external noopener nofollow';
+
+                // Add the opening bracket back if it was present
+                return $prefix . $openingBracket . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            },
+            $text
+        );
+
+        return $text;
+    }
+
+    public function makeClickable7($text)
+    {
+        // Decode HTML entities to ensure URLs are properly formatted
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Convert line breaks and multiple spaces to a single space
+        $text = preg_replace('/[\n\s]+/', ' ', $text);
+
+        // Convert email addresses into clickable mailto links
+        $pattern = "/(^|[\s\n]|<br\s*\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+        // Convert URLs into clickable links, allowing for angle brackets, file paths, and custom protocols
+        $pattern = "/(?:\s|^|[\(\[\{>])(<)?((https?:\/\/|s?ftp:\/\/|file:\/\/|custom:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[2];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                $openingBracket = $matches[1] ?? ''; // Check for the opening angle bracket
+
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+                $relAttr = (strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 || strpos($url, 'file://') === 0 || strpos($url, 'custom://') === 0) ? 'external' : 'external noopener nofollow';
+
+                // Add the opening bracket back if it was present
+                return $prefix . $openingBracket . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            },
+            $text
+        );
+
+        return $text;
+    }
+
+    public function makeClickable($text) {
+        // Decode HTML entities
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Convert line breaks and multiple spaces to a single space
+        $text = preg_replace('/[\n\s]+/', ' ', $text);
+
+        // Convert email addresses into clickable mailto links
+        $pattern = "/(^|[\s\n]|<br\s*\/?>)([-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@[-a-z0-9.]+\.[a-z]{2,6})/i";
+        $text = preg_replace_callback($pattern, [$this, 'makeClickableCallbackEmailAddress'], $text);
+
+        // Convert URLs into clickable links, allowing for angle brackets, file paths, and custom protocols
+        $pattern = "/(?:\s|^|[\(\[\{>])(<)?((https?:\/\/|s?ftp:\/\/|file:\/\/|custom:\/\/|www\.)[^\s<>\(\)\[\]]+[^\s<>\(\)\[\]\.,!\"'\(\)\[\]{}<>])(?<![\.,!\"'\(\)\[\]{}])/";
+        $text = preg_replace_callback(
+            $pattern,
+            function ($matches) {
+                $url = $matches[2];
+                $prefix = $matches[0][0] ?? ''; // Get the prefix character (space, bracket, etc.)
+                $openingBracket = $matches[1] ?? ''; // Check for the opening angle bracket
+
+                // Ensure the URL is not a javascript: URL
+                if (stripos($url, 'javascript:') === 0) {
+                    return $matches[0];
+                }
+
+                // Add http prefix if missing
+                if (strpos($url, 'www.') === 0) {
+                    $url = "http://" . $url;
+                }
+
+                // Allow only specific protocols
+                $allowedProtocols = ['http://', 'https://', 'ftp://', 'sftp://', 'file://', 'custom://'];
+                $protocolAllowed = false;
+                foreach ($allowedProtocols as $protocol) {
+                    if (strpos($url, $protocol) === 0) {
+                        $protocolAllowed = true;
+                        break;
+                    }
+                }
+                if (!$protocolAllowed) {
+                    return $matches[0];
+                }
+
+                // Check if the URL is already inside an anchor tag, specifically looking for href attribute
+                if (!preg_match('#<a\s[^>]*href\s*=\s*(["\'])' . preg_quote($url, '/') . '\\1[^>]*>#i', $url)) { // <-- Change here!
+                    $relAttr = (strpos($url, 'ftp://') === 0 || strpos($url, 'sftp://') === 0 || strpos($url, 'file://') === 0 || strpos($url, 'custom://') === 0) ? 'external' : 'external noopener nofollow';
+                    return $prefix . $openingBracket . '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="' . $relAttr . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+                }
+
+                return $matches[0]; // Return the original match if it's already an anchor tag
+            },
+            $text
+        );
+
+        return $text;
     }
 
     /**
@@ -389,7 +707,7 @@ class MyTextSanitizer
      */
     public function truncate($text)
     {
-        $instance = MyTextSanitizer::getInstance();
+        $instance = \MyTextSanitizer::getInstance();
         if (empty($text) || empty($instance->config['truncate_length']) || strlen($text) < $instance->config['truncate_length']) {
             return $text;
         }
@@ -404,13 +722,13 @@ class MyTextSanitizer
      *
      * @param  string   $text
      * @param  bool|int $allowimage Allow images in the text?
-     *                              On FALSE, uses links to images.
+     *                              On FALSE, uses links to the images.
      * @return string
      */
     public function &xoopsCodeDecode(&$text, $allowimage = 1)
     {
-        $patterns       = array();
-        $replacements   = array();
+        $patterns       = [];
+        $replacements   = [];
         $patterns[]     = "/\[siteurl=(['\"]?)([^\"'<>]*)\\1](.*)\[\/siteurl\]/sU";
         $replacements[] = '<a href="' . XOOPS_URL . '/\\2" title="">\\3</a>';
         $patterns[]     = "/\[url=(['\"]?)(http[s]?:\/\/[^\"'<>]*)\\1](.*)\[\/url\]/sU";
@@ -419,28 +737,28 @@ class MyTextSanitizer
         $replacements[] = '<a href="\\2" rel="external" title="">\\3</a>';
         $patterns[]     = "/\[url=(['\"]?)([^'\"<>]*)\\1](.*)\[\/url\]/sU";
         $replacements[] = '<a href="http://\\2" rel="noopener external" title="">\\3</a>';
-        $patterns[]     = "/\[color=(['\"]?)([a-zA-Z0-9]*)\\1](.*)\[\/color\]/sU";
+        $patterns[]     = "/\[color=(['\"]?)([a-zA-Z0-9#]+)\\1?](.*)\[\/color\]/sU";
         $replacements[] = '<span style="color: #\\2;">\\3</span>';
-        $patterns[]     = "/\[size=(['\"]?)([a-z0-9-]*)\\1](.*)\[\/size\]/sU";
+        $patterns[]     = "/\[size=(['\"]?)([a-zA-Z0-9-]+)\\1?](.*)\[\/size\]/sU";
         $replacements[] = '<span style="font-size: \\2;">\\3</span>';
         $patterns[]     = "/\[font=(['\"]?)([^;<>\*\(\)\"']*)\\1](.*)\[\/font\]/sU";
         $replacements[] = '<span style="font-family: \\2;">\\3</span>';
         $patterns[]     = "/\[email]([^;<>\*\(\)\"']*)\[\/email\]/sU";
         $replacements[] = '<a href="mailto:\\1" title="">\\1</a>';
 
-        $patterns[]     = "/\[b](.*)\[\/b\]/sU";
+        $patterns[]     = '/\[b](.*)\[\/b\]/sU';
         $replacements[] = '<strong>\\1</strong>';
-        $patterns[]     = "/\[i](.*)\[\/i\]/sU";
+        $patterns[]     = '/\[i](.*)\[\/i\]/sU';
         $replacements[] = '<em>\\1</em>';
-        $patterns[]     = "/\[u](.*)\[\/u\]/sU";
+        $patterns[]     = '/\[u](.*)\[\/u\]/sU';
         $replacements[] = '<span style="text-decoration: underline;">\\1</span>';
-        $patterns[]     = "/\[d](.*)\[\/d\]/sU";
+        $patterns[]     = '/\[d](.*)\[\/d\]/sU';
         $replacements[] = '<del>\\1</del>';
-        $patterns[]     = "/\[center](.*)\[\/center\]/sU";
+        $patterns[]     = '/\[center](.*)\[\/center\]/sU';
         $replacements[] = '<div style="text-align: center;">\\1</div>';
-        $patterns[]     = "/\[left](.*)\[\/left\]/sU";
+        $patterns[]     = '/\[left](.*)\[\/left\]/sU';
         $replacements[] = '<div style="text-align: left;">\\1</div>';
-        $patterns[]     = "/\[right](.*)\[\/right\]/sU";
+        $patterns[]     = '/\[right](.*)\[\/right\]/sU';
         $replacements[] = '<div style="text-align: right;">\\1</div>';
 
         $this->text         = $text;
@@ -472,7 +790,7 @@ class MyTextSanitizer
     public function quoteConv($text)
     {
         //look for both open and closing tags in the correct order
-        $pattern     = "/\[quote](.*)\[\/quote\]/sU";
+        $pattern     = '/\[quote](.*)\[\/quote\]/sU';
         $replacement = _QUOTEC . '<div class="xoopsQuote"><blockquote>\\1</blockquote></div>';
 
         $text = preg_replace($pattern, $replacement, $text, -1, $count);
@@ -494,8 +812,8 @@ class MyTextSanitizer
      */
     public function filterXss($text)
     {
-        $patterns       = array();
-        $replacements   = array();
+        $patterns       = [];
+        $replacements   = [];
         $text           = str_replace("\x00", '', $text);
         $c              = "[\x01-\x1f]*";
         $patterns[]     = "/\bj{$c}a{$c}v{$c}a{$c}s{$c}c{$c}r{$c}i{$c}p{$c}t{$c}[\s]*:/si";
@@ -525,14 +843,15 @@ class MyTextSanitizer
      *
      * @param  string $text
      * @return string
+     * @deprecated
      */
     public function addSlashes($text)
     {
-        if (!@get_magic_quotes_gpc()) {
-            $text = addslashes($text);
-        }
-
-        return $text;
+        global $xoopsDB;
+        $GLOBALS['xoopsLogger']->addDeprecated(
+            __METHOD__ . ' is deprecated. Use $xoopsDB->escape() or $xoopsDB->quote() instead.'
+        );
+        return $xoopsDB->escape($text);
     }
 
     /**
@@ -540,23 +859,23 @@ class MyTextSanitizer
      *
      * @param  string $text    string being converted
      * @param  int|null    $quote_style
-     * @param  string $charset character set used in conversion
+     * @param  string|null $charset character set used in conversion
      * @param  bool   $double_encode
      * @return string
      */
-    public function htmlSpecialChars($text, $quote_style = NULL, $charset = null, $double_encode = true)
+    public function htmlSpecialChars(string $text, ?int $quote_style = null, ?string $charset = null, $double_encode = true)
     {
-        if ($quote_style === NULL) {
+        if ($quote_style === null) {
             $quote_style = ENT_QUOTES;
         }
-
+        $text = (string) $text;
         if (version_compare(phpversion(), '5.2.3', '>=')) {
             $text = htmlspecialchars($text, $quote_style, $charset ?: (defined('_CHARSET') ? _CHARSET : 'UTF-8'), $double_encode);
         } else {
             $text = htmlspecialchars($text, $quote_style);
         }
 
-        return preg_replace(array('/&amp;/i', '/&nbsp;/i'), array('&', '&amp;nbsp;'), $text);
+        return preg_replace(['/&amp;/i', '/&nbsp;/i'], ['&', '&amp;nbsp;'], $text);
     }
 
     /**
@@ -567,7 +886,7 @@ class MyTextSanitizer
      */
     public function undoHtmlSpecialChars($text)
     {
-        return preg_replace(array('/&gt;/i', '/&lt;/i', '/&quot;/i', '/&#039;/i', '/&amp;nbsp;/i'), array('>', '<', '"', '\'', '&nbsp;'), $text);
+        return preg_replace(['/&gt;/i', '/&lt;/i', '/&quot;/i', '/&#039;/i', '/&amp;nbsp;/i'], ['>', '<', '"', '\'', '&nbsp;'], $text);
     }
 
     /**
@@ -583,6 +902,7 @@ class MyTextSanitizer
      */
     public function &displayTarea($text, $html = 0, $smiley = 1, $xcode = 1, $image = 1, $br = 1)
     {
+        $text = (string) $text;
         $charset = (defined('_CHARSET') ? _CHARSET : 'UTF-8');
         if (function_exists('mb_convert_encoding')) {
             $text = mb_convert_encoding($text, $charset, mb_detect_encoding($text, mb_detect_order(), true));
@@ -607,10 +927,10 @@ class MyTextSanitizer
             // decode xcode
             if ($image != 0) {
                 // image allowed
-                $text =& $this->xoopsCodeDecode($text);
+                $text = & $this->xoopsCodeDecode($text);
             } else {
                 // image not allowed
-                $text =& $this->xoopsCodeDecode($text, 0);
+                $text = & $this->xoopsCodeDecode($text, 0);
             }
         }
         if ($br != 0) {
@@ -638,8 +958,7 @@ class MyTextSanitizer
      */
     public function &previewTarea($text, $html = 0, $smiley = 1, $xcode = 1, $image = 1, $br = 1)
     {
-        $text = $this->stripSlashesGPC($text);
-        $text =& $this->displayTarea($text, $html, $smiley, $xcode, $image, $br);
+        $text = & $this->displayTarea($text, $html, $smiley, $xcode, $image, $br);
 
         return $text;
     }
@@ -649,7 +968,6 @@ class MyTextSanitizer
      *
      * @param  string $text
      * @return string
-     * @deprecated
      */
     public function &censorString(&$text)
     {
@@ -674,13 +992,11 @@ class MyTextSanitizer
             //            $patterns = "/\[code([^\]]*?)\](.*)\[\/code\]/esU";
             //            $replacements = "'[code\\1]'.base64_encode('\\2').'[/code]'";
 
-            $patterns = "/\[code([^\]]*?)\](.*)\[\/code\]/sU";
+            $patterns = '/\[code([^\]]*?)\](.*)\[\/code\]/sU';
             $text = preg_replace_callback(
                 $patterns,
-                function ($matches) {
-                    return '[code'. $matches[1] . ']' . base64_encode($matches[2]) . '[/code]';
-                },
-                $text
+                fn($matches) => '[code'. $matches[1] . ']' . base64_encode($matches[2]) . '[/code]',
+                $text,
             );
         }
 
@@ -709,8 +1025,8 @@ class MyTextSanitizer
         if (empty($xcode)) {
             return $text;
         }
-        $patterns = "/\[code([^\]]*?)\](.*)\[\/code\]/sU";
-        $text1    = preg_replace_callback($patterns, array($this, 'codeConvCallback'), $text);
+        $patterns = '/\[code([^\]]*?)\](.*)\[\/code\]/sU';
+        $text1    = preg_replace_callback($patterns, [$this, 'codeConvCallback'], $text);
 
         return $text1;
     }
@@ -768,7 +1084,7 @@ class MyTextSanitizer
         $args      = array_slice(func_get_args(), 1);
         array_unshift($args, $this);
 
-        return call_user_func_array(array($extension, 'load'), $args);
+        return call_user_func_array([$extension, 'load'], $args);
     }
 
     /**
@@ -802,9 +1118,7 @@ class MyTextSanitizer
      */
     public function stripSlashesGPC($text)
     {
-        if (@get_magic_quotes_gpc()) {
-            $text = stripslashes($text);
-        }
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $text;
     }
@@ -819,9 +1133,9 @@ class MyTextSanitizer
      */
     public function codeSanitizer($str, $image = 1)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
         $str = $this->htmlSpecialChars(str_replace('\"', '"', base64_decode($str)));
-        $str =& $this->xoopsCodeDecode($str, $image);
+        $str = & $this->xoopsCodeDecode($str, $image);
 
         return $str;
     }
@@ -838,7 +1152,7 @@ class MyTextSanitizer
      */
     public function sanitizeForDisplay($text, $allowhtml = 0, $smiley = 1, $bbcode = 1)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
         if ($allowhtml == 0) {
             $text = $this->htmlSpecialChars($text);
         } else {
@@ -851,7 +1165,7 @@ class MyTextSanitizer
             $text = $this->smiley($text);
         }
         if ($bbcode == 1) {
-            $text =& $this->xoopsCodeDecode($text);
+            $text = & $this->xoopsCodeDecode($text);
         }
         $text = $this->nl2Br($text);
 
@@ -870,8 +1184,7 @@ class MyTextSanitizer
      */
     public function sanitizeForPreview($text, $allowhtml = 0, $smiley = 1, $bbcode = 1)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
-        $text = $this->oopsStripSlashesGPC($text);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
         if ($allowhtml == 0) {
             $text = $this->htmlSpecialChars($text);
         } else {
@@ -884,7 +1197,7 @@ class MyTextSanitizer
             $text = $this->smiley($text);
         }
         if ($bbcode == 1) {
-            $text =& $this->xoopsCodeDecode($text);
+            $text = & $this->xoopsCodeDecode($text);
         }
         $text = $this->nl2Br($text);
 
@@ -900,7 +1213,7 @@ class MyTextSanitizer
      */
     public function makeTboxData4Save($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         // $text = $this->undoHtmlSpecialChars($text);
         return $this->addSlashes($text);
@@ -916,7 +1229,7 @@ class MyTextSanitizer
      */
     public function makeTboxData4Show($text, $smiley = 0)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
         $text = $this->htmlSpecialChars($text);
 
         return $text;
@@ -931,7 +1244,7 @@ class MyTextSanitizer
      */
     public function makeTboxData4Edit($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->htmlSpecialChars($text);
     }
@@ -946,8 +1259,7 @@ class MyTextSanitizer
      */
     public function makeTboxData4Preview($text, $smiley = 0)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
-        $text = $this->stripSlashesGPC($text);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
         $text = $this->htmlSpecialChars($text);
 
         return $text;
@@ -962,8 +1274,7 @@ class MyTextSanitizer
      */
     public function makeTboxData4PreviewInForm($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
-        $text = $this->stripSlashesGPC($text);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->htmlSpecialChars($text);
     }
@@ -977,7 +1288,7 @@ class MyTextSanitizer
      */
     public function makeTareaData4Save($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->addSlashes($text);
     }
@@ -992,10 +1303,10 @@ class MyTextSanitizer
      * @return mixed|string
      * @deprecated will be removed in next XOOPS version
      */
-    public function &makeTareaData4Show(&$text, $html = 1, $smiley = 1, $xcode = 1)
+    public function &makeTareaData4Show($text, $html = 1, $smiley = 1, $xcode = 1)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
-        $text =& $this->displayTarea($text, $html, $smiley, $xcode);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
+        $text = & $this->displayTarea($text, $html, $smiley, $xcode);
 
         return $text;
     }
@@ -1009,7 +1320,7 @@ class MyTextSanitizer
      */
     public function makeTareaData4Edit($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->htmlSpecialChars($text);
     }
@@ -1024,10 +1335,10 @@ class MyTextSanitizer
      * @return mixed|string
      * @deprecated will be removed in next XOOPS version
      */
-    public function &makeTareaData4Preview(&$text, $html = 1, $smiley = 1, $xcode = 1)
+    public function &makeTareaData4Preview($text, $html = 1, $smiley = 1, $xcode = 1)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
-        $text =& $this->previewTarea($text, $html, $smiley, $xcode);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
+        $text = & $this->previewTarea($text, $html, $smiley, $xcode);
 
         return $text;
     }
@@ -1041,9 +1352,7 @@ class MyTextSanitizer
      */
     public function makeTareaData4PreviewInForm($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
-        // if magic_quotes_gpc is on, do stipslashes
-        $text = $this->stripSlashesGPC($text);
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->htmlSpecialChars($text);
     }
@@ -1057,7 +1366,7 @@ class MyTextSanitizer
      */
     public function makeTareaData4InsideQuotes($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->htmlSpecialChars($text);
     }
@@ -1071,9 +1380,9 @@ class MyTextSanitizer
      */
     public function oopsStripSlashesGPC($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
-        return $this->stripSlashesGPC($text);
+        return $text;
     }
 
     /**
@@ -1085,10 +1394,7 @@ class MyTextSanitizer
      */
     public function oopsStripSlashesRT($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
-        if (get_magic_quotes_runtime()) {
-            $text = stripslashes($text);
-        }
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $text;
     }
@@ -1102,7 +1408,7 @@ class MyTextSanitizer
      */
     public function oopsAddSlashes($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->addSlashes($text);
     }
@@ -1116,7 +1422,7 @@ class MyTextSanitizer
      */
     public function oopsHtmlSpecialChars($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->htmlSpecialChars($text);
     }
@@ -1130,7 +1436,7 @@ class MyTextSanitizer
      */
     public function oopsNl2Br($text)
     {
-        $GLOBALS['xoopsLogger']->addDeprecated(__CLASS__ . '::' . __FUNCTION__ . ' is deprecated');
+        $GLOBALS['xoopsLogger']->addDeprecated(__METHOD__ . ' is deprecated');
 
         return $this->nl2Br($text);
     }

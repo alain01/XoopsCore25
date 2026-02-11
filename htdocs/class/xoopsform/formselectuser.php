@@ -11,14 +11,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       The XOOPS Project (http://xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license         GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package         kernel
  * @subpackage      form
  * @since           2.0.0
  * @author          Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_load('XoopsFormElementTray');
 xoops_load('XoopsFormSelect');
@@ -38,7 +40,7 @@ class XoopsFormSelectUser extends XoopsFormElementTray
      *                                 For an item with massive members, such as "Registered Users", "$value"
      *                                 should be used to store selected temporary users only instead of all
      *                                 members of that item
-     * @param int    $size             Number or rows. "1" makes a drop-down-list.
+     * @param int    $size             Number of rows. "1" makes a drop-down-list.
      * @param bool   $multiple         Allow multiple selections?
      */
     public function __construct($caption, $name, $includeAnonymous = false, $value = null, $size = 1, $multiple = false)
@@ -71,10 +73,10 @@ class XoopsFormSelectUser extends XoopsFormElementTray
         if ($includeAnonymous) {
             $select_element->addOption(0, $GLOBALS['xoopsConfig']['anonymous']);
         }
-        /* @var XoopsMemberHandler $member_handler */
+        /** @var XoopsMemberHandler $member_handler */
         $member_handler = xoops_getHandler('member');
-        $value          = is_array($value) ? $value : (empty($value) ? array() : array($value));
-        $selectedUsers = array();
+        $value          = is_array($value) ? $value : (empty($value) ? [] : [$value]);
+        $selectedUsers = [];
         if (count($value) > 0) {
             // fetch the set of uids in $value
             $criteria = new Criteria('uid', '(' . implode(',', $value) . ')', 'IN');
@@ -158,7 +160,7 @@ class XoopsFormSelectUser extends XoopsFormElementTray
         $action_tray->addElement($searchUsers);
 
          if (isset($GLOBALS['xoTheme']) && is_object($GLOBALS['xoTheme'])) {
-             $GLOBALS['xoTheme']->addScript('', array(), $js_addusers);
+             $GLOBALS['xoTheme']->addScript('', [], $js_addusers);
          } else {
              echo '<script>' . $js_addusers . '</script>';
          }

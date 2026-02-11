@@ -12,14 +12,16 @@
 /**
  * TextSanitizer extension
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          textsanitizer
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Class MytsWiki
@@ -35,9 +37,9 @@ class MytsWiki extends MyTextSanitizerExtension
     {
         $config     = parent::loadConfig(__DIR__);
         $code = "<button type='button' class='btn btn-default btn-sm' onclick='xoopsCodeWiki(\"{$textarea_id}\",\""
-            . htmlspecialchars(_XOOPS_FORM_ENTERWIKITERM, ENT_QUOTES)
+            . htmlspecialchars(_XOOPS_FORM_ENTERWIKITERM, ENT_QUOTES | ENT_HTML5)
             . "\");' onmouseover='style.cursor=\"hand\"' title='" . _XOOPS_FORM_ALTWIKI
-            . "'><span class='fa fa-fw fa-globe' aria-hidden='true'></span></button>";
+            . "'><span class='fa-solid fa-globe' aria-hidden='true'></span></button>";
 
         $javascript = <<<EOH
             function xoopsCodeWiki(id, enterWikiPhrase)
@@ -60,9 +62,10 @@ class MytsWiki extends MyTextSanitizerExtension
             }
 EOH;
 
-        return array(
+        return [
             $code,
-            $javascript);
+            $javascript,
+        ];
     }
 
     /**
@@ -72,20 +75,16 @@ EOH;
      */
     public static function myCallback($match)
     {
-        return self::decode($match[1],0 ,0);
+        return self::decode($match[1], 0, 0);
     }
 
     /**
-     * @param $ts
+     * @param MyTextSanitizer $myts
      */
-    public function load($ts)
+    public function load(MyTextSanitizer $myts)
     {
-        //        $ts->patterns[] = "/\[\[([^\]]*)\]\]/esU";
-        //        $ts->replacements[] = __CLASS__ . "::decode( '\\1' )";
-        //mb------------------------------
-        $ts->callbackPatterns[] = "/\[\[([^\]]*)\]\]/sU";
-        $ts->callbacks[]        = __CLASS__ . '::myCallback';
-        //mb------------------------------
+        $myts->callbackPatterns[] = "/\[\[([^\]]*)\]\]/sU";
+        $myts->callbacks[]        = self::class . '::myCallback';
     }
 
     /**

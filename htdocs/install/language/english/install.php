@@ -2,8 +2,8 @@
 /**
  * Installer main english strings declaration file
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          installer
  * @since            2.3.0
  * @author           Haruki Setoyama  <haruki@planewave.org>
@@ -17,8 +17,8 @@
 // Translator: XOOPS Translation Team
 define('SHOW_HIDE_HELP', 'Show/hide help text');
 // License
-define('LICENSE_NOT_WRITEABLE', 'License file "%s" is NOT writable!');
-define('LICENSE_IS_WRITEABLE', '%s License is writable.');
+//define('LICENSE_NOT_WRITEABLE', 'License file "%s" is NOT writable!');
+//define('LICENSE_IS_WRITEABLE', '%s License is writable.');
 // Configuration check page
 define('SERVER_API', 'Server API');
 define('PHP_EXTENSION', '%s extension');
@@ -196,3 +196,12 @@ define('MODULES_AVAILABLE', 'Available Modules');
 define('INSTALL_THIS_MODULE', 'Add %s');
 //2.5.11
 define('ERR_COPY_CONFIG_FILE', 'Could not copy the configuration file %s');
+//2.5.12
+// website name and slogan
+define('_WEBSITE_NAME', 'XOOPS Site');
+define('_WEBSITE_SLOGAN', 'Just use it!');
+define('_WEBSITE_META_KEYWORDS', 'xoops, web application framework, cms, content management system');
+define('_WEBSITE_FOOTER', "Powered by XOOPS © 2001-{X_YEAR} <a href='https://xoops.org' rel='external' title='The XOOPS Project'>The XOOPS Project</a>");
+define('_WEBSITE_COPYRIGHT', 'Copyright © 2001-{X_YEAR}');
+define('_WEBSITE_DESCRIPTION', 'XOOPS is a dynamic Object Oriented based open source portal script written in PHP.');
+define('_WEBSITE_CENSOR_REPLACE', 'OOPS');

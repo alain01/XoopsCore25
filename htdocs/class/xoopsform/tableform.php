@@ -9,19 +9,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
  * @since               2.0.0
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_load('XoopsForm');
 
 /**
- * Form that will output formatted as a HTML table
+ * Form that will output formatted as an HTML table
  *
  * No styles and no JavaScript to check for required fields.
  */
@@ -30,7 +32,7 @@ class XoopsTableForm extends XoopsForm
     /**
      * create HTML to output the form as a table
      *
-     * YOU SHOULD AVOID TO USE THE FOLLOWING Nocolspan METHOD, IT WILL BE REMOVED
+     * YOU SHOULD AVOID THE USE THE FOLLOWING Nocolspan METHOD, IT WILL BE REMOVED
      *
      * To use the noColspan simply use the following example:
      *

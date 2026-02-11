@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          model
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Object synchronization handler class.
@@ -72,7 +74,7 @@ class XoopsModelSync extends XoopsModelAbstract
             // for 4.0+
             $sql = "DELETE `{$this->handler->table}` FROM `{$this->handler->table}`" . " LEFT JOIN `{$this->handler->table_link}` AS aa ON `{$this->handler->table}`.`{$this->handler->field_object}` = aa.`{$this->handler->field_link}`" . " WHERE (aa.`{$this->handler->field_link}` IS NULL)";
         }
-        if (!$result = $this->handler->db->queryF($sql)) {
+        if (!$result = $this->handler->db->exec($sql)) {
             return false;
         }
 

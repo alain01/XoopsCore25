@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               1.0.0
@@ -17,7 +17,9 @@
  * @deprecated
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 $GLOBALS['xoopsLogger']->addDeprecated("'/class/module.errorhandler.php' is deprecated since XOOPS 2.5.4, please create your own error messages instead.");
 
@@ -27,6 +29,7 @@ $GLOBALS['xoopsLogger']->addDeprecated("'/class/module.errorhandler.php' is depr
  * @package    kernel
  * @subpackage core
  * @author     Goghs (http://www.eqiao.com/)
+ * @deprecated
  */
 class ErrorHandler
 {
@@ -41,7 +44,7 @@ class ErrorHandler
     {
         global $xoopsConfig;
 
-        $errmsg = array(
+        $errmsg = [
             '0001' => 'Could not connect to the forums database.',
             '0002' => 'The forum you selected does not exist. Please go back and try again.',
             '0003' => 'Incorrect Password.',
@@ -63,7 +66,7 @@ class ErrorHandler
             '0019' => 'You must type a message to post. You can\'t post an empty message. Go back and enter a message.',
             '0020' => 'Could not enter data into the database. Please go back and try again.',
             '0021' => 'Can\'t delete the selected message.',
-            '0022' => 'An error ocurred while querying the database.',
+            '0022' => 'An error occurred while querying the database.',
             '0023' => 'Selected message was not found in the forum database.',
             '0024' => 'You can\'t reply to that message. It wasn\'t sent to you.',
             '0025' => 'You can\'t post a reply to this topic, it has been locked. Contact the administrator if you have any question.',
@@ -90,7 +93,8 @@ class ErrorHandler
             '1013' => 'Please enter a search query.',
             '1016' => 'Please enter value for URL.',
             '1017' => 'Please enter value for Home Page.',
-            '9999' => 'OOPS! Unknown Error');
+            '9999' => 'OOPS! Unknown Error',
+        ];
 
         $errorno = array_keys($errmsg);
         if (!in_array($e_code, $errorno)) {
@@ -108,4 +112,3 @@ class ErrorHandler
     }
 }
 // }
-

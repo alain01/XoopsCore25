@@ -3,8 +3,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          installer
  * @since            2.3.0
  * @author           Haruki Setoyama  <haruki@planewave.org>
@@ -16,55 +16,68 @@
 
 $xoopsOption['checkadmin'] = true;
 $xoopsOption['hascommon']  = true;
-require_once './include/common.inc.php';
+require_once __DIR__ . '/include/common.inc.php';
 defined('XOOPS_INSTALL') || die('XOOPS Installation wizard die');
 
-if (!@include_once "../language/{$wizard->language}/global.php") {
-    include_once '../language/english/global.php';
-}
-if (!@include_once "../modules/system/language/{$wizard->language}/admin.php") {
-    include_once '../modules/system/language/english/admin.php';
-}
-if (!@include_once "../modules/system/language/{$wizard->language}/admin/modulesadmin.php") {
-    include_once '../modules/system/language/english/admin/modulesadmin.php';
+$adminLangFile = __DIR__ . "/../language/{$wizard->language}/global.php";
+if (file_exists($adminLangFile)) {
+    include_once $adminLangFile;
+} else {
+    include_once __DIR__ . '/../language/english/global.php';
 }
 
-require_once '../class/xoopsformloader.php';
-require_once '../class/xoopslists.php';
+$adminLangFile = __DIR__ . "/../modules/system/language/{$wizard->language}/admin.php";
+if (file_exists($adminLangFile)) {
+    include_once $adminLangFile;
+} else {
+    include_once __DIR__ . '/../modules/system/language/english/admin.php';
+}
+
+$adminPrefsLangFile = __DIR__ . "/../modules/system/language/{$wizard->language}/admin/modulesadmin.php";
+if (file_exists($adminPrefsLangFile)) {
+    include_once $adminPrefsLangFile;
+} else {
+    include_once __DIR__ . '/../modules/system/language/english/admin/modulesadmin.php';
+}
+
+require_once __DIR__ . '/../class/xoopsformloader.php';
+require_once __DIR__ . '/../class/xoopslists.php';
 
 $pageHasForm = true;
 $pageHasHelp = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    include_once '../class/xoopsblock.php';
-    include_once '../kernel/module.php';
-    include_once '../include/cp_functions.php';
-    include_once '../include/version.php';
-    include_once './include/modulesadmin.php';
+    include_once __DIR__ . '/../class/xoopsblock.php';
+    include_once __DIR__ . '/../kernel/module.php';
+    include_once __DIR__ . '/../include/cp_functions.php';
+    include_once __DIR__ . '/../include/version.php';
+    include_once __DIR__ . '/include/modulesadmin.php';
 
-    /* @var XoopsConfigHandler $config_handler */
+    /** @var XoopsConfigHandler $config_handler */
     $config_handler = xoops_getHandler('config');
     $xoopsConfig    = $config_handler->getConfigsByCat(XOOPS_CONF);
 
-    $msgs = array();
-    foreach ($_REQUEST['modules'] as $dirname => $installmod) {
-        if ($installmod) {
-            $msgs[] = xoops_module_install($dirname);
+    $msgs = [];
+    if (isset($_REQUEST['modules']) && \is_array($_REQUEST['modules'])) {
+        foreach ($_REQUEST['modules'] as $dirname => $installmod) {
+            if ($installmod) {
+                $msgs[] = xoops_module_install($dirname);
+            }
         }
     }
 
     $pageHasForm = false;
 
     if (count($msgs) > 0) {
-        $content = '<div class="alert alert-success"><span class="fa fa-check text-success"></span> '
+        $content = '<div class="alert alert-success"><span class="fa-solid fa-check text-success"></span> '
             . INSTALLED_MODULES . '</div><div class="well"><ul class="list-unstyled">';
         foreach ($msgs as $msg) {
-            $noAnchors = preg_replace(array('"<a (.*?)>"', '"</a>"'), array('',''), $msg);
+            $noAnchors = preg_replace(['"<a (.*?)>"', '"</a>"'], ['', ''], $msg);
             $content .= "<li>{$noAnchors}</li>";
         }
         $content .= '</ul></div>';
     } else {
-        $content = '<div class="alert alert-info"><span class="fa fa-info-circle text-info"></span> ' . NO_INSTALLED_MODULES . '</div>';
+        $content = '<div class="alert alert-info"><span class="fa-solid fa-circle-info text-info"></span> ' . NO_INSTALLED_MODULES . '</div>';
     }
 
     // Flush cache files for cpanel GUIs
@@ -79,15 +92,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Get installed modules
-    /* @var XoopsModuleHandler $module_handler */
+    /** @var XoopsModuleHandler $module_handler */
     $module_handler = xoops_getHandler('module');
     $installed_mods = $module_handler->getObjects();
-    $listed_mods    = array();
+    $listed_mods    = [];
     foreach ($installed_mods as $module) {
         $listed_mods[] = $module->getVar('dirname');
     }
 
-    include_once '../class/xoopslists.php';
+    include_once __DIR__ . '/../class/xoopslists.php';
     $dirlist  = XoopsLists::getModulesList();
     $toinstal = 0;
 
@@ -136,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $content .= '</div>';
             $content .= '<div class="col-md-7">';
             $content .= '<h3>' . $module->getInfo('name');
-            $content .= ' <small> ' . number_format(round($module->getInfo('version'), 2), 2)
+            $content .= ' <small> ' . $module->getInfo('version')
                 . ' (' . $module->getInfo('dirname') . ')' . '</small>' . '</h3>';
             $content .= '<i>' . $module->getInfo('description') . '</i>';
             $content .= '</div>';
@@ -150,8 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content .= "<script type='text/javascript'>" . $javascript . '</script>';
     if ($toinstal == 0) {
         $pageHasForm = false;
-        $content     = '<div class="alert alert-info"><span class="fa fa-info-circle text-info"></span> ' . NO_MODULES_FOUND . '</div>';
+        $content     = '<div class="alert alert-info"><span class="fa-solid fa-circle-info text-info"></span> ' . NO_MODULES_FOUND . '</div>';
     }
 }
 
-include './include/install_tpl.php';
+include __DIR__ . '/include/install_tpl.php';

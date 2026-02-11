@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * XoopsUserUtility
@@ -38,7 +40,7 @@ class XoopsUserUtility
         global $xoopsConfigUser, $xoopsConfig;
 
         if (empty($xoopsConfigUser)) {
-            /* @var XoopsConfigHandler $config_handler */
+            /** @var XoopsConfigHandler $config_handler */
             $config_handler  = xoops_getHandler('config');
             $xoopsConfigUser = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
         }
@@ -47,7 +49,7 @@ class XoopsUserUtility
         }
 
         if (!empty($user) && !is_object($user)) {
-            /* @var XoopsMemberHandler $member_handler */
+            /** @var XoopsMemberHandler $member_handler */
             $member_handler = xoops_getHandler('member');
             $user           = $member_handler->getUser($user);
         }
@@ -100,13 +102,13 @@ class XoopsUserUtility
                 $user = $args[0];
                 break;
             case 2:
-                list($uname, $email) = $args;
+                [$uname, $email] = $args;
                 break;
             case 3:
-                list($user, $pass, $vpass) = $args;
+                [$user, $pass, $vpass] = $args;
                 break;
             case 4:
-                list($uname, $email, $pass, $vpass) = $args;
+                [$uname, $email, $pass, $vpass] = $args;
                 break;
             default:
                 return false;
@@ -115,12 +117,12 @@ class XoopsUserUtility
             $uname = $user->getVar('uname', 'n');
             $email = $user->getVar('email', 'n');
         }
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler  = xoops_getHandler('config');
         $xoopsConfigUser = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
 
         xoops_loadLanguage('user');
-        $myts = MyTextSanitizer::getInstance();
+        $myts = \MyTextSanitizer::getInstance();
 
         $xoopsUser_isAdmin = is_object($xoopsUser) && $xoopsUser->isAdmin();
         $stop              = '';
@@ -184,14 +186,26 @@ class XoopsUserUtility
         $uid    = is_object($user) ? $user->getVar('uid') : 0;
         $sql    = 'SELECT COUNT(*) FROM `' . $xoopsDB->prefix('users') . '` WHERE `uname` = ' . $xoopsDB->quote(addslashes($uname)) . (($uid > 0) ? " AND `uid` <> {$uid}" : '');
         $result = $xoopsDB->query($sql);
-        list($count) = $xoopsDB->fetchRow($result);
-        if ($count > 0) {
+        if (!$xoopsDB->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $xoopsDB->error(),
+                E_USER_ERROR,
+            );
+        }
+        [$count] = $xoopsDB->fetchRow($result);
+        if ((int) $count > 0) {
             $stop .= _US_NICKNAMETAKEN . '<br>';
         }
         $sql    = 'SELECT COUNT(*) FROM `' . $xoopsDB->prefix('users') . '` WHERE `email` = ' . $xoopsDB->quote(addslashes($email)) . (($uid > 0) ? " AND `uid` <> {$uid}" : '');
         $result = $xoopsDB->query($sql);
-        list($count) = $xoopsDB->fetchRow($result);
-        if ($count > 0) {
+        if (!$xoopsDB->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $xoopsDB->error(),
+                E_USER_ERROR,
+            );
+        }
+        [$count] = $xoopsDB->fetchRow($result);
+        if ((int) $count > 0) {
             $stop .= _US_EMAILTAKEN . '<br>';
         }
         // If password is not set, skip password validation
@@ -265,19 +279,21 @@ class XoopsUserUtility
     public static function getUnameFromIds($uid, $usereal = false, $linked = false)
     {
         if (!is_array($uid)) {
-            $uid = array($uid);
+            $uid = [$uid];
         }
         $userid = array_map('intval', array_filter($uid));
 
-        $myts  = MyTextSanitizer::getInstance();
-        $users = array();
+        $myts  = \MyTextSanitizer::getInstance();
+        $users = [];
         if (count($userid) > 0) {
             /** @var XoopsMySQLDatabase $xoopsDB */
             $xoopsDB = XoopsDatabaseFactory::getDatabaseConnection();
             $sql     = 'SELECT uid, uname, name FROM ' . $xoopsDB->prefix('users') . ' WHERE level > 0 AND uid IN(' . implode(',', array_unique($userid)) . ')';
-            if (!$result = $xoopsDB->query($sql)) {
+            $result = $xoopsDB->query($sql);
+            if (!$xoopsDB->isResultSet($result)) {
                 return $users;
             }
+
             while (false !== ($row = $xoopsDB->fetchArray($result))) {
                 $uid = $row['uid'];
                 if ($usereal && $row['name']) {
@@ -307,11 +323,11 @@ class XoopsUserUtility
      */
     public static function getUnameFromId($userid, $usereal = false, $linked = false)
     {
-        $myts     = MyTextSanitizer::getInstance();
-        $userid   = (int)$userid;
+        $myts     = \MyTextSanitizer::getInstance();
+        $userid   = (int) $userid;
         $username = '';
         if ($userid > 0) {
-            /* @var XoopsMemberHandler $member_handler */
+            /** @var XoopsMemberHandler $member_handler */
             $member_handler = xoops_getHandler('member');
             $user           = $member_handler->getUser($userid);
             if (is_object($user)) {

@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             pm
  * @since               2.3.0
@@ -27,6 +27,20 @@
  */
 class PmMessage extends XoopsObject
 {
+    //PHP 8.2 Dynamic properties deprecated
+    public $msg_id;
+    public $msg_image;
+    public $subject;
+    public $from_userid;
+    public $to_userid;
+    public $msg_time;
+    public $msg_text;
+    public $read_msg;
+    public $from_delete;
+    public $to_delete;
+    public $from_save;
+    public $to_save;
+
     /**
      *
      */
@@ -54,7 +68,7 @@ class PmMessage extends XoopsObject
 class PmMessageHandler extends XoopsPersistableObjectHandler
 {
     /**
-     * @param null|XoopsDatabase $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct(XoopsDatabase $db)
     {
@@ -136,7 +150,7 @@ class PmMessageHandler extends XoopsPersistableObjectHandler
      * @param  XoopsUser $user
      * @return int
      **/
-    public function getSavecount(XoopsUser $user = null)
+    public function getSavecount(?XoopsUser $user = null)
     {
         if (!is_object($user)) {
             $user =& $GLOBALS['xoopsUser'];
@@ -178,7 +192,7 @@ class PmMessageHandler extends XoopsPersistableObjectHandler
         $msg .= "\n";
         $msg .= _PM_EMAIL_MESSAGE . ":\n";
         $msg .= "\n" . $pm->getVar('subject') . "\n";
-        $msg .= "\n" . strip_tags(str_replace(array('<p>', '</p>', '<br>', '<br>'), "\n", $pm->getVar('msg_text'))) . "\n\n";
+        $msg .= "\n" . strip_tags(str_replace(['<p>', '</p>', '<br>', '<br>'], "\n", $pm->getVar('msg_text'))) . "\n\n";
         $msg .= "--------------\n";
         $msg .= $xoopsConfig['sitename'] . ': ' . XOOPS_URL . "\n";
 

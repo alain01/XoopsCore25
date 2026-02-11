@@ -9,20 +9,22 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Gregory Mage (AKA Mage)
  * @package             system
  */
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 include_once XOOPS_ROOT_PATH . '/kernel/group.php';
 
 /**
  * System Group
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  */
 class SystemGroup extends XoopsGroup
@@ -48,21 +50,21 @@ class SystemGroup extends XoopsGroup
 
         if ($this->isNew()) {
             $s_cat_value   = '';
-            $a_mod_value   = array();
-            $r_mod_value   = array();
-            $r_block_value = array();
+            $a_mod_value   = [];
+            $r_mod_value   = [];
+            $r_block_value = [];
         } else {
-            /* @var XoopsGroupPermHandler $sysperm_handler */
+            /** @var XoopsGroupPermHandler $sysperm_handler */
             $sysperm_handler    = xoops_getHandler('groupperm');
             $s_cat_value        = $sysperm_handler->getItemIds('system_admin', $this->getVar('groupid'));
-            /* @var XoopsMemberHandler $member_handler */
+            /** @var XoopsMemberHandler $member_handler */
             $member_handler     = xoops_getHandler('member');
             $thisgroup          = $member_handler->getGroup($this->getVar('groupid'));
-            /* @var XoopsGroupPermHandler $moduleperm_handler */
+            /** @var XoopsGroupPermHandler $moduleperm_handler */
             $moduleperm_handler = xoops_getHandler('groupperm');
             $a_mod_value        = $moduleperm_handler->getItemIds('module_admin', $thisgroup->getVar('groupid'));
             $r_mod_value        = $moduleperm_handler->getItemIds('module_read', $thisgroup->getVar('groupid'));
-            /* @var  XoopsGroupPermHandler $gperm_handler */
+            /** @var  XoopsGroupPermHandler $gperm_handler */
             $gperm_handler      = xoops_getHandler('groupperm');
             $r_block_value      = $gperm_handler->getItemIds('block_read', $this->getVar('groupid'));
         }
@@ -111,7 +113,7 @@ class SystemGroup extends XoopsGroup
 
         $a_mod_checkbox          = new XoopsFormCheckBox('', 'admin_mids[]', $a_mod_value);
         $a_mod_checkbox->columns = 5;
-        /* @var XoopsModuleHandler $module_handler */
+        /** @var XoopsModuleHandler $module_handler */
         $module_handler          = xoops_getHandler('module');
         $criteria                = new CriteriaCompo(new Criteria('hasadmin', 1));
         $criteria->add(new Criteria('isactive', 1));
@@ -139,11 +141,11 @@ class SystemGroup extends XoopsGroup
         $criteria->setOrder('ASC');
         $module_list    = $module_handler->getList($criteria);
         $module_list[0] = _AM_SYSTEM_GROUPS_CUSTOMBLOCK;
-        /* @var XoopsBlockHandler $block_handler */
+        /** @var XoopsBlockHandler $block_handler */
         $block_handler = xoops_getHandler('block');
         $blocks_obj    = $block_handler->getObjects(new Criteria('mid', "('" . implode("', '", array_keys($module_list)) . "')", 'IN'), true);
 
-        $blocks_module = array();
+        $blocks_module = [];
         foreach (array_keys($blocks_obj) as $bid) {
             $title                                                                             = $blocks_obj[$bid]->getVar('title');
             $blocks_module[$blocks_obj[$bid]->getVar('mid')][$blocks_obj[$bid]->getVar('bid')] = empty($title) ? $blocks_obj[$bid]->getVar('name') : $title;
@@ -157,7 +159,7 @@ class SystemGroup extends XoopsGroup
         $s_checkbox_all->setClass('xo-checkall');
         $r_block_tray->addElement($s_checkbox_all);
         foreach (array_keys($blocks_module) as $mid) {
-            $new_blocks_array = array();
+            $new_blocks_array = [];
             foreach ($blocks_module[$mid] as $key => $value) {
                 $new_blocks_array[$key] = "<a href='" . XOOPS_URL . "/modules/system/admin.php?fct=blocksadmin&amp;op=edit&amp;bid={$key}' title='ID: {$key}' rel='external'>{$value}</a>";
             }
@@ -186,19 +188,19 @@ class SystemGroup extends XoopsGroup
 }
 
 /**
- * System group handler class. (Singelton)
+ * System group handler class. (Singleton)
  *
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS block class objects.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  * @subpackage          avatar
  */
 class SystemGroupHandler extends XoopsPersistableObjectHandler
 {
     /**
-     * @param null|XoopsDatabase $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct(XoopsDatabase $db)
     {

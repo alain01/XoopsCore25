@@ -2,8 +2,8 @@
 /**
  *  Xoopsmlcontent plugin for tinymce
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license             GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license             GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class / xoopseditor
  * @subpackage          tinymce / xoops plugins
  * @since               2.3.0
@@ -19,7 +19,9 @@ if (DIRECTORY_SEPARATOR !== '/') {
 }
 $xoops_root_path = substr($current_path, 0, strpos(strtolower($current_path), '/class/xoopseditor/tinymce/'));
 include_once $xoops_root_path . '/mainfile.php';
-defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('XOOPS root path not defined');
+}
 // load mainfile.php - end
 
 function langDropdown()
@@ -27,19 +29,20 @@ function langDropdown()
     $content = '';
 
     $time = time();
-    if (!isset($_SESSION['XoopsMLcontent']) && @$_SESSION['XoopsMLcontent_expire'] < $time) {
+    if (!isset($_SESSION['XoopsMLcontent']) && (isset($_SESSION['XoopsMLcontent_expire']) && $_SESSION['XoopsMLcontent_expire'] < $time)) {
         include_once XOOPS_ROOT_PATH . '/kernel/module.php';
         $xlanguage = XoopsModule::getByDirname('xlanguage');
         if (is_object($xlanguage) && $xlanguage->getVar('isactive')) {
             include_once(XOOPS_ROOT_PATH . '/modules/xlanguage/include/vars.php');
             include_once(XOOPS_ROOT_PATH . '/modules/xlanguage/include/functions.php');
+            /** @var LanguageHandler $xlanguage_handler */
             $xlanguage_handler = xoops_getModuleHandler('language', 'xlanguage');
             $xlanguage_handler->loadConfig();
             $lang_list =& $xlanguage_handler->getAllList();
 
             $content .= '<select name="mlanguages" id="mlanguages">';
             $content .= '<option value="">{#xoopsmlcontent_dlg.sellang}</option>';
-            if (is_array($lang_list) && count($lang_list) > 0) {
+            if (!empty($lang_list) && \is_array($lang_list)) {
                 foreach (array_keys($lang_list) as $lang_name) {
                     $lang =& $lang_list[$lang_name];
                     $content .= '<option value="' . $lang['base']->getVar('lang_code') . '">' . $lang['base']->getVar('lang_name') . '</option>';
@@ -67,8 +70,8 @@ function langDropdown()
     echo $_SESSION['XoopsMLcontent'];
 }
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
-echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="' . _LANGCODE . '" lang="' . _LANGCODE . '">';
+echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+echo '<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="' . _LANGCODE . '" lang="' . _LANGCODE . '">';
 echo '<head>';
 echo '<meta http-equiv="content-type" content="text/html; charset=' . _CHARSET . '" />';
 echo '<meta http-equiv="content-language" content="' . _LANGCODE . '" />';
@@ -101,7 +104,7 @@ echo '<meta http-equiv="content-language" content="' . _LANGCODE . '" />';
 
                 <tr>
                     <td class="even">
-                    <?php langDropdown(); ?></th>
+                    <?php langDropdown(); ?></td>
                 </tr>
 
                 <tr>

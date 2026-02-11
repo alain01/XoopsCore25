@@ -10,19 +10,21 @@
  */
 
 /**
- * @copyright    XOOPS Project http://xoops.org/
- * @license      GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    2000-2025 XOOPS Project (https://xoops.org)
+ * @license      GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package
  * @since
  * @author       XOOPS Development Team, Kazumi Ono (AKA onokazu)
  */
 
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 $groups = $GLOBALS['xoopsUser']->getGroups();
 $all_ok = false;
 if (!in_array(XOOPS_GROUP_ADMIN, $groups)) {
-    /* @var XoopsGroupPermHandler $sysperm_handler */
+    /** @var XoopsGroupPermHandler $sysperm_handler */
     $sysperm_handler = xoops_getHandler('groupperm');
     $ok_syscats      = $sysperm_handler->getItemIds('system_admin', $groups);
 } else {
@@ -42,7 +44,7 @@ foreach ($dirlist as $file) {
             if (xoops_getModuleOption('active_' . $file, 'system')) {
                 $category = isset($modversion['category']) ? (int)$modversion['category'] : 0;
                 if (false !== $all_ok || in_array($modversion['category'], $ok_syscats)) {
-                    $adminmenu[$index]['title'] = trim($modversion['name']);
+                    $adminmenu[$index]['title'] = trim((string) $modversion['name']);
                     $adminmenu[$index]['link']  = 'admin.php?fct=' . $file;
                     $adminmenu[$index]['image'] = $modversion['image'];
                 }

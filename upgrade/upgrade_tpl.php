@@ -25,25 +25,22 @@ global $upgradeControl;
     <link href="assets/css/style.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="../media/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="../media/font-awesome6/css/fontawesome.min.css" rel="stylesheet" type="text/css" as="font" crossorigin="anonymous">
+    <link href="../media/font-awesome6/css/solid.min.css" rel="stylesheet" as="font" crossorigin="anonymous">
+    <link href="../media/font-awesome6/css/brands.min.css" rel="stylesheet" as="font" crossorigin="anonymous">
+    <link href="../media/font-awesome6/css/v4-shims.min.css" rel="stylesheet" as="font" crossorigin="anonymous">
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
     <?php
     if (!empty($extraSources)) {
         echo $extraSources;
     }
-    ?>
+?>
     <?php
-    if (file_exists('language/' . $upgradeControl->upgradeLanguage . '/style.css')) {
-        echo '<link rel="stylesheet" type="text/css" media="all" href="language/'
-            . $upgradeControl->upgradeLanguage . '/style.css" />';
-    }
-    ?>
+if (file_exists('language/' . $upgradeControl->upgradeLanguage . '/style.css')) {
+    echo '<link rel="stylesheet" type="text/css" media="all" href="language/'
+        . $upgradeControl->upgradeLanguage . '/style.css" />';
+}
+?>
 
 </head>
 
@@ -65,29 +62,29 @@ global $upgradeControl;
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="<?php echo _LANGUAGE; ?>"><i class="fa fa-lg fa-language"></i> <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="<?php echo _LANGUAGE; ?>"><i class="fa-solid fa-lg fa-language"></i> <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <?php
-                    $languages = $upgradeControl->availableLanguages();
-                    foreach ($languages as $lang) {
-                        $upgradeControl->loadLanguage('support', $lang);
-                        echo '<li><a href="?lang=' . $lang . '">' . $lang . '</a></li>';
-                    }
-                    ?>
+                $languages = $upgradeControl->availableLanguages();
+foreach ($languages as $lang) {
+    $upgradeControl->loadLanguage('support', $lang);
+    echo '<li><a href="?lang=' . $lang . '">' . $lang . '</a></li>';
+}
+?>
                 </ul>
             </li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-book"></i> <?php echo _SUPPORT; ?> <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa-solid fa-book"></i> <?php echo _SUPPORT; ?> <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <?php
-                    foreach ($upgradeControl->supportSites as $lang => $support) {
-                        echo '<li><a href="' . $support['url'] . '" target="_blank">' . $support['title'] . '</a></li>';
-                    }
-                    ?>
+foreach ($upgradeControl->supportSites as $lang => $support) {
+    echo '<li><a href="' . $support['url'] . '" target="_blank">' . $support['title'] . '</a></li>';
+}
+?>
                 </ul>
             </li>
             <li>
-                <a href="https://github.com/XOOPS/XoopsCore25" target="_blank" title="<?php echo _XOOPS_SOURCE_CODE; ?>"><i class="fa fa-lg fa-github"></i></a>
+                <a href="https://github.com/XOOPS/XoopsCore25" target="_blank" title="<?php echo _XOOPS_SOURCE_CODE; ?>"><i class="fa-brands fa-lg fa-github"></i></a>
             </li>
         </ul>
         <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
@@ -95,20 +92,20 @@ global $upgradeControl;
             <ul class="nav navbar-nav side-nav">
                 <?php
                 $firstNeeded = true;
-                foreach ($upgradeControl->upgradeQueue as $stepName => $info) {
-                    if (!$info->applied && $firstNeeded) {
-                        echo'<li class="active"><a><span class="fa fa-exclamation-triangle"></span> '
-                            . $stepName . '</a></li>';
-                        $firstNeeded = false;
-                    } elseif (!$info->applied) {
-                        echo'<li><a><span class="fa fa-exclamation-triangle text-warning"></span> '
-                            . $stepName . '</a></li>';
-                    } else {
-                        echo'<li><a><span class="fa fa-check text-success"></span> '
-                            . $stepName . '</a></li>';
-                    }
-                }
-                ?>
+foreach ($upgradeControl->upgradeQueue as $stepName => $info) {
+    if (!$info->applied && $firstNeeded) {
+        echo'<li class="active"><a><span class="fa-solid fa-exclamation-triangle"></span> '
+            . $stepName . '</a></li>';
+        $firstNeeded = false;
+    } elseif (!$info->applied) {
+        echo'<li><a><span class="fa-solid fa-exclamation-triangle text-warning"></span> '
+            . $stepName . '</a></li>';
+    } else {
+        echo'<li><a><span class="fa-solid fa-check text-success"></span> '
+            . $stepName . '</a></li>';
+    }
+}
+?>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -118,16 +115,36 @@ global $upgradeControl;
 
         <div class="container-fluid">
             <div class="row">
+                <?php if (!isset($_SESSION['preflight']) ||  $_SESSION['preflight'] != 'complete') { ?>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <span class="fa-solid fa-hand-paper-o fa-5x"></span>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">Smarty4</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer text-primary">
+                            <?php echo _XOOPS_SMARTY4_MIGRATION; ?>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
                 <?php if (!empty($error)) { ?>
                 <div class="col-lg-3 col-md-6">
                     <div class="panel panel-red">
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
-                                    <span class="fa fa-hand-stop-o fa-5x"></span>
+                                    <span class="fa-solid fa-hand-stop-o fa-5x"></span>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge"><span class="fa fa-ban"></span></div>
+                                    <div class="huge"><span class="fa-solid fa-ban"></span></div>
                                     <div><?php echo XOOPS_ERROR_ENCOUNTERED; ?></div>
                                 </div>
                             </div>
@@ -137,14 +154,14 @@ global $upgradeControl;
                             <div class="clearfix"></div>
                         </div>
                     </div>
-                    <?php } ?>
                 </div>
+                <?php } ?>
                 <div class="col-lg-3 col-md-6">
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
-                                    <span class="fa fa-dashboard fa-5x"></span>
+                                    <span class="fa-solid fa-gauge fa-5x"></span>
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="huge"><?php echo $upgradeControl->countUpgradeQueue(); ?></div>
@@ -159,16 +176,16 @@ global $upgradeControl;
                     </div>
                 </div>
                 <?php
-                $versionParts=array();
-                $versionResult = preg_match ('/(^[a-z\s]*)([0-9\.]*)/i', XOOPS_VERSION, $versionParts);
-                ?>
+$versionParts = [];
+$versionResult = preg_match('/(^[a-z\s]*)([0-9\.]*)/i', XOOPS_VERSION, $versionParts);
+?>
 
                 <div class="col-lg-3 col-md-6">
                     <div class="panel panel-green">
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
-                                    <i class="fa fa-tag fa-5x"></i>
+                                    <i class="fa-solid fa-tag fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="huge"><?php echo $versionParts[2]; ?></div>

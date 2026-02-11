@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          cache
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Caching for CakePHP.
@@ -41,7 +43,7 @@ class XoopsCache
      * @var array
      * @access private
      */
-    private $configs = array();
+    private $configs = [];
 
     /**
      * Holds name of the current configuration being used
@@ -54,9 +56,7 @@ class XoopsCache
     /**
      * XoopsCache::__construct()
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Returns a singleton instance
@@ -68,7 +68,7 @@ class XoopsCache
     {
         static $instance;
         if (!isset($instance)) {
-            $class    = __CLASS__;
+            $class    = self::class;
             $instance = new $class();
         }
 
@@ -105,7 +105,7 @@ class XoopsCache
      * @return array|false  (engine, settings) on success, false on failure
      * @access public
      */
-    public function config($name = 'default', $settings = array())
+    public function config($name = 'default', $settings = [])
     {
         $_this = XoopsCache::getInstance();
         if (is_array($name)) {
@@ -124,8 +124,9 @@ class XoopsCache
             if (!empty($_this->configs['default'])) {
                 $settings = $_this->configs['default'];
             } else {
-                $settings = array(
-                    'engine' => 'file');
+                $settings = [
+                    'engine' => 'file',
+                ];
             }
         }
         $engine = 'file';
@@ -156,7 +157,7 @@ class XoopsCache
      * @return boolean True on success, false on failure
      * @access public
      */
-    public function engine($name = 'file', $settings = array())
+    public function engine($name = 'file', $settings = [])
     {
         if (!$name) {
             return false;
@@ -246,7 +247,7 @@ class XoopsCache
         if (!$duration) {
             $duration = $settings['duration'];
         }
-        $duration = is_numeric($duration) ? (int)$duration : strtotime($duration) - time();
+        $duration = is_numeric($duration) ? (int) $duration : strtotime($duration) - time();
 
         if ($duration < 1) {
             return false;
@@ -377,7 +378,7 @@ class XoopsCache
             return $_this->engine[$engine]->settings();
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -392,7 +393,7 @@ class XoopsCache
         if (empty($key)) {
             return false;
         }
-        $key = str_replace(array('/', '.'), '_', (string)$key);
+        $key = str_replace(['/', '.'], '_', (string) $key);
 
         return $key;
     }
@@ -415,7 +416,7 @@ class XoopsCacheEngine
     public $settings;
 
     /**
-     * Iitialize the cache engine
+     * Initialize the cache engine
      *
      * Called automatically by the cache frontend
      *
@@ -423,11 +424,15 @@ class XoopsCacheEngine
      * @return boolean True if the engine has been successfully initialized, false if not
      * @access   public
      */
-    public function init($settings = array())
+    public function init($settings = [])
     {
-        $this->settings = array_merge(array(
-                                          'duration'    => 31556926,
-                                          'probability' => 100), $settings);
+        $this->settings = array_merge(
+            [
+                'duration'    => 31556926,
+                'probability' => 100,
+            ],
+            $settings,
+        );
 
         return true;
     }
@@ -439,9 +444,7 @@ class XoopsCacheEngine
      *
      * @access public
      */
-    public function gc()
-    {
-    }
+    public function gc() {}
 
     /**
      * Write value for a key into cache
@@ -476,9 +479,7 @@ class XoopsCacheEngine
      * @return boolean True if the value was successfully deleted, false if it didn't exist or couldn't be removed
      * @access public
      */
-    public function delete($key)
-    {
-    }
+    public function delete($key) {}
 
     /**
      * Delete all keys from the cache
@@ -487,9 +488,7 @@ class XoopsCacheEngine
      * @return boolean True if the cache was successfully cleared, false otherwise
      * @access public
      */
-    public function clear($check)
-    {
-    }
+    public function clear($check) {}
 
     /**
      * Cache Engine settings

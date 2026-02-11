@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          form
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 xoops_load('XoopsFormElement');
 
@@ -52,16 +54,19 @@ class XoopsFormCaptcha extends XoopsFormElement
      * Constructor
      * @param string  $caption    Caption of the form element, default value is defined in captcha/language/
      * @param string  $name       Name for the input box
-     * @param boolean $skipmember Skip CAPTCHA check for members
-     * @param array   $configs
+     * @param boolean $skipmember Skip CAPTCHA check for members deprecated
+     * @param array   $configs									 deprecated
      */
-    public function __construct($caption = '', $name = 'xoopscaptcha', $skipmember = true, $configs = array())
+    public function __construct($caption = '', $name = 'xoopscaptcha', $skipmember = '', $configs = [])
     {
         xoops_load('XoopsCaptcha');
         $this->captchaHandler  = XoopsCaptcha::getInstance();
-        $configs['name']       = $name;
-        $configs['skipmember'] = $skipmember;
-        $this->captchaHandler->setConfigs($configs);
+        if($skipmember !== '' || !empty($configs)) {
+            $GLOBALS['xoopsLogger']->addDeprecated("In the class 'XoopsFormCaptcha' The settings 'skipmember' and 'configs' are deprecated since XOOPS 2.5.11");
+        }
+        $config['name'] = $name;
+        $this->captchaHandler->setConfigs($config);
+
         if (!$this->captchaHandler->isActive()) {
             $this->setHidden();
         } else {

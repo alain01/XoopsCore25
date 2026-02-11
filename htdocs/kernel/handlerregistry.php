@@ -9,13 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  * @author              Kazumi Ono (AKA onokazu) http://www.myweb.ne.jp/, http://jp.xoops.org/
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * A registry for holding references to {@link XoopsObjectHandler} classes
@@ -23,7 +25,7 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  * @package             kernel
  *
  * @author              Kazumi Ono    <onokazu@xoops.org>
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  */
 class XoopsHandlerRegistry
 {
@@ -33,7 +35,7 @@ class XoopsHandlerRegistry
      * @var array
      * @access    private
      */
-    public $_handlers = array();
+    public $_handlers = [];
 
     /**
      * get a reference to the only instance of this class
@@ -71,15 +73,11 @@ class XoopsHandlerRegistry
      *
      * @param string $name Short name of a handler class
      *
-     * @return XoopsObjectHandler {@link XoopsObjectHandler}, FALSE if not registered
+     * @return XoopsObjectHandler|false {@link XoopsObjectHandler}, FALSE if not registered
      */
     public function getHandler($name)
     {
-        if (!isset($this->_handlers['kernel'][$name])) {
-            return false;
-        }
-
-        return $this->_handlers['kernel'][$name];
+        return $this->_handlers['kernel'][$name] ?? false;
     }
 
     /**
@@ -110,15 +108,11 @@ class XoopsHandlerRegistry
      * @param string $module Directory name of a module
      * @param string $name   Short name of a handler class
      *
-     * @return XoopsObjectHandler {@link XoopsObjectHandler}, FALSE if not registered
+     * @return XoopsObjectHandler|false {@link XoopsObjectHandler}, FALSE if not registered
      */
     public function getModuleHandler($module, $name)
     {
-        if (!isset($this->_handlers['module'][$module][$name])) {
-            return false;
-        }
-
-        return $this->_handlers['module'][$module][$name];
+        return $this->_handlers['module'][$module][$name] ?? false;
     }
 
     /**

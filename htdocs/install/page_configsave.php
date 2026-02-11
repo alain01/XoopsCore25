@@ -15,8 +15,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2021 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          installer
  * @since            2.3.0
  * @author           Haruki Setoyama  <haruki@planewave.org>
@@ -26,13 +26,13 @@
  * @author           DuGris (aka L. JEN) <dugris@frxoops.org>
  **/
 
-require_once './include/common.inc.php';
+require_once __DIR__ . '/include/common.inc.php';
 defined('XOOPS_INSTALL') || die('XOOPS Installation wizard die');
 
 $pageHasForm = false;
 $pageHasHelp = false;
 
-$vars =& $_SESSION['settings'];
+$vars = & $_SESSION['settings'];
 
 if (empty($vars['ROOT_PATH'])) {
     $wizard->redirectToPage('pathsettings');
@@ -42,17 +42,18 @@ if (empty($vars['ROOT_PATH'])) {
     exit();
 }
 
-$writeFiles = array(
+$writeFiles = [
     $vars['ROOT_PATH'] . '/mainfile.php',
     $vars['VAR_PATH'] . '/data/secure.php',
-);
+];
 
 $writeCheck = checkFileWriteablity($writeFiles);
 if (true === $writeCheck) {
-    $rewrite = array(
+    $rewrite = [
         'GROUP_ADMIN' => 1,
         'GROUP_USERS' => 2,
-        'GROUP_ANONYMOUS' => 3);
+        'GROUP_ANONYMOUS' => 3,
+    ];
     $rewrite = array_merge($rewrite, $vars);
 
     $result = writeConfigurationFile($rewrite, $vars['VAR_PATH'] . '/data', 'secure.dist.php', 'secure.php');
@@ -74,7 +75,7 @@ if (true === $writeCheck) {
         ob_start();
         ?>
 
-        <div class="alert alert-success"><span class="fa fa-check text-success"></span> <?php echo SAVED_MAINFILE; ?></div>
+        <div class="alert alert-success"><span class="fa-solid fa-check text-success"></span> <?php echo SAVED_MAINFILE; ?></div>
         <div class='well'><?php echo SAVED_MAINFILE_MSG; ?>
         <ul class='diags'>
             <?php
@@ -84,7 +85,7 @@ if (true === $writeCheck) {
                 }
                 echo "<li><strong>XOOPS_{$k}</strong> " . IS_VALOR . " {$v}</li>";
             }
-            ?>
+        ?>
         </ul>
         </div>
         <?php
@@ -93,17 +94,17 @@ if (true === $writeCheck) {
     } else {
         $GLOBALS['error'] = true;
         $pageHasForm = true; // will redirect to same page
-        $content = '<div class="alert alert-danger"><span class="fa fa-ban text-danger"></span> ' . $result . '</div>';
+        $content = '<div class="alert alert-danger"><span class="fa-solid fa-ban text-danger"></span> ' . $result . '</div>';
     }
 } else {
     $content = '';
     foreach ($writeCheck as $errorMsg) {
         $GLOBALS['error'] = true;
         $pageHasForm = true; // will redirect to same page
-        $content .= '<div class="alert alert-danger"><span class="fa fa-ban text-danger"></span> ' . $errorMsg . '</div>' . "\n";
+        $content .= '<div class="alert alert-danger"><span class="fa-solid fa-ban text-danger"></span> ' . $errorMsg . '</div>' . "\n";
     }
 }
-include './include/install_tpl.php';
+include __DIR__ . '/include/install_tpl.php';
 
 /**
  * Copy a configuration file from template, then rewrite with actual configuration values
@@ -120,33 +121,61 @@ function writeConfigurationFile($vars, $path, $sourceName, $fileName)
     $path .= '/';
     if (!@copy($path . $sourceName, $path . $fileName)) {
         return sprintf(ERR_COPY_MAINFILE, $fileName);
-    } else {
-        clearstatcache();
-        if (!$file = fopen($path . $fileName, 'r')) {
-            return sprintf(ERR_READ_MAINFILE, $fileName);
-        } else {
-            $content = fread($file, filesize($path . $fileName));
-            fclose($file);
+    }
 
-            foreach ($vars as $key => $val) {
-                if (is_int($val) && preg_match("/(define\()([\"'])(XOOPS_{$key})\\2,\s*(\d+)\s*\)/", $content)) {
-                    $content = preg_replace("/(define\()([\"'])(XOOPS_{$key})\\2,\s*(\d+)\s*\)/", "define('XOOPS_{$key}', {$val})", $content);
-                } elseif (preg_match("/(define\()([\"'])(XOOPS_{$key})\\2,\s*([\"'])(.*?)\\4\s*\)/", $content)) {
-                    $val     = str_replace('$', '\$', addslashes($val));
-                    $content = preg_replace("/(define\()([\"'])(XOOPS_{$key})\\2,\s*([\"'])(.*?)\\4\s*\)/", "define('XOOPS_{$key}', '{$val}')", $content);
-                }
-            }
-            $file = fopen($path . $fileName, 'w');
-            if (false === $file) {
-                return sprintf(ERR_WRITE_MAINFILE, $fileName);
-            }
-            $writeResult = fwrite($file, $content);
-            fclose($file);
-            if (false === $writeResult) {
-                return sprintf(ERR_WRITE_MAINFILE, $fileName);
-            }
+    clearstatcache();
+    if (!$file = fopen($path . $fileName, 'r')) {
+        return sprintf(ERR_READ_MAINFILE, $fileName);
+    }
+
+    $content = fread($file, filesize($path . $fileName));
+    fclose($file);
+
+    // First, update the XOOPS_PROT detection code
+    $protDetection = <<<'EOD'
+    // Protocol detection for SSL and proxy compatibility
+    $IS_HTTPS = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
+        || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+        || (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
+        || (isset($_SERVER['HTTP_X_FORWARDED_PORT']) && (int)$_SERVER['HTTP_X_FORWARDED_PORT'] === 443)
+        || (isset($_SERVER['REDIRECT_HTTPS']) && $_SERVER['REDIRECT_HTTPS'] === 'on');
+    
+    define('XOOPS_PROT', $IS_HTTPS ? 'https://' : 'http://');
+    unset($IS_HTTPS);
+EOD;
+
+    // Replace the old XOOPS_PROT detection code
+    $content = preg_replace(
+        '/\/\/ URL Association for SSL.*?define\(\'XOOPS_PROT\',.*?\);/s',
+        $protDetection,
+        $content
+    );
+
+    // Then handle the rest of the configuration variables
+    foreach ($vars as $key => $val) {
+        if ($key === 'XOOPS_URL') {
+            $content = preg_replace("/(define\()([\"'])(XOOPS_{$key})\\2,\s*([\"'])(.*?)\\4\s*\)/", "define('XOOPS_{$key}', XOOPS_PROT . {$val})", $content );
+            continue;
+        }
+        if (is_int($val) && preg_match("/(define\()([\"'])(XOOPS_{$key})\\2,\s*(\d+)\s*\)/", $content)) {
+            $content = preg_replace("/(define\()([\"'])(XOOPS_{$key})\\2,\s*(\d+)\s*\)/", "define('XOOPS_{$key}', {$val})", $content);
+        } elseif (preg_match("/(define\()([\"'])(XOOPS_{$key})\\2,\s*([\"'])(.*?)\\4\s*\)/", $content)) {
+            $val = str_replace('$', '\$', addslashes($val));
+            $content = preg_replace("/(define\()([\"'])(XOOPS_{$key})\\2,\s*([\"'])(.*?)\\4\s*\)/", "define('XOOPS_{$key}', '{$val}')", $content);
         }
     }
+
+    $file = fopen($path . $fileName, 'w');
+    if (false === $file) {
+        return sprintf(ERR_WRITE_MAINFILE, $fileName);
+    }
+    $writeResult = fwrite($file, $content);
+    fclose($file);
+    if (false === $writeResult) {
+        return sprintf(ERR_WRITE_MAINFILE, $fileName);
+    }
+
     return true;
 }
 
@@ -195,7 +224,7 @@ function getTmpStats()
  */
 function prepStats($stat)
 {
-    $subSet = array();
+    $subSet = [];
     $mode = $stat['mode'];
     $subSet['mode'] = $mode;
     $subSet['uid'] = $stat['uid'];
@@ -231,7 +260,7 @@ function checkFileWriteablity($files)
         return true; // tests are not applicable
     }
 
-    $message = array();
+    $message = [];
 
     foreach ($files as $file) {
         $dirName = dirname($file);
@@ -240,10 +269,11 @@ function checkFileWriteablity($files)
         if (false !== $dirStat) {
             $uid = $tmpStats['uid'];
             $gid = $tmpStats['gid'];
-            if (!(($uid === $dirStat['uid'] && $dirStat['user']['write'])
+            if (!(
+                (false !== stripos(PHP_OS, 'WIN'))
+                || ($uid === $dirStat['uid'] && $dirStat['user']['write'])
                 || ($gid === $dirStat['gid'] && $dirStat['group']['write'])
                 || (file_exists($file) && is_writable($file))
-                || (false !== stripos(PHP_OS, 'WIN'))
             )
             ) {
                 $uidStr = (string) $uid;
@@ -252,15 +282,15 @@ function checkFileWriteablity($files)
                 $dGidStr = (string) $dirStat['gid'];
                 if (function_exists('posix_getpwuid')) {
                     $tempUsr = posix_getpwuid($uid);
-                    $uidStr = isset($tempUsr['name']) ? $tempUsr['name'] : (string) $uid;
+                    $uidStr = $tempUsr['name'] ?? (string)$uid;
                     $tempUsr = posix_getpwuid($dirStat['uid']);
-                    $dUidStr = isset($tempUsr['name']) ? $tempUsr['name'] : (string) $dirStat['uid'];
+                    $dUidStr = $tempUsr['name'] ?? (string)$dirStat['uid'];
                 }
                 if (function_exists('posix_getgrgid')) {
                     $tempGrp = posix_getgrgid($gid);
-                    $gidStr = isset($tempGrp['name']) ? $tempGrp['name'] : (string) $gid;
+                    $gidStr = $tempGrp['name'] ?? (string)$gid;
                     $tempGrp = posix_getgrgid($dirStat['gid']);
-                    $dGidStr = isset($tempGrp['name']) ? $tempGrp['name'] : (string) $dirStat['gid'];
+                    $dGidStr = $tempGrp['name'] ?? (string)$dirStat['gid'];
                 }
                 $message[] = sprintf(
                     CHMOD_CHGRP_ERROR,
@@ -269,7 +299,7 @@ function checkFileWriteablity($files)
                     $gidStr,
                     basename($dirName),
                     $dUidStr,
-                    $dGidStr
+                    $dGidStr,
                 );
             }
         }
@@ -288,7 +318,7 @@ function copyConfigDistFiles($vars)
 {
     $copied = 0;
     $failed = 0;
-    $logs = array();
+    $logs = [];
 
     /* xoopsconfig.php */
     $source = $vars['VAR_PATH'] . '/configs/xoopsconfig.dist.php';
@@ -297,17 +327,17 @@ function copyConfigDistFiles($vars)
         $result = copy($source, $destination);
         $result ? ++$copied : ++$failed;
         if (false === $result) {
-            $logs[] = sprintf(ERR_COPY_CONFIG_FILE,  'configs/' . basename($destination));
+            $logs[] = sprintf(ERR_COPY_CONFIG_FILE, 'configs/' . basename($destination));
         }
     }
 
     /* captcha files */
-    $captchaConfigFiles = array(
+    $captchaConfigFiles = [
         'config.dist.php'            => 'config.php',
         'config.image.dist.php'      => 'config.image.php',
         'config.recaptcha2.dist.php' => 'config.recaptcha2.php',
         'config.text.dist.php'       => 'config.text.php',
-    );
+    ];
 
     foreach ($captchaConfigFiles as $source => $destination) {
         $src  = $vars['ROOT_PATH'] . '/class/captcha/' . $source;
@@ -317,16 +347,16 @@ function copyConfigDistFiles($vars)
             $result ? ++$copied : ++$failed;
             if (false === $result) {
                 $logs[] = sprintf('captcha config file copy to %s failed', $destination);
-                $logs[] = sprintf(ERR_COPY_CONFIG_FILE,  'captcha/' . $destination);
+                $logs[] = sprintf(ERR_COPY_CONFIG_FILE, 'captcha/' . $destination);
             }
         }
     }
 
     /* text sanitizer  files */
-    $textsanitizerConfigFiles = array(
+    $textsanitizerConfigFiles = [
         'config.dist.php'                 => 'config.php',
         'censor/config.dist.php'          => 'config.censor.php',
-        'flash/config.dist.php'           => 'config.flash.php',
+//        'flash/config.dist.php'           => 'config.flash.php',
         'image/config.dist.php'           => 'config.image.php',
         'mms/config.dist.php'             => 'config.mms.php',
         'rtsp/config.dist.php'            => 'config.rtsp.php',
@@ -334,7 +364,7 @@ function copyConfigDistFiles($vars)
         'textfilter/config.dist.php'      => 'config.textfilter.php',
         'wiki/config.dist.php'            => 'config.wiki.php',
         'wmp/config.dist.php'             => 'config.wmp.php',
-    );
+    ];
     foreach ($textsanitizerConfigFiles as $source => $destination) {
         $src  = $vars['ROOT_PATH'] . '/class/textsanitizer/' . $source;
         $dest = $vars['VAR_PATH'] . '/configs/textsanitizer/' . $destination;

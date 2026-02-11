@@ -9,15 +9,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  */
-/* @var  XoopsUser $xoopsUser */
+/** @var  XoopsUser $xoopsUser */
 
 use Xmf\Request;
 
 // Include XOOPS control panel header
-include_once dirname(dirname(__DIR__)) . '/include/cp_header.php';
+include_once dirname(__DIR__, 2) . '/include/cp_header.php';
 // Check user rights
 if (is_object($xoopsUser)) {
     $admintest   = 0;

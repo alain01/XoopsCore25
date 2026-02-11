@@ -9,14 +9,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             upgrader
  * @since               2.5.0
  * @author              Andricq Nicolas (AKA MusS)
  */
 
-require_once 'dbmanager.php';
+require_once __DIR__ . '/dbmanager.php';
 
 /**
  * Class upgrade_250
@@ -30,10 +30,11 @@ class Upgrade_250 extends XoopsUpgrade
     public function check_config()
     {
         $sql = 'SELECT COUNT(*) FROM `' . $GLOBALS['xoopsDB']->prefix('config') . "` WHERE `conf_name` IN ('break1', 'usetips')";
-        if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+        $result = $GLOBALS['xoopsDB']->queryF($sql);
+        if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
             return false;
         }
-        list($count) = $GLOBALS['xoopsDB']->fetchRow($result);
+        [$count] = $GLOBALS['xoopsDB']->fetchRow($result);
 
         return ($count != 0);
     }
@@ -44,10 +45,11 @@ class Upgrade_250 extends XoopsUpgrade
     public function check_templates()
     {
         $sql = 'SELECT COUNT(*) FROM `' . $GLOBALS['xoopsDB']->prefix('tplfile') . "` WHERE `tpl_file` IN ('system_header.html', 'system_header.tpl') AND `tpl_type` = 'admin'";
-        if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+        $result = $GLOBALS['xoopsDB']->queryF($sql);
+        if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
             return false;
         }
-        list($count) = $GLOBALS['xoopsDB']->fetchRow($result);
+        [$count] = $GLOBALS['xoopsDB']->fetchRow($result);
 
         return ($count != 0);
     }
@@ -60,13 +62,14 @@ class Upgrade_250 extends XoopsUpgrade
         $dbm = new Db_manager();
 
         $sql = 'SELECT conf_id FROM `' . $GLOBALS['xoopsDB']->prefix('config') . "` WHERE `conf_name` IN ('cpanel')";
-        if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+        $result = $GLOBALS['xoopsDB']->queryF($sql);
+        if (!$GLOBALS['xoopsDB']->isResultSet($result)) {
             return false;
         }
         $count = $GLOBALS['xoopsDB']->fetchRow($result);
 
         $sql = 'UPDATE `' . $GLOBALS['xoopsDB']->prefix('config') . "` SET `conf_value` = 'default' WHERE `conf_id` = " . $count[0];
-        if (!$result = $GLOBALS['xoopsDB']->queryF($sql)) {
+        if (!$result = $GLOBALS['xoopsDB']->exec($sql)) {
             return false;
         }
 
@@ -109,7 +112,7 @@ class Upgrade_250 extends XoopsUpgrade
 
         $dbm->insert('config', " (conf_modid,conf_catid,conf_name,conf_title,conf_value,conf_desc,conf_formtype,conf_valuetype,conf_order) VALUES (0, 1, 'redirect_message_ajax', '_MD_AM_CUSTOM_REDIRECT', '1', '_MD_AM_CUSTOM_REDIRECT_DESC', 'yesno', 'int', 12)");
 
-        require_once '../class/xoopslists.php';
+        require_once __DIR__ . '/../class/xoopslists.php';
         $editors = XoopsLists::getDirListAsArray('../class/xoopseditor');
         foreach ($editors as $dir) {
             $dbm->insert('configoption', " (confop_name,confop_value,conf_id) VALUES ('" . $dir . "', '" . $dir . "', $block_id)");
@@ -141,7 +144,7 @@ class Upgrade_250 extends XoopsUpgrade
      */
     public function apply_templates()
     {
-        include_once '../modules/system/xoops_version.php';
+        include_once XOOPS_ROOT_PATH . '/modules/system/xoops_version.php';
 
         $dbm  = new Db_manager();
         $time = time();
@@ -198,7 +201,7 @@ class Upgrade_250 extends XoopsUpgrade
         $criteria = $this->strayblockCriteria();
         $tables = new Xmf\Database\Tables();
         $tables->useTable('newblocks');
-        $tables->update('newblocks', array('func_num' => '0'), $criteria);
+        $tables->update('newblocks', ['func_num' => '0'], $criteria);
 
         return $tables->executeQueue(true);
     }
@@ -206,7 +209,7 @@ class Upgrade_250 extends XoopsUpgrade
     public function __construct()
     {
         parent::__construct(basename(__DIR__));
-        $this->tasks = array('config', 'templates', 'strayblock');
+        $this->tasks = ['config', 'templates', 'strayblock'];
     }
 }
 

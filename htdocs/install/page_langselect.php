@@ -14,8 +14,8 @@
  * See the enclosed file license.txt for licensing information.
  * If you did not receive this file, get it at https://www.gnu.org/licenses/gpl-2.0.html
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license          GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license          GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package          installer
  * @since            2.3.0
  * @author           Haruki Setoyama  <haruki@planewave.org>
@@ -26,20 +26,20 @@
  * @author           DuGris (aka L. JEN) <dugris@frxoops.org>
  **/
 
-require_once './include/common.inc.php';
+require_once __DIR__ . '/include/common.inc.php';
 defined('XOOPS_INSTALL') || die('XOOPS Installation wizard die');
 
-xoops_setcookie('xo_install_lang', 'english', null, null, null);
+xoops_setcookie('xo_install_lang', 'english', 0, '', '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_REQUEST['lang'])) {
     $lang = $_REQUEST['lang'];
-    xoops_setcookie('xo_install_lang', $lang, null, null, null);
+    xoops_setcookie('xo_install_lang', $lang, 0, '', '');
 
     $wizard->redirectToPage('+1');
     exit();
 }
 
-$_SESSION['settings'] = array();
-xoops_setcookie('xo_install_user', '', null, null, null);
+$_SESSION['settings'] = [];
+xoops_setcookie('xo_install_user', '', 0, '', '');
 
 $pageHasForm = true;
 $title = LANGUAGE_SELECTION;
@@ -50,7 +50,7 @@ $content =<<<EOT
     <select name="lang" id="lang" class="form-control">
 EOT;
 
-$languages = getDirList('./language/');
+$languages = getDirList(__DIR__ . '/../language/');
 foreach ($languages as $lang) {
     $sel = ($lang == $wizard->language) ? ' selected' : '';
     $content .= "<option value=\"{$lang}\"{$sel}>{$lang}</option>\n";
@@ -61,4 +61,4 @@ $content .=<<<EOB
 EOB;
 
 
-include './include/install_tpl.php';
+include __DIR__ . '/include/install_tpl.php';

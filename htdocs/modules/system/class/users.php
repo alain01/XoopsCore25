@@ -9,18 +9,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             system
  */
-// defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
+//if (!defined('XOOPS_ROOT_PATH')) {
+//    throw new \RuntimeException('XOOPS root path not defined');
+//}
 
 include_once XOOPS_ROOT_PATH . '/kernel/user.php';
 
 /**
  * System Users
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  */
 class SystemUsers extends XoopsUser
@@ -44,7 +46,7 @@ class SystemUsers extends XoopsUser
             $blank_img = $this->getVar('avatar_file', 'e');
         }
         // Get User Config
-        /* @var XoopsConfigHandler $config_handler */
+        /** @var XoopsConfigHandler $config_handler */
         $config_handler  = xoops_getHandler('config');
         $xoopsConfigUser = $config_handler->getConfigsByCat(XOOPS_CONF_USER);
 
@@ -59,11 +61,11 @@ class SystemUsers extends XoopsUser
         $imgtray_img        = new XoopsFormElementTray(_IMAGEFILE . '<br><br>' . $maxpixel . $maxsize, '<br>');
         $imageselect_img    = new XoopsFormSelect(sprintf(_AM_SYSTEM_AVATAR_USE_FILE, XOOPS_UPLOAD_PATH), 'avatar_file', $blank_img);
         $image_array_img    = XoopsLists::getImgListAsArray(XOOPS_UPLOAD_PATH);
-        $imageselect_img->addOption("$blank_img", $blank_img);
+        $imageselect_img->addOption((string)$blank_img, $blank_img);
         foreach ($image_array_img as $image_img) {
-//            if (preg_match('#avt#', $image_img)) {
+            //            if (preg_match('#avt#', $image_img)) {
             if (false !== strpos($image_img, 'avt')) {
-                $imageselect_img->addOption("$image_img", $image_img);
+                $imageselect_img->addOption((string)$image_img, $image_img);
             }
         }
         $imageselect_img->setExtra("onchange='showImgSelected(\"image_img\", \"avatar_file\", \"" . $uploadirectory_img . "\", \"\", \"" . XOOPS_UPLOAD_URL . "\")'");
@@ -86,19 +88,19 @@ class SystemUsers extends XoopsUser
 }
 
 /**
- * System users handler class. (Singelton)
+ * System users handler class. (Singleton)
  *
  * This class is responsible for providing data access mechanisms to the data source
  * of XOOPS block class objects.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @package             system
  * @subpackage          avatar
  */
 class SystemUsersHandler extends XoopsUserHandler
 {
     /**
-     * @param null|XoopsDatabase $db
+     * @param XoopsDatabase|null $db
      */
     public function __construct(XoopsDatabase $db)
     {

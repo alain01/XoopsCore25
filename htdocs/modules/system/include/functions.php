@@ -8,8 +8,8 @@
  * of supporting developers from this source code or any supporting source code
  * which is considered copyrighted (c) material of the original comment or credit authors.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license             GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
+ * @license             GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             system
  */
 
@@ -26,10 +26,10 @@
  */
 function system_CleanVars(&$global, $key, $default = '', $type = 'int')
 {
-	$GLOBALS['xoopsLogger']->addDeprecated("system_CleanVars() is deprecated since XOOPS 2.5.11, please use 'Xmf\Request' instead");
-	switch ($type) {
+    $GLOBALS['xoopsLogger']->addDeprecated('Function ' . __FUNCTION__ . " is deprecated since XOOPS 2.5.11, please use 'Xmf\Request' instead");
+    switch ($type) {
         case 'array':
-            $ret = (isset($global[$key]) && is_array($global[$key])) ? $global[$key] : $default;
+            $ret = (isset($global[$key]) && \is_array($global[$key])) ? $global[$key] : $default;
             break;
         case 'date':
             $ret = isset($global[$key]) ? strtotime($global[$key]) : $default;
@@ -87,7 +87,7 @@ function system_loadLanguage($name, $domain = '', $language = null)
  */
 function system_adminVersion($version, $value = '')
 {
-    static $tblVersion = array();
+    static $tblVersion = [];
     if (is_array($tblVersion) && array_key_exists($version . '.' . $value, $tblVersion)) {
         return $tblVersion[$version . '.' . $value];
     }

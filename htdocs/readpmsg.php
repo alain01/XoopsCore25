@@ -9,11 +9,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             core
  * @since               2.0.0
  */
+
+use Xmf\Request;
 
 include __DIR__ . '/mainfile.php';
 $xoopsPreload = XoopsPreload::getInstance();
@@ -31,19 +33,19 @@ if (!is_object($xoopsUser)) {
             exit();
         } elseif (empty($_REQUEST['ok'])) {
             include $GLOBALS['xoops']->path('header.php');
-            xoops_confirm(array('ok' => 1, 'delete' => 1, 'msg_id' => (int)$_POST['msg_id']), $_SERVER['REQUEST_URI'], _PM_SURE_TO_DELETE);
+            xoops_confirm(['ok' => 1, 'delete' => 1, 'msg_id' => Request::getInt('msg_id', 0, 'POST')], $_SERVER['REQUEST_URI'], _PM_SURE_TO_DELETE);
             include $GLOBALS['xoops']->path('footer.php');
             exit();
         }
-        $pm = $pm_handler->get((int)$_POST['msg_id']);
+        $pm = $pm_handler->get(Request::getInt('msg_id', 0, 'POST'));
         if (!is_object($pm) || $pm->getVar('to_userid') != $xoopsUser->getVar('uid') || !$pm_handler->delete($pm)) {
             exit();
         } else {
             redirect_header('viewpmsg.php', 1, _PM_DELETED);
         }
     }
-    $start          = !empty($_GET['start']) ? (int)$_GET['start'] : 0;
-    $total_messages = !empty($_GET['total_messages']) ? (int)$_GET['total_messages'] : 0;
+    $start          = !empty($_GET['start']) ? Request::getInt('start', 0, 'GET') : 0;
+    $total_messages = !empty($_GET['total_messages']) ? Request::getInt('total_messages', 0, 'GET') : 0;
     include $GLOBALS['xoops']->path('header.php');
     $criteria = new Criteria('to_userid', $xoopsUser->getVar('uid'));
     $criteria->setLimit(1);
@@ -77,7 +79,7 @@ if (!is_object($xoopsUser)) {
         } else {
             echo $xoopsConfig['anonymous']; // we need to do this for deleted users
         }
-        $iconName = htmlspecialchars($pm_arr[0]->getVar('msg_image', 'E'), ENT_QUOTES);
+        $iconName = htmlspecialchars((string)$pm_arr[0]->getVar('msg_image', 'E'), ENT_QUOTES | ENT_HTML5);
         if ($iconName != '') {
             echo "</td><td><img src='images/subject/" . $iconName . "' alt='' />&nbsp;" . _PM_SENTC . '' . formatTimestamp($pm_arr[0]->getVar('msg_time'));
         } else {
@@ -88,12 +90,12 @@ if (!is_object($xoopsUser)) {
         echo $pm_arr[0]->getVar('msg_text') . "<br><br></td></tr><tr class='foot'><td class='width20 txtleft' colspan='2'>";
         // we don't want to reply to a deleted user!
         if ($poster != false) {
-            echo "<button type='button' class='btn btn-default btn-secondary' onclick='openWithSelfMain(\"" . XOOPS_URL . '/pmlite.php?reply=1&amp;msg_id=' . $pm_arr[0]->getVar('msg_id') . "\",\"pmlite\",565,500);' title='" . _PM_REPLY . "'><span class='fa fa-fw fa-reply'></span></button>\n";
+            echo "<button type='button' class='btn btn-default btn-secondary' onclick='openWithSelfMain(\"" . XOOPS_URL . '/pmlite.php?reply=1&amp;msg_id=' . $pm_arr[0]->getVar('msg_id') . "\",\"pmlite\",565,500);' title='" . _PM_REPLY . "'><span class='fa-solid fa-reply'></span></button>\n";
         }
         echo "<input type='hidden' name='delete' value='1' />";
         echo $GLOBALS['xoopsSecurity']->getTokenHTML();
         echo "<input type='hidden' name='msg_id' value='" . $pm_arr[0]->getVar('msg_id') . "' />";
-        echo "<button type='button' class='btn btn-default btn-secondary' onclick='document.delete" . $pm_arr[0]->getVar('msg_id') . ".submit();' title='" . _PM_DELETE . "'><span class='fa fa-fw fa-remove'></span></button>";
+        echo "<button type='button' class='btn btn-default btn-secondary' onclick='document.delete" . $pm_arr[0]->getVar('msg_id') . ".submit();' title='" . _PM_DELETE . "'><span class='fa-solid fa-xmark'></span></button>";
         echo "</td></tr><tr><td class='txtright' colspan='2'>";
         $previous = $start - 1;
         $next     = $start + 1;

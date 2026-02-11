@@ -9,14 +9,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @subpackage          model
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 include_once XOOPS_ROOT_PATH . '/kernel/object.php';
 
@@ -31,14 +33,12 @@ class XoopsModelFactory
     /**
      * static private
      */
-    public $handlers = array();
+    public $handlers = [];
 
     /**
      * XoopsModelFactory::__construct()
      */
-    protected function __construct()
-    {
-    }
+    protected function __construct() {}
 
     /**
      * Get singleton instance
@@ -49,7 +49,7 @@ class XoopsModelFactory
     {
         static $instance;
         if (!isset($instance)) {
-            $class    = __CLASS__;
+            $class    = self::class;
             $instance = new $class();
         }
 
@@ -87,7 +87,7 @@ class XoopsModelFactory
             $handlers[$name] = $handler;
         }
         $handlers[$name]->setHandler($ohandler);
-        if (!empty($args) && is_array($args) && is_a($handlers[$name], 'XoopsModelAbstract')) {
+        if (!empty($args) && \is_array($args) && is_a($handlers[$name], 'XoopsModelAbstract')) {
             $handlers[$name]->setVars($args);
         }
 
@@ -118,8 +118,8 @@ class XoopsModelAbstract
      * normally, this is called from child classes only
      *
      * @access protected
-     * @param null $args
-     * @param null $handler
+     * @param array|null $args
+     * @param mixed $handler
      */
     public function __construct($args = null, $handler = null)
     {
@@ -136,7 +136,7 @@ class XoopsModelAbstract
     public function setHandler($handler)
     {
         if (is_object($handler) && is_a($handler, 'XoopsPersistableObjectHandler')) {
-            $this->handler =& $handler;
+            $this->handler = & $handler;
 
             return true;
         }
@@ -152,7 +152,7 @@ class XoopsModelAbstract
      */
     public function setVars($args)
     {
-        if (!empty($args) && is_array($args)) {
+        if (!empty($args) && \is_array($args)) {
             foreach ($args as $key => $value) {
                 $this->$key = $value;
             }

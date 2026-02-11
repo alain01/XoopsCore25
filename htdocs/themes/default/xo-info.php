@@ -14,13 +14,14 @@
  *
  * Not used yet, for forward compatibility
  *
- * @copyright    (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright    (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license          GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author           Taiwen Jiang <phppp@users.sourceforge.net>
  * @since            2.3
  */
 
-return array(
+return [
     'copyright' => '&copy; XOOPS Core Team, maintained by XOOPS Design Team',
     // Types of language constants
-    'languages' => array('main', 'admin'));
+    'languages' => ['main', 'admin'],
+];

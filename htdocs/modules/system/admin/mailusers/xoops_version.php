@@ -10,8 +10,8 @@
  */
 
 /**
- * @copyright    XOOPS Project http://xoops.org/
- * @license      GNU GPL 2 or later (https://www.gnu.org/licenses/gpl-2.0.html)
+ * @copyright    2000-2025 XOOPS Project (https://xoops.org)
+ * @license      GNU GPL 2.0 or later (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package
  * @since
  * @author       XOOPS Development Team, Kazumi Ono (AKA onokazu)
@@ -27,6 +27,7 @@ $modversion['help']        = 'page=mailusers';
 $modversion['license']     = 'GPL see LICENSE';
 $modversion['official']    = 1;
 $modversion['image']       = 'mailuser.png';
+$modversion['icon']        = 'fa-solid fa-envelope';
 
 $modversion['hasAdmin']  = 1;
 $modversion['adminpath'] = 'admin.php?fct=mailusers';

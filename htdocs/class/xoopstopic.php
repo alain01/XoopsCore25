@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
@@ -17,7 +17,9 @@
  * @deprecated
  */
 
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 $GLOBALS['xoopsLogger']->addDeprecated("'/class/xoopstopic.php' is deprecated since XOOPS 2.5.4, please create your own class instead.");
 
@@ -25,6 +27,7 @@ include_once XOOPS_ROOT_PATH . '/class/xoopstree.php';
 
 /**
  * Class XoopsTopic
+ * @deprecated
  */
 class XoopsTopic
 {
@@ -52,7 +55,7 @@ class XoopsTopic
         if (is_array($topicid)) {
             $this->makeTopic($topicid);
         } elseif ($topicid != 0) {
-            $this->getTopic((int)$topicid);
+            $this->getTopic((int) $topicid);
         } else {
             $this->topic_id = $topicid;
         }
@@ -87,9 +90,16 @@ class XoopsTopic
      */
     public function getTopic($topicid)
     {
-        $topicid = (int)$topicid;
+        $topicid = (int) $topicid;
         $sql     = 'SELECT * FROM ' . $this->table . ' WHERE topic_id=' . $topicid . '';
-        $array   = $this->db->fetchArray($this->db->query($sql));
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $this->db->error(),
+                E_USER_ERROR,
+            );
+        }
+        $array   = $this->db->fetchArray($result);
         $this->makeTopic($array);
     }
 
@@ -117,14 +127,14 @@ class XoopsTopic
      */
     public function store()
     {
-        $myts   = MyTextSanitizer::getInstance();
+        global $xoopsDB;
         $title  = '';
         $imgurl = '';
         if (isset($this->topic_title) && $this->topic_title != '') {
-            $title = $myts->addSlashes($this->topic_title);
+            $title = $xoopsDB->escape($this->topic_title);
         }
         if (isset($this->topic_imgurl) && $this->topic_imgurl != '') {
-            $imgurl = $myts->addSlashes($this->topic_imgurl);
+            $imgurl = $xoopsDB->escape($this->topic_imgurl);
         }
         if (!isset($this->topic_pid) || !is_numeric($this->topic_pid)) {
             $this->topic_pid = 0;
@@ -135,7 +145,7 @@ class XoopsTopic
         } else {
             $sql = sprintf("UPDATE %s SET topic_pid = %u, topic_imgurl = '%s', topic_title = '%s' WHERE topic_id = %u", $this->table, $this->topic_pid, $imgurl, $title, $this->topic_id);
         }
-        if (!$result = $this->db->query($sql)) {
+        if (!$result = $this->db->exec($sql)) {
             ErrorHandler::show('0022');
         }
         if ($this->use_permission == true) {
@@ -144,7 +154,7 @@ class XoopsTopic
             }
             $xt            = new XoopsTree($this->table, 'topic_id', 'topic_pid');
             $parent_topics = $xt->getAllParentId($this->topic_id);
-            if (!empty($this->m_groups) && is_array($this->m_groups)) {
+            if (!empty($this->m_groups) && \is_array($this->m_groups)) {
                 foreach ($this->m_groups as $m_g) {
                     $moderate_topics = XoopsPerms::getPermitted($this->mid, 'ModInTopic', $m_g);
                     $add             = true;
@@ -165,7 +175,7 @@ class XoopsTopic
                     }
                 }
             }
-            if (!empty($this->s_groups) && is_array($this->s_groups)) {
+            if (!empty($this->s_groups) && \is_array($this->s_groups)) {
                 foreach ($s_groups as $s_g) {
                     $submit_topics = XoopsPerms::getPermitted($this->mid, 'SubmitInTopic', $s_g);
                     $add           = true;
@@ -185,7 +195,7 @@ class XoopsTopic
                     }
                 }
             }
-            if (!empty($this->r_groups) && is_array($this->r_groups)) {
+            if (!empty($this->r_groups) && \is_array($this->r_groups)) {
                 foreach ($r_groups as $r_g) {
                     $read_topics = XoopsPerms::getPermitted($this->mid, 'ReadInTopic', $r_g);
                     $add         = true;
@@ -213,7 +223,7 @@ class XoopsTopic
     public function delete()
     {
         $sql = sprintf('DELETE FROM %s WHERE topic_id = %u', $this->table, $this->topic_id);
-        $this->db->query($sql);
+        $this->db->exec($sql);
     }
 
     /**
@@ -236,7 +246,7 @@ class XoopsTopic
      */
     public function topic_title($format = 'S')
     {
-        $myts = MyTextSanitizer::getInstance();
+        $myts = \MyTextSanitizer::getInstance();
         switch ($format) {
             case 'S':
             case 'E':
@@ -244,7 +254,7 @@ class XoopsTopic
                 break;
             case 'P':
             case 'F':
-                $title = $myts->htmlSpecialChars($myts->stripSlashesGPC($this->topic_title));
+                $title = $myts->htmlSpecialChars($this->topic_title);
                 break;
         }
 
@@ -258,7 +268,7 @@ class XoopsTopic
      */
     public function topic_imgurl($format = 'S')
     {
-        $myts = MyTextSanitizer::getInstance();
+        $myts = \MyTextSanitizer::getInstance();
         switch ($format) {
             case 'S':
             case 'E':
@@ -266,7 +276,7 @@ class XoopsTopic
                 break;
             case 'P':
             case 'F':
-                $imgurl = $myts->htmlSpecialChars($myts->stripSlashesGPC($this->topic_imgurl));
+                $imgurl = $myts->htmlSpecialChars($this->topic_imgurl);
                 break;
         }
 
@@ -275,10 +285,7 @@ class XoopsTopic
 
     public function prefix()
     {
-        if (isset($this->prefix)) {
-            return $this->prefix;
-        }
-        return null;
+        return $this->prefix ?? null;
     }
 
     /**
@@ -286,10 +293,10 @@ class XoopsTopic
      */
     public function getFirstChildTopics()
     {
-        $ret       = array();
+        $ret       = [];
         $xt        = new XoopsTree($this->table, 'topic_id', 'topic_pid');
         $topic_arr = $xt->getFirstChild($this->topic_id, 'topic_title');
-        if (is_array($topic_arr) && count($topic_arr)) {
+        if (!empty($topic_arr) && \is_array($topic_arr)) {
             foreach ($topic_arr as $topic) {
                 $ret[] = new XoopsTopic($this->table, $topic);
             }
@@ -303,10 +310,10 @@ class XoopsTopic
      */
     public function getAllChildTopics()
     {
-        $ret       = array();
+        $ret       = [];
         $xt        = new XoopsTree($this->table, 'topic_id', 'topic_pid');
         $topic_arr = $xt->getAllChild($this->topic_id, 'topic_title');
-        if (is_array($topic_arr) && count($topic_arr)) {
+        if (!empty($topic_arr) && \is_array($topic_arr)) {
             foreach ($topic_arr as $topic) {
                 $ret[] = new XoopsTopic($this->table, $topic);
             }
@@ -320,10 +327,10 @@ class XoopsTopic
      */
     public function getChildTopicsTreeArray()
     {
-        $ret       = array();
+        $ret       = [];
         $xt        = new XoopsTree($this->table, 'topic_id', 'topic_pid');
         $topic_arr = $xt->getChildTreeArray($this->topic_id, 'topic_title');
-        if (is_array($topic_arr) && count($topic_arr)) {
+        if (!empty($topic_arr) && \is_array($topic_arr)) {
             foreach ($topic_arr as $topic) {
                 $ret[] = new XoopsTopic($this->table, $topic);
             }
@@ -380,11 +387,18 @@ class XoopsTopic
      */
     public function getTopicsList()
     {
-        $result = $this->db->query('SELECT topic_id, topic_pid, topic_title FROM ' . $this->table);
-        $ret    = array();
-        $myts   = MyTextSanitizer::getInstance();
+        $sql = 'SELECT topic_id, topic_pid, topic_title FROM ' . $this->table;
+        $result = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $this->db->error(),
+                E_USER_ERROR,
+            );
+        }
+        $ret    = [];
+        $myts   = \MyTextSanitizer::getInstance();
         while (false !== ($myrow = $this->db->fetchArray($result))) {
-            $ret[$myrow['topic_id']] = array('title' => $myts->htmlSpecialChars($myrow['topic_title']), 'pid' => $myrow['topic_pid']);
+            $ret[$myrow['topic_id']] = ['title' => $myts->htmlSpecialChars($myrow['topic_title']), 'pid' => $myrow['topic_pid']];
         }
 
         return $ret;
@@ -398,9 +412,15 @@ class XoopsTopic
      */
     public function topicExists($pid, $title)
     {
-        $sql = 'SELECT COUNT(*) from ' . $this->table . ' WHERE topic_pid = ' . (int)$pid . " AND topic_title = '" . trim($title) . "'";
-        $rs  = $this->db->query($sql);
-        list($count) = $this->db->fetchRow($rs);
+        $sql = 'SELECT COUNT(*) from ' . $this->table . ' WHERE topic_pid = ' . (int) $pid . " AND topic_title = '" . trim($title) . "'";
+        $result  = $this->db->query($sql);
+        if (!$this->db->isResultSet($result)) {
+            throw new \RuntimeException(
+                \sprintf(_DB_QUERY_ERROR, $sql) . $this->db->error(),
+                E_USER_ERROR,
+            );
+        }
+        [$count] = $this->db->fetchRow($result);
         if ($count > 0) {
             return true;
         } else {

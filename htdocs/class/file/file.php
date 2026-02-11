@@ -9,21 +9,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2005-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             class
  * @subpackage          file
  * @since               2.3.0
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 /**
  * Convenience class for reading, writing and appending to files.
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
+ * CakePHP(tm) :  Rapid Development Framework <https://www.cakephp.org/>
  * Copyright 2005-2008, Cake Software Foundation, Inc.
  *                                     1785 E. Sahara Avenue, Suite 490-204
  *                                     Las Vegas, Nevada 89104
@@ -33,13 +35,13 @@ defined('XOOPS_ROOT_PATH') || exit('Restricted access');
  *
  * @filesource
  * @copyright  Copyright 2005-2008, Cake Software Foundation, Inc.
- * @link       http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @link       https://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
  * @package    cake
  * @subpackage cake.cake.libs
  * @since      CakePHP(tm) v 0.2.9
  * @modifiedby $LastChangedBy: beckmi $
  * @lastmodified $Date: 2015-06-06 17:59:41 -0400 (Sat, 06 Jun 2015) $
- * @license    http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @license    https://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
 /**
@@ -72,7 +74,7 @@ class XoopsFileHandler
      * @var string
      * @access public
      */
-    public $info = array();
+    public $info = [];
 
     /**
      * Holds the file handler resource if the file is opened
@@ -245,17 +247,21 @@ class XoopsFileHandler
             $lineBreak = "\r\n";
         }
 
-        return strtr($data, array(
-            "\r\n" => $lineBreak,
-            "\n"   => $lineBreak,
-            "\r"   => $lineBreak));
+        return strtr(
+            $data,
+            [
+                "\r\n" => $lineBreak,
+                "\n"   => $lineBreak,
+                "\r"   => $lineBreak,
+            ],
+        );
     }
 
     /**
      * Write given data to this File.
      *
      * @param  string      $data  Data to write to this File.
-     * @param  string      $mode  Mode of writing. {@link http://php.net/fwrite See fwrite()}.
+     * @param  string      $mode  Mode of writing. {@link https://php.net/fwrite See fwrite()}.
      * @param  bool|string $force force the file to open
      * @return boolean     Success
      * @access public
@@ -352,11 +358,7 @@ class XoopsFileHandler
         if ($this->info == null) {
             $this->info();
         }
-        if (isset($this->info['extension'])) {
-            return $this->info['extension'];
-        }
-
-        return false;
+        return $this->info['extension'] ?? false;
     }
 
     /**
@@ -382,8 +384,8 @@ class XoopsFileHandler
     /**
      * makes filename safe for saving
      *
-     * @param  string $name the name of the file to make safe if different from $this->name
-     * @param  null|string   $ext
+     * @param  string|null $name the name of the file to make safe if different from $this->name
+     * @param  string|null   $ext
      * @return string $ext the extension of the file
      * @access public
      */
@@ -403,7 +405,7 @@ class XoopsFileHandler
      * Get md5 Checksum of file with previous check of Filesize
      *
      * @param  mixed $maxsize in MB or true to force
-     * @return string|false md5 Checksum {@link http://php.net/md5_file See md5_file()}
+     * @return string|false md5 Checksum {@link https://php.net/md5_file See md5_file()}
      * @access public
      */
     public function md5($maxsize = 5)

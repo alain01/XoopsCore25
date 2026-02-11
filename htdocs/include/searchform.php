@@ -9,12 +9,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             kernel
  * @since               2.0.0
  */
-defined('XOOPS_ROOT_PATH') || exit('Restricted access');
+if (!defined('XOOPS_ROOT_PATH')) {
+    throw new \RuntimeException('Restricted access');
+}
 
 include_once $GLOBALS['xoops']->path('class/xoopsformloader.php');
 
@@ -22,12 +24,15 @@ include_once $GLOBALS['xoops']->path('class/xoopsformloader.php');
 $search_form = new XoopsThemeForm(_SR_SEARCH, 'search', 'search.php', 'get');
 
 // create form elements
-$search_form->addElement(new XoopsFormText(_SR_KEYWORDS, 'query', 30, 255, htmlspecialchars(stripslashes(implode(' ', $queries)), ENT_QUOTES)), true);
+$search_form->addElement(new XoopsFormText(_SR_KEYWORDS, 'query', 30, 255, htmlspecialchars(stripslashes(implode(' ', $queries)), ENT_QUOTES | ENT_HTML5)), true);
 $type_select = new XoopsFormSelect(_SR_TYPE, 'andor', $andor);
-$type_select->addOptionArray(array(
-                                 'AND'   => _SR_ALL,
-                                 'OR'    => _SR_ANY,
-                                 'exact' => _SR_EXACT));
+$type_select->addOptionArray(
+    [
+        'AND'   => _SR_ALL,
+        'OR'    => _SR_ANY,
+        'exact' => _SR_EXACT,
+    ],
+);
 $search_form->addElement($type_select);
 if (!empty($mids)) {
     $mods_checkbox = new XoopsFormCheckBox(_SR_SEARCHIN, 'mids[]', $mids);
@@ -41,7 +46,7 @@ if (empty($modules)) {
     if (!empty($available_modules)) {
         $criteria->add(new Criteria('mid', '(' . implode(',', $available_modules) . ')', 'IN'));
     }
-    /* @var XoopsModuleHandler $module_handler */
+    /** @var XoopsModuleHandler $module_handler */
     $module_handler = xoops_getHandler('module');
     $mods_checkbox->addOptionArray($module_handler->getList($criteria));
 } else {

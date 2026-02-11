@@ -2,7 +2,7 @@
 /**
  * Functions handling module configs
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  * @since               1.00
@@ -29,7 +29,7 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_CONFIG')):
 
         if (isset($GLOBALS['xoopsModule']) && is_object($GLOBALS['xoopsModule']) && $GLOBALS['xoopsModule']->getVar('dirname', 'n') == $dirname) {
             if (isset($GLOBALS['xoopsModuleConfig'])) {
-                $moduleConfig =& $GLOBALS['xoopsModuleConfig'];
+                $moduleConfig = & $GLOBALS['xoopsModuleConfig'];
             } else {
                 return null;
             }
@@ -47,85 +47,85 @@ if (!defined('FRAMEWORKS_ART_FUNCTIONS_CONFIG')):
         return $moduleConfig;
     }
 
-    /**
-     * @param string $dirname
-     *
-     * @return array
-     */
-    function mod_loadConfg($dirname = '')
-    {
-        return mod_loadConfig($dirname);
+/**
+ * @param string $dirname
+ *
+ * @return array
+ */
+function mod_loadConfg($dirname = '')
+{
+    return mod_loadConfig($dirname);
+}
+
+/**
+ * Fetch configs of a module from database
+ *
+ *
+ * @param    string $dirname module dirname
+ * @return    array
+ */
+function mod_fetchConfig($dirname = '')
+{
+    if (empty($dirname)) {
+        return null;
     }
 
-    /**
-     * Fetch configs of a module from database
-     *
-     *
-     * @param    string $dirname module dirname
-     * @return    array
-     */
-    function mod_fetchConfig($dirname = '')
-    {
-        if (empty($dirname)) {
-            return null;
-        }
+    /** @var \XoopsModuleHandler $module_handler */
+    $module_handler = xoops_getHandler('module');
+    if (!$module = $module_handler->getByDirname($dirname)) {
+        trigger_error("Module '{$dirname}' does not exist", E_USER_WARNING);
 
-        /** @var \XoopsModuleHandler $module_handler */
-        $module_handler = xoops_getHandler('module');
-        if (!$module = $module_handler->getByDirname($dirname)) {
-            trigger_error("Module '{$dirname}' does not exist", E_USER_WARNING);
-
-            return null;
-        }
-
-        /* @var XoopsConfigHandler $config_handler */
-        $config_handler = xoops_getHandler('config');
-        $criteria       = new CriteriaCompo(new Criteria('conf_modid', $module->getVar('mid')));
-        $configs        = $config_handler->getConfigs($criteria);
-        foreach (array_keys($configs) as $i) {
-            $moduleConfig[$configs[$i]->getVar('conf_name')] = $configs[$i]->getConfValueForOutput();
-        }
-        unset($module, $configs);
-
-        return $moduleConfig;
+        return null;
     }
 
-    /**
-     * @param string $dirname
-     *
-     * @return array
-     */
-    function mod_fetchConfg($dirname = '')
-    {
-        return mod_fetchConfig($dirname);
+    /** @var XoopsConfigHandler $config_handler */
+    $config_handler = xoops_getHandler('config');
+    $criteria       = new CriteriaCompo(new Criteria('conf_modid', $module->getVar('mid')));
+    $configs        = $config_handler->getConfigs($criteria);
+    foreach (array_keys($configs) as $i) {
+        $moduleConfig[$configs[$i]->getVar('conf_name')] = $configs[$i]->getConfValueForOutput();
+    }
+    unset($module, $configs);
+
+    return $moduleConfig;
+}
+
+/**
+ * @param string $dirname
+ *
+ * @return array
+ */
+function mod_fetchConfg($dirname = '')
+{
+    return mod_fetchConfig($dirname);
+}
+
+/**
+ * clear config cache of a module
+ *
+ *
+ * @param    string $dirname module dirname
+ * @return    bool
+ */
+function mod_clearConfig($dirname = '')
+{
+    if (empty($dirname)) {
+        return false;
     }
 
-    /**
-     * clear config cache of a module
-     *
-     *
-     * @param    string $dirname module dirname
-     * @return    bool
-     */
-    function mod_clearConfig($dirname = '')
-    {
-        if (empty($dirname)) {
-            return false;
-        }
+    xoops_load('XoopsCache');
 
-        xoops_load('XoopsCache');
+    return XoopsCache::delete("{$dirname}_config");
+}
 
-        return XoopsCache::delete("{$dirname}_config");
-    }
-
-    /**
-     * @param string $dirname
-     *
-     * @return bool
-     */
-    function mod_clearConfg($dirname = '')
-    {
-        return mod_clearConfig($dirname);
-    }
+/**
+ * @param string $dirname
+ *
+ * @return bool
+ */
+function mod_clearConfg($dirname = '')
+{
+    return mod_clearConfig($dirname);
+}
 
 endif;

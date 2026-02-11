@@ -1,9 +1,12 @@
 <?php
+
 // _LANGCODE: en
 // _CHARSET : UTF-8
 // Translator: XOOPS Translation Team
 
-define('_XOOPS_UPGRADE_WELCOME', <<<'EOT'
+define(
+    '_XOOPS_UPGRADE_WELCOME',
+    <<<'EOT'
 <h2>XOOPS Upgrader</h2>
 
 <p>
@@ -17,9 +20,9 @@ end of the upgrade, control will pass to the system module update function.
 <div class="alert alert-warning">
 Once the upgrade is complete, don't forget to:
 <ul class="fa-ul">
- <li><span class="fa-li fa fa-folder-open-o"></span> delete the upgrade folder</li>
- <li><span class="fa-li fa fa-refresh"></span> update any modules that have changed</li>
+ <li><span class="fa-li fa-solid fa-folder-open"></span> delete the upgrade folder</li>
+ <li><span class="fa-li fa-solid fa-arrows-rotate"></span> update any modules that have changed</li>
 </div>
 
-EOT
+EOT,
 );

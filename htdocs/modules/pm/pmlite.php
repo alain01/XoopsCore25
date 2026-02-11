@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
+ * @copyright       (c) 2000-2025 XOOPS Project (https://xoops.org)
  * @license             GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package             pm
  * @since               2.3.0
@@ -18,7 +18,7 @@
  */
 
 if (!defined('XOOPS_MAINFILE_INCLUDED')) {
-    include_once dirname(dirname(__DIR__)) . '/mainfile.php';
+    include_once dirname(__DIR__, 2) . '/mainfile.php';
 } else {
     chdir(XOOPS_ROOT_PATH . '/modules/pm/');
     xoops_loadLanguage('main', 'pm');
@@ -56,9 +56,9 @@ if (!is_object($GLOBALS['xoopsUser'])) {
 }
 xoops_header();
 
-$myts = MyTextSanitizer::getInstance();
+$myts = \MyTextSanitizer::getInstance();
 if ($op === 'submit') {
-    /* @var XoopsMemberHandler $member_handler */
+    /** @var XoopsMemberHandler $member_handler */
     $member_handler = xoops_getHandler('member');
     $count          = $member_handler->getUserCount(new Criteria('uid', XoopsRequest::getInt('to_userid', 0, 'POST')));
     if ($count != 1) {
@@ -94,7 +94,7 @@ if ($op === 'submit') {
         echo "<br><a href=\"javascript:window.close();\">" . _PM_ORCLOSEWINDOW . '</a>';
     }
 } elseif ($reply == 1 || $send == 1 || $send2 == 1 || $sendmod == 1) {
-	$subject = '';
+    $subject = '';
     $message = '';
     if ($reply == 1) {
         $pm_handler = xoops_getModuleHandler('message', 'pm');
@@ -140,9 +140,9 @@ if ($op === 'submit') {
 
     $msg_image   = '';
     $icons_radio = new XoopsFormRadio(_MESSAGEICON, 'msg_image', $msg_image);
-    $subjectImages = array();
+    $subjectImages = [];
     foreach ($subject_icons as $name => $value) {
-        $subjectImages[$name] = '<img src="' . XOOPS_URL . '/images/subject/' . $value .'">';
+        $subjectImages[$name] = '<img src="' . XOOPS_URL . '/images/subject/' . $value . '">';
     }
     $icons_radio->addOptionArray($subjectImages);
     $pmform->addElement($icons_radio);

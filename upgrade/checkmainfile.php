@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright 2017 XOOPS Project (www.xoops.org)
+ * @copyright 2000-2025 XOOPS Project (https://xoops.org)
  * @license   GNU GPL 2 (https://www.gnu.org/licenses/gpl-2.0.html)
  * @package   upgrader
  * @since     2.5.9
@@ -20,9 +20,9 @@
 
 $loadCommon = !isset($xoopsOption['nocommon']);
 $xoopsOption['nocommon'] = true;
-include_once '../mainfile.php';
+include_once __DIR__ . '/../mainfile.php';
 
-$mainfileKeys = array(
+$mainfileKeys = [
     // in mainfile.php
     'XOOPS_ROOT_PATH'       => null,
     'XOOPS_PATH'            => null,
@@ -43,7 +43,7 @@ $mainfileKeys = array(
     'XOOPS_DB_PASS'         => null,
     'XOOPS_DB_NAME'         => null,
     'XOOPS_DB_PCONNECT'     => null,
-);
+];
 
 $needMainfileRewrite = false;
 foreach ($mainfileKeys as $key => $unused) {
